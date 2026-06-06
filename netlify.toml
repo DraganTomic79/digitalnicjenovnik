@@ -1,0 +1,74 @@
+# Netlify Configuration File
+
+[build]
+  publish = "."
+
+# Sigurnosni headeri za sve fajlove
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# HTML — uvijek svjež, nikad keširan
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
+# JavaScript — revalidacija pri svakom posjetu
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# CSS — revalidacija pri svakom posjetu
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# JSON prijevodi — revalidacija (mijenjaju se sa deployom)
+[[headers]]
+  for = "/*.json"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# Slike — mogu se keširati (rijetko se mijenjaju)
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/*.ico"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+# Redirect www to non-www (SEO boost)
+[[redirects]]
+  from = "https://www.digitalnicjenovnik.com/*"
+  to = "https://digitalnicjenovnik.com/:splat"
+  status = 301
+  force = true
+
+# Redirect netlify subdomain to main domain (SEO boost)
+[[redirects]]
+  from = "https://*.netlify.app/*"
+  to = "https://digitalnicjenovnik.com/:splat"
+  status = 301
+  force = true

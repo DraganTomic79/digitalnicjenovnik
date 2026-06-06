@@ -1,0 +1,1041 @@
+/* ===== ADMIN STYLES ===== */
+
+/* === CSS VARIJABLE === */
+/* Definiranje ključnih varijabli za dizajn (boje, gradijenti, sjenke, fontovi) */
+:root { 
+  --primary-gradient: linear-gradient(135deg, #667eea, #764ba2); 
+  --success-gradient: linear-gradient(135deg, #56ab2f, #a8e6cf); 
+  --warning-gradient: linear-gradient(135deg, #f093fb, #f5576c); 
+  --danger-gradient: linear-gradient(135deg, #ff6b6b, #ee5a24); 
+  --glass-bg: rgba(255, 255, 255, 0.95); 
+  --glass-border: rgba(255, 255, 255, 0.18); 
+  --shadow-light: 0 8px 32px rgba(0, 0, 0, 0.1); 
+  --border-radius: 10px; 
+  --border-radius-large: 15px; 
+  --font-size-base: clamp(0.8rem, 2vw, 1rem); 
+  --font-size-small: clamp(0.7rem, 1.5vw, 0.85rem); 
+  --font-size-large: clamp(1.4rem, 4vw, 2.2rem); 
+  --primary-color: #667eea; 
+  --text-color: #333; 
+  --text-muted: #666; 
+  --text-light: #999; 
+  --bg-light: #f8f9fa; 
+  --border-color: #e1e8ed; 
+}
+
+/* === OSNOVNI RESET === */
+/* Reset CSS-a za konzistentno renderiranje */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+/* Osnovni stilovi za cijelu stranicu */
+body { 
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+  background: var(--primary-gradient); 
+  min-height: 100vh; 
+  color: var(--text-color); 
+  -webkit-font-smoothing: antialiased; 
+}
+/* Glavni kontejner za sadržaj */
+.container { 
+  max-width: clamp(320px, 100vw, 1400px); 
+  margin: 0 auto; 
+  padding: clamp(4px, 2vw, 15px); 
+  overflow-x: hidden; 
+}
+
+/* === GLASSMORPHISM === */
+/* Efekt staklenog pozadinskog stila za više komponenti */
+.glass, .header, .mobile-tabs, .card { 
+  background: var(--glass-bg); 
+  backdrop-filter: blur(10px); 
+  border: 1px solid var(--glass-border); 
+  box-shadow: var(--shadow-light); 
+}
+
+/* === HEADER === */
+/* Stiliziranje zaglavlja stranice */
+.header { 
+  border-radius: clamp(12px, 3vw, 20px); 
+  padding: clamp(12px, 3vw, 20px); 
+  margin-bottom: clamp(12px, 3vw, 20px); 
+  text-align: center; 
+}
+/* Naslov u zaglavlju sa gradijentnim tekstom */
+.header h1 { 
+  font-size: var(--font-size-large); 
+  font-weight: 700; 
+  background: var(--primary-gradient); 
+  -webkit-background-clip: text; 
+  -webkit-text-fill-color: transparent; 
+  margin-bottom: 5px; 
+}
+/* Tekst u zaglavlju */
+.header p { 
+  color: var(--text-muted); 
+  font-size: var(--font-size-base); 
+}
+
+/* === MOBILNI TABOVI === */
+/* Kontejner za mobile tabs navigaciju */
+.mobile-tabs { 
+  display: flex; 
+  border-radius: 12px; 
+  padding: 6px; 
+  margin-bottom: 15px; 
+  justify-content: center; 
+}
+/* Stiliziranje dugmeta za tabove */
+.tab-btn { 
+  flex: 1; 
+  padding: 10px 6px; 
+  border: none; 
+  background: transparent; 
+  border-radius: var(--border-radius); 
+  font-size: var(--font-size-small); 
+  font-weight: 600; 
+  color: var(--text-muted); 
+  cursor: pointer; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  gap: 3px; 
+}
+/* Izgled tab dugmeta pri interakciji (hover, focus, active, selected) */
+.tab-btn:is(:hover, :focus, :active, .active) { 
+  background: var(--primary-gradient); 
+  color: white; 
+  outline: none; 
+}
+/* Hover efekt za neaktivna tab dugmad */
+.tab-btn:not(.active):hover { 
+  background: rgba(102, 126, 234, 0.1); 
+  color: var(--primary-color); 
+}
+/* Ikone u tab dugmadima */
+.tab-btn i { 
+  font-size: 1.1rem; 
+}
+/* Tekst u tab dugmadima */
+.tab-btn span { 
+  font-size: 0.7rem; 
+}
+
+/* === LAYOUT === */
+/* Glavni raspored sadržaja u dva stupca */
+.main-content { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 20px; 
+}
+/* Raspored za punu širinu stranice */
+.main-content.full-width { 
+  grid-template-columns: 1fr; 
+}
+/* Sadržaj tabova (skriveni po defaultu) */
+.tab-content { 
+  display: none; 
+  width: 100%; 
+}
+/* Aktivni sadržaj taba */
+.tab-content.active { 
+  display: block; 
+}
+
+/* === KARTICA === */
+/* Stiliziranje kartice za sadržaj */
+.card { 
+  border-radius: var(--border-radius-large); 
+  padding: 20px; 
+  margin-bottom: 20px; 
+  width: 100%; 
+  max-width: 100%; 
+  overflow: hidden; 
+}
+/* Naslovi unutar kartice */
+.card h3 { 
+  font-size: 1.4rem; 
+  font-weight: 600; 
+  color: var(--text-color); 
+  margin-bottom: 15px; 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+}
+/* Ikone unutar naslova kartice */
+.card h3 i { 
+  color: var(--primary-color); 
+}
+
+/* === FORME === */
+/* Sekcija forme sa granicama */
+.form-section { 
+  margin-bottom: 30px; 
+  padding-bottom: 20px; 
+  border-bottom: 1px solid var(--border-color); 
+}
+/* Uklanjanje donje granice za posljednju sekciju forme */
+.form-section:last-child { 
+  border-bottom: none; 
+}
+/* Naslovi sekcija forme */
+.form-section h4 { 
+  color: var(--primary-color); 
+  font-size: 1.1rem; 
+  margin-bottom: 15px; 
+  padding-bottom: 8px; 
+  border-bottom: 2px solid #f0f0f0; 
+}
+/* Ikone u naslovima sekcija forme */
+.form-section h4 i { 
+  margin-right: 8px; 
+}
+/* Grupa form elemenata */
+.form-group { 
+  margin-bottom: 12px; 
+  width: 100%; 
+  min-width: 0; 
+}
+/* Red u formi koji sadrži više form grupa */
+.form-row { 
+  display: flex; 
+  gap: 8px; 
+  margin-bottom: 12px; 
+  width: 100%; 
+}
+/* Form grupa unutar reda forme */
+.form-row .form-group { 
+  flex: 1; 
+  margin-bottom: 0; 
+  min-width: 0; 
+}
+/* Input polja forme */
+.form-control { 
+  width: 100%; 
+  padding: 10px 12px; 
+  border: 2px solid var(--border-color); 
+  border-radius: var(--border-radius); 
+  font-size: max(16px, 0.9rem); 
+  background: rgba(255, 255, 255, 0.9); 
+  font-family: inherit; 
+}
+/* Fokusirano input polje */
+.form-control:focus { 
+  outline: none; 
+  border-color: var(--primary-color); 
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); 
+  background: white; 
+}
+/* Placeholder tekst u input poljima */
+.form-control::placeholder { 
+  color: var(--text-light); 
+}
+/* Labele za form elemente */
+label { 
+  display: block; 
+  margin-bottom: 5px; 
+  font-weight: 600; 
+  color: var(--text-color); 
+  font-size: 0.9rem; 
+}
+/* Ikone u labelama */
+label i { 
+  margin-right: 6px; 
+  color: var(--primary-color); 
+}
+
+/* === DUGMAD === */
+/* Osnovni stil za dugmad */
+.btn { 
+  padding: 10px 14px; 
+  border: none; 
+  border-radius: var(--border-radius); 
+  font-size: var(--font-size-small); 
+  font-weight: 600; 
+  cursor: pointer; 
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 6px; 
+  font-family: inherit; 
+  white-space: nowrap; 
+  text-decoration: none; 
+}
+/* Onemogućena dugmad */
+.btn:disabled { 
+  opacity: 0.6; 
+  cursor: not-allowed; 
+}
+/* Primarno dugme sa gradijentom */
+.btn-primary { 
+  background: var(--primary-gradient); 
+  color: white; 
+}
+/* Dugme za uspjeh sa zelenim gradijentom */
+.btn-success { 
+  background: var(--success-gradient); 
+  color: white; 
+}
+/* Dugme za upozorenje sa ružičastim gradijentom */
+.btn-warning { 
+  background: var(--warning-gradient); 
+  color: white; 
+}
+/* Dugme za opasnost s crvenim gradijentom */
+.btn-danger { 
+  background: var(--danger-gradient); 
+  color: white; 
+}
+/* Sekundarno dugme sa sivom bojom */
+.btn-secondary { 
+  background: #6c757d; 
+  color: white; 
+}
+/* Hover efekt za sekundarno dugme */
+.btn-secondary:hover { 
+  background: #5a6268; 
+}
+/* Malo dugme */
+.btn-sm { 
+  padding: 6px 10px; 
+  font-size: 0.75rem; 
+  border-radius: 8px; 
+}
+/* Kontejner za akcije forme (dugmad) */
+.form-actions { 
+  display: flex; 
+  gap: 8px; 
+  flex-wrap: wrap; 
+  margin-bottom: 20px; 
+}
+
+/* === LISTE === */
+/* Kontejner za liste sa skrolom */
+.list-container { 
+  max-height: 60vh; 
+  overflow-y: auto; 
+  border-radius: var(--border-radius); 
+  background: rgba(248, 249, 250, 0.5); 
+  padding: 10px; 
+  width: 100%; 
+}
+/* Stiliziranje skrola u listi */
+.list-container::-webkit-scrollbar { 
+  width: 4px; 
+}
+/* Pozadina skrol trake */
+.list-container::-webkit-scrollbar-track { 
+  background: rgba(0, 0, 0, 0.1); 
+  border-radius: var(--border-radius); 
+}
+/* Slider skrol trake */
+.list-container::-webkit-scrollbar-thumb { 
+  background: var(--primary-gradient); 
+  border-radius: var(--border-radius); 
+}
+
+/* === KATEGORIJE I ARTIKLI === */
+/* Stiliziranje redova za kategorije i artikle */
+.category-item, .item-row { 
+  background: white; 
+  border-radius: var(--border-radius); 
+  padding: 10px; 
+  margin-bottom: 6px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); 
+  width: 100%; 
+}
+/* Ikona kategorije u pregledu */
+.category-item .icon-preview { 
+  font-size: 1.2rem; 
+  color: var(--primary-color); 
+  margin-right: 8px; 
+  flex-shrink: 0; 
+}
+/* Slika artikla u listi */
+.item-image { 
+  width: 40px; 
+  height: 40px; 
+  object-fit: cover; 
+  border-radius: 6px; 
+  margin-right: 10px; 
+  flex-shrink: 0; 
+  background: white !important; 
+  border: 1px solid #e0e0e0 !important; 
+  padding: 2px !important; 
+}
+/* Informacije o artiklu */
+.item-info { 
+  flex: 1; 
+  min-width: 0; 
+  margin-right: 8px; 
+}
+/* Naziv artikla */
+.item-name { 
+  font-weight: 600; 
+  color: var(--text-color); 
+  margin-bottom: 2px; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  white-space: nowrap; 
+  font-size: 0.9rem; 
+}
+/* Opis artikla */
+.item-description { 
+  color: var(--text-muted); 
+  font-size: 0.75rem; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  white-space: nowrap; 
+}
+/* Cijena artikla */
+.item-price { 
+  font-weight: 700; 
+  color: var(--primary-color); 
+  font-size: 0.9rem; 
+  margin-right: 8px; 
+  flex-shrink: 0; 
+  white-space: nowrap; 
+}
+/* Kontejner za dugmad akcija */
+.actions { 
+  display: flex; 
+  gap: 4px; 
+  flex-shrink: 0; 
+}
+/* Grupa kategorija */
+.category-group { 
+  margin-bottom: 18px; 
+}
+/* Naslov grupe kategorija */
+.category-group h4 { 
+  color: var(--primary-color); 
+  font-weight: 600; 
+  margin-bottom: 10px; 
+  padding-bottom: 4px; 
+  border-bottom: 2px solid var(--border-color); 
+  font-size: 1rem; 
+}
+
+/* === IKONE KATEGORIJA - GRADIENT POZADINA === */
+/* Stiliziranje ikona kategorija sa gradijentnom pozadinom */
+.category-icon-image { 
+  width: 24px !important;
+  height: 24px !important;
+  object-fit: cover !important;
+  flex-shrink: 0 !important;
+  background: var(--primary-gradient) !important;
+  border: 2px solid rgba(102, 126, 234, 0.3) !important; 
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25) !important; 
+  padding: 2px !important; 
+  border-radius: 6px !important; 
+}
+
+/* Ikona u listi kategorija — mala, čista, bez box stilova */
+.list-cat-icon {
+  font-size: 1.1rem;
+  color: #667eea;
+  margin-right: 10px;
+  width: 24px;
+  height: 24px;
+  text-align: center;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.list-cat-icon-img {
+  width: 24px;
+  height: 24px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-right: 10px;
+  flex-shrink: 0;
+  background: var(--primary-gradient);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+/* === EMPTY STATE === */
+/* Stiliziranje praznog stanja kada nema sadržaja */
+.empty-state { 
+  text-align: center; 
+  color: var(--text-muted); 
+  font-style: italic; 
+  padding: 25px; 
+}
+/* Ikona u praznom stanju */
+.empty-state i { 
+  font-size: 2rem; 
+  color: #ddd; 
+  margin-bottom: 10px; 
+}
+
+/* === PREVIEW KOMPONENTE - SA GRADIENT POZADINOM === */
+/* Stiliziranje pregleda ikona i logoa sa gradijentnom pozadinom */
+.icon-preview, .logo-preview { 
+  background: var(--primary-gradient); 
+  border: 2px solid rgba(102, 126, 234, 0.3); 
+  border-radius: var(--border-radius); 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  overflow: hidden; 
+  position: relative; 
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2); 
+}
+/* Dodatni efekt šahovske pozadine za preview komponente */
+.icon-preview::before, .logo-preview::before { 
+  content: ''; 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  bottom: 0; 
+  background-image: linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%), linear-gradient(-45deg, rgba(255,255,255,0.1) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.1) 75%), linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.1) 75%); 
+  background-size: 20px 20px; 
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px; 
+  opacity: 0.5; 
+  pointer-events: none; 
+}
+/* Preview ikona */
+.icon-preview { 
+  padding: 15px; 
+  min-height: 80px; 
+  margin-top: 8px; 
+}
+/* Preview logoa */
+.logo-preview { 
+  padding: 25px; 
+  text-align: center; 
+  margin: 15px 0; 
+  min-height: 140px; 
+}
+/* Stiliziranje slika u preview komponentama */
+.icon-preview img, .logo-preview img { 
+  max-width: 60px; 
+  max-height: 60px; 
+  object-fit: contain; 
+  background: linear-gradient(135deg, #667eea, #764ba2) !important; 
+  border: 2px solid rgba(102, 126, 234, 0.3) !important; 
+  border-radius: 8px !important; 
+  padding: 8px !important; 
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25) !important; 
+  position: relative; 
+  z-index: 1; 
+}
+/* Posebni stilovi za slike logoa */
+.logo-preview img { 
+  max-height: 120px; 
+  max-width: 100%; 
+  padding: 12px !important; 
+}
+/* Stiliziranje ikona u preview komponentama */
+.icon-preview i { 
+  font-size: 32px !important; 
+  color: white !important; 
+  background: rgba(255, 255, 255, 0.2) !important; 
+  border: 2px solid rgba(255, 255, 255, 0.4) !important; 
+  border-radius: 8px !important; 
+  padding: 12px !important; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important; 
+  position: relative; 
+  z-index: 1; 
+  backdrop-filter: blur(10px); 
+}
+/* Stiliziranje teksta u preview komponentama */
+.logo-preview p { 
+  color: white !important; 
+  font-style: italic; 
+  margin: 0; 
+  position: relative; 
+  z-index: 1; 
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); 
+  font-weight: 500; 
+}
+
+/* === DRAG & DROP === */
+/* Kontejneri za sortabilne elemente */
+.sortable-categories, .sortable-items { 
+  min-height: 50px; 
+}
+/* Stiliziranje sortabilnih elemenata */
+.sortable-item { 
+  cursor: grab; 
+}
+/* Stil za element koji se trenutno vuče */
+.sortable-item.dragging { 
+  opacity: 0.5; 
+}
+/* Ručica za povlačenje */
+.drag-handle { 
+  padding: 5px; 
+  margin-right: 8px; 
+  color: #ccc; 
+  cursor: grab; 
+  user-select: none; 
+  flex-shrink: 0; 
+}
+/* Hover efekt na ručici za povlačenje */
+.drag-handle:hover { 
+  color: var(--primary-color) !important; 
+}
+/* Stiliziranje ručice kada se aktivno vuče */
+.drag-handle:active { 
+  cursor: grabbing; 
+}
+/* Placeholder tokom drag & drop operacije */
+.drag-placeholder { 
+  background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%), linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%); 
+  background-size: 15px 15px; 
+  background-position: 0 0, 7px 7px; 
+  border: 2px dashed var(--primary-color); 
+  border-radius: var(--border-radius); 
+  opacity: 0.7; 
+}
+
+/* === UTILITY === */
+/* Pomoćna klasa za skrivanje elemenata */
+.d-none { 
+  display: none !important; 
+}
+/* Stiliziranje checkbox inputa */
+.form-check-input { 
+  width: 18px; 
+  height: 18px; 
+  vertical-align: middle; 
+  border: 2px solid #ddd; 
+  border-radius: 3px; 
+}
+/* Info blok s preporukom veličine */
+.size-recommendation { 
+  background: #e7f3ff; 
+  padding: 8px 12px; 
+  border-radius: 6px; 
+  border-left: 3px solid #17a2b8; 
+  font-size: 0.8rem; 
+  line-height: 1.4; 
+  margin-top: 8px; 
+}
+/* Naglašeni tekst u preporuci veličine */
+.size-recommendation strong { 
+  color: #0c5460; 
+}
+/* Ikona u preporuci veličine */
+.size-recommendation i { 
+  margin-right: 6px; 
+}
+/* Grid raspored za postavke */
+.postavke-grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); 
+  gap: 20px; 
+}
+
+/* === DRUŠTVENE MREŽE - SMANJENI RAZMACI === */
+/* Posebno stiliziranje sekcije za društvene mreže */
+.form-section div[style*="background: #f8f9fa"] { 
+  margin: 8px 0 !important; 
+  padding: 10px !important; 
+}
+/* Naslovi u sekciji društvenih mreža */
+.form-section div[style*="background: #f8f9fa"] h6 { 
+  margin-bottom: 8px !important; 
+}
+/* Inputi u sekciji društvenih mreža */
+.form-section div[style*="background: #f8f9fa"] .form-control { 
+  margin-top: 5px !important; 
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* === DESKTOP 992px+ === */
+/* Responzivni dizajn za desktop uređaje */
+@media (min-width: 992px) {
+  /* Skrivanje mobilnih tabova na desktop uređajima */
+  .mobile-tabs { 
+    display: none !important; 
+  }
+  /* Prikazivanje svih tabova na desktop uređajima */
+  .tab-content { 
+    display: block !important; 
+  }
+  /* Layout sa dva stupca na desktopu */
+  .main-content { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 25px; 
+  }
+  /* Varijanta layouta s punom širinom */
+  .main-content.full-width { 
+    grid-template-columns: 1fr; 
+  }
+  /* Grid za postavke na desktopu */
+  .postavke-grid { 
+    grid-template-columns: 1fr 1fr !important; 
+    gap: 40px !important; 
+    max-width: 1100px !important; 
+    margin: 0 auto !important; 
+    justify-content: space-between !important; 
+    align-items: start !important; 
+  }
+  /* Stiliziranje sekcija forme u postavkama na desktopu */
+  .postavke-grid .form-section { 
+    margin: 0 !important; 
+    padding: 25px !important; 
+    border: 2px solid #e1e8ed !important; 
+    border-radius: 15px !important; 
+    background: #fafbfc !important; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important; 
+    width: 100% !important; 
+    box-sizing: border-box !important; 
+  }
+  /* Stiliziranje naslova sekcija na desktopu */
+  .postavke-grid .form-section h4 { 
+    margin: -25px -25px 20px -25px !important; 
+    padding: 15px 25px !important; 
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important; 
+    border-bottom: 2px solid #dee2e6 !important; 
+    border-radius: 13px 13px 0 0 !important; 
+    font-weight: 600 !important; 
+  }
+  /* Razmaci društvenih mreža na desktopu */
+  .postavke-grid .form-section div[style*="background: #f8f9fa"] { 
+    margin: 6px 0 !important; 
+    padding: 8px 12px !important; 
+  }
+}
+
+/* === VELIKI DESKTOP 1400px+ === */
+/* Posebne prilagodbe za vrlo velike ekrane */
+@media (min-width: 1400px) {
+  /* Povećani razmaci na velikim ekranima */
+  .postavke-grid { 
+    gap: 50px !important; 
+    max-width: 1200px !important; 
+  }
+  /* Veći padding za sekcije na velikim ekranima */
+  .postavke-grid .form-section { 
+    padding: 30px !important; 
+  }
+  /* Prilagodba naslova na velikim ekranima */
+  .postavke-grid .form-section h4 { 
+    margin: -30px -30px 25px -30px !important; 
+    padding: 18px 30px !important; 
+  }
+}
+
+/* === TABLET 481px-991px === */
+/* Responzivni dizajn za tablete i male ekrane */
+@media (max-width: 991px) and (min-width: 481px) {
+  /* Prikaz mobilnih tabova na tabletima */
+  .mobile-tabs { 
+    display: flex !important; 
+  }
+  /* Jednodjelni layout na tabletima */
+  .main-content { 
+    grid-template-columns: 1fr !important; 
+    gap: 15px; 
+  }
+  /* Sakrivanje sadržaja tabova po defaultu */
+  .tab-content { 
+    display: none !important; 
+  }
+  /* Prikaz samo aktivnog taba */
+  .tab-content.active { 
+    display: block !important; 
+  }
+  /* Smanjeni razmaci za kartice */
+  .card { 
+    margin-bottom: 15px; 
+  }
+  /* Smanjeni razmaci za sekcije forme */
+  .form-section { 
+    margin-bottom: 20px; 
+    padding-bottom: 15px; 
+  }
+  /* Jednodjelni grid za postavke na tabletima */
+  .postavke-grid { 
+    grid-template-columns: 1fr !important; 
+    gap: 20px !important; 
+  }
+  /* Stiliziranje sekcija postavki na tabletima */
+  .postavke-grid .form-section { 
+    margin-bottom: 0 !important; 
+    padding: 20px !important; 
+    border: 1px solid #e1e8ed !important; 
+    border-radius: 12px !important; 
+    background: #fafbfc !important; 
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important; 
+  }
+}
+
+/* === MOBILNI 480px i manje === */
+/* Responzivni dizajn za mobilne uređaje */
+@media (max-width: 480px) {
+  /* Prilagodba varijabli za manje ekrane */
+  :root { 
+    --border-radius: 8px; 
+    --border-radius-large: 10px; 
+  }
+  /* Smanjeni padding na mobilnim uređajima */
+  .container { 
+    padding: 4px; 
+    max-width: 100vw; 
+    overflow-x: hidden; 
+  }
+  /* Kompaktniji header na mobilnim uređajima */
+  .header { 
+    padding: 10px; 
+    margin-bottom: 8px; 
+  }
+  /* Manja veličina naslova na mobilnim uređajima */
+  .header h1 { 
+    font-size: 1.3rem; 
+  }
+  /* Manji tekst u headeru */
+  .header p { 
+    font-size: 0.8rem; 
+  }
+  /* Prikaz mobilnih tabova */
+  .mobile-tabs { 
+    display: flex !important; 
+    padding: 4px; 
+    margin-bottom: 8px; 
+  }
+  /* Jednodjelni layout bez razmaka */
+  .main-content { 
+    grid-template-columns: 1fr !important; 
+    gap: 0; 
+  }
+  /* Kompaktnije kartice */
+  .card { 
+    padding: 10px; 
+    margin: 0 0 12px 0; 
+    width: 100%; 
+    overflow-x: hidden; 
+  }
+  /* Manji naslovi kartica */
+  .card h3 { 
+    font-size: 1.1rem; 
+    margin-bottom: 10px; 
+  }
+  /* Skrivanje tabova po defaultu */
+  .tab-content { 
+    display: none !important; 
+    width: 100%; 
+  }
+  /* Prikaz samo aktivnog taba */
+  .tab-content.active { 
+    display: block !important; 
+    width: 100%; 
+  }
+  /* Jednodjelni grid za postavke */
+  .postavke-grid { 
+    grid-template-columns: 1fr !important; 
+    gap: 12px !important; 
+  }
+  /* Stiliziranje sekcija forme na mobilnim uređajima */
+  .postavke-grid .form-section { 
+    margin: 0 0 15px 0 !important; 
+    padding: 15px !important; 
+    border: 1px solid #e1e8ed !important; 
+    border-radius: 10px !important; 
+    background: #fafbfc !important; 
+    width: 100% !important; 
+    box-sizing: border-box !important; 
+  }
+  /* Vertikalni raspored redova forme na mobilnim */
+  .form-row { 
+    flex-direction: column; 
+    gap: 8px; 
+    margin-bottom: 10px; 
+  }
+  /* Pune širine za form grupe */
+  .form-group { 
+    width: 100%; 
+  }
+  /* Smanjeni padding za inpute */
+  .form-control { 
+    padding: 8px 10px; 
+    font-size: 16px; 
+    width: 100%; 
+  }
+  /* Vertikalni raspored dugmadi akcija */
+  .form-actions { 
+    flex-direction: column; 
+    gap: 6px; 
+    width: 100%; 
+  }
+  /* Puna širina za dugmad akcija */
+  .form-actions .btn { 
+    width: 100%; 
+    padding: 10px 12px; 
+    font-size: 0.8rem; 
+  }
+  /* Smanjena visina liste */
+  .list-container { 
+    max-height: 50vh; 
+    padding: 6px; 
+  }
+  /* Kompaktniji redovi stavki */
+  .category-item, .item-row { 
+    padding: 8px; 
+    margin-bottom: 4px; 
+  }
+  /* Manje slike artikala */
+  .item-image { 
+    width: 32px; 
+    height: 32px; 
+    margin-right: 8px; 
+    border-radius: 4px; 
+  }
+  /* Manji tekst naziva artikla */
+  .item-name { 
+    font-size: 0.8rem; 
+    margin-bottom: 1px; 
+    line-height: 1.2; 
+  }
+  /* Manji tekst opisa artikla */
+  .item-description { 
+    font-size: 0.65rem; 
+    line-height: 1.1; 
+  }
+  /* Manja cijena artikla */
+  .item-price { 
+    font-size: 0.8rem; 
+    margin-right: 4px; 
+  }
+  /* Smanjeni razmaci između dugmadi akcija */
+  .actions { 
+    gap: 2px; 
+  }
+  /* Manji naslovi grupa kategorija */
+  .category-group h4 { 
+    font-size: 0.9rem; 
+    margin-bottom: 6px; 
+    padding-bottom: 2px; 
+  }
+  /* Smanjeni padding za prazno stanje */
+  .empty-state { 
+    padding: 15px; 
+  }
+  /* Manja ručica za povlačenje */
+  .drag-handle { 
+    padding: 6px; 
+    font-size: 1rem; 
+    margin-right: 4px; 
+  }
+  /* Smanjeni radius za dugmad */
+  .btn { 
+    border-radius: 8px; 
+  }
+  /* Manja mala dugmad */
+  .btn-sm { 
+    padding: 4px 6px; 
+    font-size: 0.65rem; 
+    border-radius: 6px; 
+  }
+  /* Smanjeni razmaci za društvene mreže */
+  .form-section div[style*="background: #f8f9fa"] { 
+    margin: 5px 0 !important; 
+    padding: 8px !important; 
+  }
+  /* Manji naslovi u sekciji društvenih mreža */
+  .form-section div[style*="background: #f8f9fa"] h6 { 
+    margin-bottom: 5px !important; 
+    font-size: 0.9rem; 
+  }
+}
+
+/* === VRLO MALI EKRANI 360px i manje === */
+/* Posebna prilagodba za vrlo male mobilne ekrane */
+@media (max-width: 360px) {
+  /* Minimalni padding za kontejner */
+  .container { 
+    padding: 2px; 
+  }
+  /* Još manji padding za kartice */
+  .card { 
+    padding: 8px; 
+    margin-bottom: 10px; 
+  }
+  /* Minimalni padding za input polja */
+  .form-control { 
+    padding: 6px 8px; 
+  }
+  /* Dodatno smanjena dugmad */
+  .form-actions .btn { 
+    padding: 8px; 
+    font-size: 0.75rem; 
+  }
+  /* Smanjeni razmaci za sekcije forme */
+  .form-section { 
+    margin-bottom: 12px; 
+    padding: 10px 8px; 
+  }
+}
+
+/* Export dugme - Ljubičasta */
+.btn-export {
+  background-color: #8b5cf6;
+  border-color: #8b5cf6;
+  color: white;
+}
+
+.btn-export:hover {
+  background-color: #7c3aed;
+  border-color: #7c3aed;
+}
+/* ===== PUBLISH / UNPUBLISH DUGMAD I BADGE ===== */
+.btn-toggle-objavi {
+  background-color: #198754;
+  color: #fff;
+  border: none;
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.btn-toggle-objavi:hover {
+  background-color: #157347;
+  color: #fff;
+}
+.btn-toggle-sakrij {
+  background-color: #6c757d;
+  color: #fff;
+  border: none;
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.btn-toggle-sakrij:hover {
+  background-color: #5a6268;
+  color: #fff;
+}
+.badge-status {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  vertical-align: middle;
+  margin-left: 6px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.badge-aktivan {
+  background-color: #d1e7dd;
+  color: #0a6640;
+}
+.badge-neaktivan {
+  background-color: #e2e3e5;
+  color: #5a5f63;
+}
+.artikal-neaktivan {
+  opacity: 0.55;
+}
+.artikal-neaktivan .item-name {
+  text-decoration: line-through;
+  color: #999;
+}

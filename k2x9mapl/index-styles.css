@@ -1,0 +1,1498 @@
+/* ===== INDEX STYLES - ELEGANTNA TAMNA TEMA ===== */
+/* Zvezdice samo na accordion-u, NE na grupi artikala */
+/* 18+ bez upozorenja, Tab dugme sa FontAwesome zvezdicom */
+
+/* Definiranje globalnih varijabli za dizajn (boje, gradijenti, sjenke, razmaci) */
+:root { 
+  /* Nova elegantna paleta boja */
+  --background-dark: #1C1C1C;      /* Glavna boja pozadine (duboka antracit crna) */
+  --gold-accent: #C6A664;          /* Elegantan topli zlatni ton */
+  --beige-light: #F2E9D8;          /* Bež-krem ton za kontrast */
+  --pure-black: #000000;           /* Klasična crna */
+  --beige-white: #F9F6F1;          /* Svijetla nijansa bež bijele */
+  
+  /* Gradijenti bazirani na novoj paleti */
+  --primary-gradient: linear-gradient(135deg, #C6A664, #9E8344); 
+  --success-gradient: linear-gradient(135deg, #9E8344, #F2E9D8); 
+  --warning-gradient: linear-gradient(135deg, #E6C78B, #C6A664); 
+  --danger-gradient: linear-gradient(135deg, #A88C50, #785B1B); 
+  --promocija-gradient: linear-gradient(135deg, #C6A664, #9E8344); 
+  --promocija-glow: linear-gradient(135deg, #D4B978, #C6A664); 
+  
+  /* DARK TEMA - FORSIRANO UVEK */
+  --glass-bg: rgba(28, 28, 28, 0.85); 
+  --glass-bg-light: rgba(28, 28, 28, 0.75); 
+  --glass-border: rgba(198, 166, 100, 0.2); 
+  
+  --shadow-light: 0 8px 32px rgba(0, 0, 0, 0.15); 
+  --shadow-medium: 0 12px 40px rgba(0, 0, 0, 0.2); 
+  --promocija-shadow: 0 8px 25px rgba(198, 166, 100, 0.25); 
+  --border-radius: 10px; 
+  --border-radius-large: 15px; 
+  --border-radius-xl: 20px; 
+  --font-size-base: clamp(0.85rem, 2vw, 1rem); 
+  --font-size-small: clamp(0.75rem, 1.6vw, 0.88rem); 
+  --font-size-large: clamp(1.1rem, 3vw, 1.4rem); 
+  --font-size-xl: clamp(1.5rem, 4vw, 2rem); 
+  --primary-color: #C6A664; 
+  --accent-color: #9E8344; 
+  
+  /* DARK TEMA - BOJE TEKSTA */
+  --text-color: #F2E9D8; 
+  --text-muted: #E6D5B8; 
+  --text-light: #C6A664; 
+  
+  --bg-light: #2C2C2C; 
+  --border-color: rgba(198, 166, 100, 0.3); 
+  --spacing-xs: clamp(4px, 1vw, 8px); 
+  --spacing-sm: clamp(8px, 2vw, 12px); 
+  --spacing-md: clamp(12px, 2.8vw, 18px); 
+  --spacing-lg: clamp(18px, 3.5vw, 24px); 
+  --spacing-xl: clamp(24px, 4.5vw, 32px); 
+}
+
+/* Reset osnovnih stilova za sve elemente */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* Stiliziranje body elementa */
+body { 
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+  background: linear-gradient(135deg, #1C1C1C 0%, #2C2C2C 100%); 
+  min-height: 100vh; 
+  color: var(--text-color); 
+  -webkit-font-smoothing: antialiased; 
+  line-height: 1.6; 
+  overflow-x: hidden; 
+  padding-bottom: 80px; 
+}
+
+/* Glavni kontejner za sadržaj */
+.container { 
+  max-width: clamp(320px, 100vw, 1200px); 
+  margin: 0 auto; 
+  padding: clamp(8px, 2vw, 20px); 
+  overflow-x: hidden; 
+}
+
+/* Glass efekt za razne komponente */
+.glass, .hero-section, .mobile-tabs, .tab-panel, .accordion-item { 
+  background: var(--glass-bg); 
+  backdrop-filter: blur(15px); 
+  border: 1px solid var(--glass-border); 
+  box-shadow: var(--shadow-light); 
+}
+
+/* Stiliziranje kartice artikla */
+.item-card { 
+  background: rgba(51, 65, 85, 0.8); 
+  backdrop-filter: blur(15px); 
+  border: 1px solid var(--glass-border); 
+  box-shadow: var(--shadow-light); 
+}
+
+/* === DUGMAD ZA PREVOĐENJE === */
+/* Kontejner za dugmad za promjenu jezika */
+.language-switcher {
+  position: absolute !important;
+  top: 15px !important;
+  right: 15px !important;
+  display: flex !important;
+  gap: 8px !important;
+  z-index: 1000 !important;
+  flex-wrap: wrap;
+}
+
+/* Dugmad za izbor jezika */
+.language-btn {
+  padding: 8px 10px !important;
+ border: 2px solid var(--gold-accent) !important;
+  background: var(--beige-white) !important;
+  color: var(--pure-black) !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  font-size: 20px !important;
+  transition: all 0.3s ease !important;
+  min-width: 45px !important;
+  height: 45px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Hover efekat na jezičkim dugmadima */
+.language-btn:hover {
+  border-color: var(--gold-accent) !important;
+  background: #F2E9D8 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Aktivno jezičko dugme */
+.language-btn.active {
+  border-color: var(--gold-accent) !important;
+  background: var(--primary-gradient) !important;
+  color: var(--beige-white) !important;
+  box-shadow: 0 4px 8px rgba(198, 166, 100, 0.3) !important;
+}
+
+/* Hero sekcija na vrhu stranice */
+.hero-section { 
+  border-radius: var(--border-radius-xl); 
+  padding: var(--spacing-sm) var(--spacing-md); 
+  margin-bottom: var(--spacing-md); 
+  text-align: center; 
+  position: relative; 
+  overflow: hidden; 
+}
+
+/* Dekorativna linija na vrhu hero sekcije */
+.hero-section::before { 
+  content: ''; 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  height: 4px; 
+  background: var(--primary-gradient); 
+  border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0; 
+}
+
+/* Sadržaj hero sekcije */
+.hero-content { 
+  background: transparent; 
+  backdrop-filter: none; 
+  border: none; 
+  box-shadow: none; 
+  border-radius: 0; 
+  padding: 0; 
+  position: relative; 
+  z-index: 2; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  gap: var(--spacing-xs); 
+}
+
+/* Kontejner za logo */
+.logo-container { 
+  margin: var(--spacing-sm) 0 0 0; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+}
+
+/* Logo sajta */
+.site-logo { 
+  max-height: clamp(90px, 15vw, 120px); 
+  max-width: 100%; 
+  height: auto; 
+  object-fit: contain; 
+  border-radius: var(--border-radius); 
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2); 
+  filter: drop-shadow(0 2px 10px rgba(198, 166, 100, 0.2)); 
+}
+
+/* Naslov u hero sekciji */
+.hero-content h1 { 
+  font-size: var(--font-size-xl); 
+  margin: 0; 
+  color: var(--text-color); 
+  line-height: 1.1; 
+  font-weight: 700; 
+  background: var(--primary-gradient); 
+  -webkit-background-clip: text; 
+  -webkit-text-fill-color: transparent; 
+  background-clip: text; 
+}
+
+/* Paragraf u hero sekciji */
+.hero-content p { 
+  font-size: var(--font-size-base); 
+  font-weight: 400; 
+  color: var(--text-muted); 
+  margin: 0; 
+  line-height: 1.3; 
+}
+
+/* Mobilni tabovi - kontejner za navigacione dugmiće */
+.mobile-tabs { 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: var(--spacing-xs); 
+  margin-bottom: var(--spacing-md); 
+  padding: var(--spacing-sm); 
+  justify-content: center; 
+  border-radius: var(--border-radius-large); 
+  overflow: visible; 
+}
+
+/* Dugme za tab */
+.tab-button { 
+  flex: 0 0 auto; 
+  min-width: clamp(100px, 20vw, 140px); 
+  padding: var(--spacing-sm) var(--spacing-md); 
+  background: var(--glass-bg-light); 
+  backdrop-filter: blur(10px); 
+  border: 2px solid transparent; 
+  border-radius: var(--border-radius); 
+  text-align: center; 
+  font-weight: 600; 
+  font-size: var(--font-size-small); 
+  color: var(--text-color); 
+  cursor: pointer; 
+  white-space: nowrap; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: var(--spacing-xs); 
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); 
+  position: relative; 
+  overflow: hidden; 
+  transition: all 0.3s ease; 
+}
+
+/* Hover efekat na tab dugmetu */
+.tab-button:hover { 
+  box-shadow: var(--shadow-medium); 
+  border-color: var(--primary-color); 
+  background: rgba(51, 65, 85, 0.9); 
+}
+
+/* Aktivno tab dugme */
+.tab-button.active { 
+  background: var(--primary-gradient); 
+  color: var(--beige-white); 
+  border-color: var(--primary-color); 
+  box-shadow: 0 8px 30px rgba(198, 166, 100, 0.3); 
+  position: relative; 
+  z-index: 1; 
+}
+
+/* Ikone unutar tab dugmeta */
+.tab-button i { 
+  color: var(--gold-accent);
+  margin-right: var(--spacing-xs); 
+  font-size: var(--font-size-large); 
+}
+
+/* Specijalni tab za promocije */
+.tab-button.promocija-tab { 
+  background: var(--promocija-gradient) !important; 
+  color: #fff !important; 
+  font-weight: 700 !important; 
+  border: 2px solid rgba(139, 92, 246, 0.4) !important; 
+  box-shadow: var(--promocija-shadow) !important; 
+  position: relative; 
+}
+
+/* Dekorativna zvjezdica za promocijske tabove */
+.tab-button.promocija-tab::before { 
+  content: '☆'; 
+  position: absolute; 
+  top: -6px; 
+  right: -6px; 
+  background: #8b5cf6; 
+  color: white; 
+  border-radius: 50%; 
+  width: 20px; 
+  height: 20px; 
+  font-size: 11px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  z-index: 2; 
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4); 
+}
+
+/* Hover efekat na promocijskom tabu */
+.tab-button.promocija-tab:hover { 
+  background: var(--promocija-glow) !important; 
+  box-shadow: 0 10px 35px rgba(139, 92, 246, 0.4) !important; 
+  transform: translateY(-3px); 
+}
+
+/* Aktivni promocijski tab */
+.tab-button.promocija-tab.active { 
+  background: linear-gradient(135deg, #7c3aed, #6366f1) !important; 
+  border-color: #6366f1 !important; 
+  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.5) !important; 
+}
+
+/* Ikone za glavne kategorije i kategorije */
+.main-category-icon, .category-icon { 
+  width: clamp(32px, 6vw, 40px) !important; 
+  height: clamp(32px, 6vw, 40px) !important; 
+  max-width: clamp(32px, 6vw, 40px) !important; 
+  max-height: clamp(32px, 6vw, 40px) !important; 
+  object-fit: cover; 
+  border-radius: var(--border-radius); 
+  vertical-align: middle; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.1)); 
+  margin-right: 0 !important; 
+}
+
+/* Ikone za podkategorije */
+.subcategory-icon { 
+  width: clamp(28px, 5vw, 36px) !important; 
+  height: clamp(28px, 5vw, 36px) !important; 
+  max-width: clamp(28px, 5vw, 36px) !important; 
+  max-height: clamp(28px, 5vw, 36px) !important; 
+  margin-right: 0 !important; 
+  object-fit: cover !important; 
+  border-radius: var(--border-radius) !important; 
+  display: inline-block !important; 
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.1)); 
+}
+
+/* Kontejner za sadržaj tabova */
+.tab-content { position: relative; }
+
+/* Panel (sadržaj) za tab */
+.tab-panel { 
+  display: none; 
+  border-radius: var(--border-radius-large); 
+  padding: var(--spacing-sm); 
+  margin-bottom: var(--spacing-md); 
+}
+
+/* Aktivni panel taba */
+.tab-panel.active { display: block; }
+
+/* Accordion meniji za kategorije i podkategorije */
+.category-accordion, .subcategory-accordion { 
+  display: flex; 
+  flex-direction: column; 
+  gap: var(--spacing-sm); 
+}
+
+/* Dodatno stiliziranje accordion menija za podkategorije */
+.subcategory-accordion { 
+  margin-top: var(--spacing-sm); 
+  border-top: 1px solid var(--border-color); 
+  padding-top: var(--spacing-sm); 
+}
+
+/* Stavka u accordion meniju */
+.accordion-item { 
+  border-radius: var(--border-radius-large); 
+  overflow: hidden; 
+  margin-bottom: var(--spacing-xs); 
+  position: relative; 
+  transition: all 0.3s ease; 
+}
+
+/* Indikatorska linija za accordion stavke */
+.accordion-item::before { 
+  content: ''; 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  width: 4px; 
+  height: 100%; 
+  background: var(--primary-gradient); 
+  opacity: 0; 
+  transition: opacity 0.3s ease; 
+}
+
+/* Hover i aktivno stanje za indikatorsku liniju */
+.accordion-item:hover::before, .accordion-item.active::before { opacity: 1; }
+
+/* Hover efekat na accordion stavci */
+.accordion-item:hover { 
+  border-color: var(--primary-color); 
+  box-shadow: var(--shadow-medium); 
+  transform: translateY(-1px); 
+}
+
+/* === PROMOCIJA ACCORDION - ZVEZDICE SAMO NA VRHU === */
+/* Specijalno stiliziranje za promocijske podkategorije */
+.accordion-item.promocija-subcategory { 
+  border: 2px solid #C6A664 !important; 
+  background: rgba(139, 92, 246, 0.08) !important; 
+  box-shadow: var(--promocija-shadow) !important; 
+  position: relative; 
+}
+
+/* Indikatorska linija za promocijske podkategorije */
+.accordion-item.promocija-subcategory::before { 
+  background: var(--promocija-gradient) !important; 
+  opacity: 1 !important; 
+  width: 5px !important; 
+}
+
+/* Zvjezdice za promocijske podkategorije */
+.accordion-item.promocija-subcategory::after { 
+  background: #1C1C1C; 
+  content: '⭐⭐⭐⭐⭐'; 
+  position: absolute; 
+  top: -6px; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  background: var(--promocija-gradient); 
+  color: white; 
+  padding: 2px 8px; 
+  border-radius: 12px; 
+  font-size: clamp(0.65rem, 1.4vw, 0.75rem); 
+  font-weight: 700; 
+  z-index: 5; 
+  box-shadow: 0 4px 10px rgba(198, 166, 100, 0.3); 
+  border: 1px solid rgba(255, 255, 255, 0.3); 
+  white-space: nowrap; 
+  animation: stars-twinkle 2s ease-in-out infinite;
+}
+
+/* Animacija za treperenje zvjezdica */
+@keyframes stars-twinkle {
+  0%, 100% { 
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  50% { 
+    opacity: 0.7;
+    transform: translateX(-50%) scale(1.05);
+  }
+}
+
+/* Dugme za accordion */
+.accordion-button { 
+  width: 100%; 
+  background: transparent; 
+  color: var(--text-color); 
+  border: none; 
+  padding: var(--spacing-sm) var(--spacing-md); 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  cursor: pointer; 
+  font-size: var(--font-size-base); 
+  font-weight: 600; 
+  position: relative; 
+  overflow: hidden; 
+  min-height: clamp(55px, 10vw, 70px); 
+  transition: all 0.3s ease; 
+}
+
+/* Pozadinski efekat na accordion dugmetu */
+.accordion-button::before { 
+  content: ''; 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%; 
+  background: var(--primary-gradient); 
+  opacity: 0; 
+  z-index: -1; 
+  transition: opacity 0.3s ease; 
+}
+
+/* Hover i aktivno stanje za pozadinski efekat */
+.accordion-button:hover::before, .accordion-button.active::before { opacity: 1; }
+/* Hover i aktivno stanje za accordion dugme */
+.accordion-button:hover, .accordion-button.active { color: white; }
+/* Specijalni stilovi za promocijska dugmad */
+.accordion-button.promocija-button::before { background: var(--promocija-gradient) !important; }
+.accordion-button.promocija-button:hover, .accordion-button.promocija-button.active { color: white !important; }
+
+/* Lijevi dio accordion dugmeta */
+.accordion-left { 
+  display: flex; 
+  align-items: center; 
+  gap: var(--spacing-md); 
+  flex: 1; 
+}
+
+/* Ikona u accordion dugmetu */
+.accordion-button i.fas { 
+  margin-right: 0; 
+  font-size: var(--font-size-large); 
+  color: var(--primary-color); 
+  transition: color 0.3s ease; 
+  flex-shrink: 0; 
+}
+
+/* Hover i aktivno stanje za ikone */
+.accordion-button:hover i.fas, .accordion-button.active i.fas { color: white; }
+
+/* Naslov u accordion dugmetu */
+.accordion-title { 
+  flex: 1; 
+  text-align: left; 
+  font-weight: 600; 
+  font-size: var(--font-size-base); 
+  margin-left: var(--spacing-xs); 
+}
+
+/* Brojač stavki u accordion-u */
+.item-count { 
+  background: rgba(102, 126, 234, 0.12); 
+  color: var(--primary-color); 
+  padding: var(--spacing-xs) var(--spacing-sm); 
+  border-radius: 20px; 
+  font-size: var(--font-size-small); 
+  font-weight: 600; 
+  margin-right: var(--spacing-sm); 
+  border: 1px solid rgba(102, 126, 234, 0.2); 
+  min-width: 35px; 
+  text-align: center; 
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1); 
+  transition: all 0.3s ease; 
+}
+
+/* Hover i aktivno stanje za brojač stavki */
+.accordion-button:hover .item-count, .accordion-button.active .item-count { 
+  background: rgba(255, 255, 255, 0.25); 
+  color: white; 
+  border-color: rgba(255, 255, 255, 0.3); 
+}
+
+/* Strelica za accordion */
+.accordion-arrow { 
+  font-size: var(--font-size-base) !important; 
+  margin: 0 !important; 
+  color: var(--primary-color); 
+  transition: all 0.3s ease; 
+}
+
+/* Hover i aktivno stanje za strelicu */
+.accordion-button:hover .accordion-arrow, .accordion-button.active .accordion-arrow { color: white; }
+/* Rotirana strelica */
+.accordion-arrow.rotated { transform: rotate(180deg); }
+
+/* Sadržaj accordion-a */
+.accordion-content { 
+  max-height: 0; 
+  overflow: hidden; 
+  background: var(--glass-bg-light); 
+  backdrop-filter: blur(10px); 
+  border-top: 1px solid var(--border-color); 
+  transition: max-height 0.3s ease; 
+}
+
+/* Aktivni sadržaj accordion-a */
+.accordion-content.active { max-height: none; }
+
+/* Kontejner za stavke unutar accordion-a */
+.accordion-content .items-container { 
+  padding: var(--spacing-md); 
+  background: transparent; 
+}
+
+/* Kartica stavke unutar accordion-a */
+.accordion-content .item-card { 
+  background: rgba(51, 65, 85, 0.9); 
+}
+
+/* === PROMOCIJA GRUPA - BEZ ZVEZDICA === */
+/* Grupa za promocijske artikle */
+.promocija-group { 
+  position: relative; 
+  padding: var(--spacing-md); 
+  background: rgba(139, 92, 246, 0.05); 
+  border-radius: var(--border-radius-large); 
+  border: 1px solid var(--gold-accent); 
+  box-shadow: var(--promocija-shadow);
+  margin: var(--spacing-sm) 0; 
+}
+
+/* Grid kontejner za stavke */
+.items-container { 
+  display: grid; 
+  grid-template-columns: repeat(1, 1fr); 
+  gap: var(--spacing-xs); 
+}
+
+/* Kartica artikla/stavke */
+.item-card { 
+  border-radius: var(--border-radius); 
+  padding: var(--spacing-sm); 
+  display: flex; 
+  align-items: center; 
+  gap: var(--spacing-sm); 
+  position: relative; 
+  overflow: hidden; 
+  min-height: clamp(65px, 12vw, 80px); 
+  margin-bottom: var(--spacing-xs); 
+  transition: all 0.3s ease; 
+}
+
+/* Indikatorska linija za kartice artikala */
+.item-card::before { 
+  content: ''; 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  width: 3px; 
+  height: 100%; 
+  background: var(--primary-gradient); 
+  opacity: 0; 
+  transition: opacity 0.3s ease; 
+}
+
+/* Hover stanje za indikatorsku liniju */
+.item-card:hover::before { opacity: 1; }
+
+/* Hover efekat na kartici artikla */
+.item-card:hover { 
+  transform: translateY(-2px); 
+  box-shadow: var(--shadow-medium); 
+  border-color: var(--primary-color); 
+}
+
+/* Stiliziranje kartica za promocijske artikle */
+.promocija-group .item-card { 
+  border: 2px solid #8b5cf6 !important; 
+  background: rgba(71, 85, 105, 0.85) !important; 
+  box-shadow: 0 6px 25px rgba(139, 92, 246, 0.2) !important; 
+  position: relative; 
+}
+
+/* Indikatorska linija za promocijske artikle */
+.promocija-group .item-card::before { 
+  background: var(--promocija-gradient) !important; 
+  opacity: 1 !important; 
+  width: 4px !important; 
+}
+
+/* Zvjezdica za promocijske artikle */
+.promocija-group .item-card::after { 
+  content: '★'; 
+  position: absolute; 
+  top: -6px; 
+  right: -6px; 
+  background: #8b5cf6; 
+  color: #FFD700; 
+  border-radius: 50%; 
+  width: 22px; 
+  height: 22px; 
+  font-size: 14px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  z-index: 2; 
+  box-shadow: 0 3px 10px rgba(139, 92, 246, 0.4); 
+  animation: star-shine 1.5s ease-in-out infinite;
+}
+
+/* Animacija za sjaj zvjezdice */
+@keyframes star-shine {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 0 3px 10px rgba(139, 92, 246, 0.4);
+  }
+  50% { 
+    transform: scale(1.2);
+    box-shadow: 0 3px 15px rgba(255, 215, 0, 0.6), 0 0 10px rgba(255, 215, 0, 0.4);
+  }
+}
+
+/* Hover efekat na promocijskoj kartici */
+.promocija-group .item-card:hover { 
+  border-color: #7c3aed !important; 
+  box-shadow: 0 8px 35px rgba(139, 92, 246, 0.3) !important; 
+  transform: translateY(-2px); 
+}
+
+/* Naziv artikla u promociji */
+.promocija-group .item-card .item-name { 
+  color: #e2e8f0 !important; 
+  font-weight: 700 !important; 
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important; 
+}
+
+/* Opis artikla u promociji */
+.promocija-group .item-card .item-description { 
+  color: #cbd5e1 !important; 
+  font-weight: 500 !important; 
+}
+
+/* Stiliziranje slike artikla i placeholder-a */
+.item-image, .item-placeholder { 
+  width: clamp(55px, 12vw, 75px); 
+  height: clamp(55px, 12vw, 75px); 
+  flex-shrink: 0; 
+  border-radius: var(--border-radius); 
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
+}
+
+/* Slika artikla */
+.item-image { 
+  object-fit: cover; 
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.1)); 
+  cursor: pointer; 
+}
+
+/* Placeholder za sliku artikla */
+.item-placeholder { 
+  background: var(--primary-gradient); 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  color: white; 
+  font-size: var(--font-size-large); 
+  font-weight: 600; 
+}
+
+/* Informacije o artiklu */
+.item-info { 
+  flex: 1; 
+  min-width: 0; 
+  position: relative; 
+  z-index: 1; 
+}
+
+/* Naziv artikla */
+.item-name { 
+  font-size: var(--font-size-base); 
+  font-weight: 600; 
+  color: var(--text-color); 
+  margin-bottom: var(--spacing-xs); 
+  line-height: 1.3; 
+  word-wrap: break-word; 
+}
+
+/* Opis artikla */
+.item-description { 
+  color: var(--text-muted); 
+  font-size: var(--font-size-small); 
+  line-height: 1.4; 
+  word-wrap: break-word; 
+}
+
+/* Cijena artikla */
+.item-price { 
+  font-size: var(--font-size-base); 
+  font-weight: 700; 
+  color: var(--gold-accent);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  white-space: nowrap; 
+  position: relative; 
+  z-index: 1; 
+  padding: var(--spacing-xs) var(--spacing-sm); 
+  background: #1C1C1C; 
+  border-radius: 20px; 
+  border: 1px solid rgba(102, 126, 234, 0.2); 
+  flex-shrink: 0; 
+  box-shadow: 0 4px 15px rgba(198, 166, 100, 0.3); 
+  text-align: center; 
+  min-width: 65px; 
+}
+
+/* Cijena artikla u promociji */
+.promocija-group .item-price { 
+  color: var(--gold-accent); 
+  background: var(--promocija-gradient) !important; 
+  border: 2px solid rgba(255, 255, 255, 0.3) !important; 
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4) !important; 
+  font-weight: 800 !important; 
+  animation: glowingPrice 3s infinite alternate; 
+}
+
+/* Animacija za suptilni sjaj cijene u promociji */
+@keyframes subtle-glow { 
+  0%, 100% { box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); } 
+  50% { box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6); } 
+}
+
+/* Stiliziranje stanja učitavanja i praznog stanja */
+.loading, .empty-state { 
+  text-align: center; 
+  padding: var(--spacing-xl) var(--spacing-md); 
+  color: var(--text-muted); 
+  background: var(--glass-bg); 
+  backdrop-filter: blur(15px); 
+  border-radius: var(--border-radius-large); 
+  border: 1px solid var(--glass-border); 
+  box-shadow: var(--shadow-light); 
+  margin: var(--spacing-lg) 0; 
+}
+
+/* Naslovi u stanjima učitavanja i praznim stanjima */
+.loading h3, .empty-state h3 { 
+  font-size: var(--font-size-large); 
+  margin-bottom: var(--spacing-sm); 
+  color: var(--text-color); 
+}
+
+/* Paragrafi u stanjima učitavanja i praznim stanjima */
+.loading p, .empty-state p { 
+  font-size: var(--font-size-base); 
+  font-weight: 400; 
+  color: var(--text-light); 
+}
+
+/* Ikona učitavanja */
+.loading i { 
+  font-size: var(--font-size-xl); 
+  color: var(--beige-white);
+  margin-bottom: var(--spacing-sm); 
+  display: block; 
+}
+
+/* Ikona za prazno stanje */
+.empty-state i { 
+  font-size: clamp(2.5rem, 6vw, 4rem); 
+  color: #64748b; 
+  margin-bottom: var(--spacing-md); 
+}
+
+/* Stanje učitavanja za hero sekciju */
+.hero-loading { 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: var(--spacing-sm); 
+  color: var(--text-muted); 
+  font-size: var(--font-size-base); 
+  padding: var(--spacing-sm) 0; 
+}
+
+/* Ikona učitavanja za hero sekciju */
+.hero-loading i { 
+  font-size: var(--font-size-large); 
+  color: var(--primary-color); 
+}
+
+/* Sakrij stanje učitavanja */
+.hero-loading.hidden { display: none; }
+
+/* Dugme za vraćanje na vrh stranice */
+.scroll-to-top { 
+  position: fixed; 
+  bottom: var(--spacing-lg); 
+  right: var(--spacing-lg); 
+  width: clamp(55px, 12vw, 70px); 
+  height: clamp(55px, 12vw, 70px); 
+  border: none; 
+  border-radius: 50%; 
+  background: var(--primary-gradient); 
+  color: white; 
+  cursor: pointer; 
+  font-size: var(--font-size-large); 
+  opacity: 0; 
+  visibility: hidden; 
+  z-index: 1000; 
+  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.3); 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  border: 2px solid rgba(255, 255, 255, 0.2); 
+  backdrop-filter: blur(10px); 
+  transition: all 0.3s ease; 
+  outline: none !important;  /* Uklanja outline pri kliku */
+  -webkit-tap-highlight-color: transparent;  /* Uklanja plavu/sivu boju koja se pojavljuje na dodir na mobilnim uređajima */
+}
+
+/* Vidljivo stanje za dugme za vraćanje na vrh */
+.scroll-to-top.visible { 
+  opacity: 1; 
+  visibility: visible; 
+}
+
+/* Hover efekat na dugmetu za vraćanje na vrh */
+.scroll-to-top:hover { 
+  box-shadow: 0 8px 35px rgba(102, 126, 234, 0.4); 
+  background: #C6A664;
+  transform: translateY(-3px); 
+}
+
+/* Uklanja outline pri kliku */
+.scroll-to-top:focus,
+.scroll-to-top:active,
+.scroll-to-top:hover {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Za WebKit browsere (Chrome, Safari, itd.) Uklanja outline pri kliku */
+.scroll-to-top * {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Stiliziranje podnožja stranice */
+.site-footer { 
+  background: var(--glass-bg); 
+  backdrop-filter: blur(20px); 
+  color: var(--text-color); 
+  margin-top: auto; 
+  padding: var(--spacing-md) 0; 
+  text-align: center; 
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1); 
+  border-top: 1px solid var(--glass-border); 
+  position: fixed; 
+  bottom: 0; 
+  left: 0; 
+  right: 0; 
+  z-index: 100; 
+}
+
+/* Sadržaj podnožja */
+.footer-content { 
+  max-width: 1200px; 
+  margin: 0 auto; 
+  padding: 0 var(--spacing-md); 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: var(--spacing-lg); 
+  flex-wrap: wrap; 
+}
+
+/* Tekst u podnožju */
+.footer-text { 
+  margin: 0; 
+  font-size: var(--font-size-small); 
+  color: var(--text-muted); 
+}
+
+/* Linkovi u podnožju */
+.footer-links { 
+  display: flex; 
+  gap: var(--spacing-sm); 
+  align-items: center; 
+  margin: 0; 
+}
+
+/* Link za društvene mreže */
+.social-link { 
+  display: inline-flex; 
+  align-items: center; 
+  gap: var(--spacing-xs); 
+  color: var(--text-color); 
+  text-decoration: none; 
+  padding: var(--spacing-xs) var(--spacing-sm); 
+  border-radius: 20px; 
+  font-weight: 500; 
+  background: var(--glass-bg-light); 
+  backdrop-filter: blur(10px); 
+  border: 1px solid var(--glass-border); 
+  font-size: var(--font-size-small); 
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); 
+  transition: all 0.3s ease; 
+}
+
+/* Ikona za društvene mreže */
+.social-link i { 
+  font-size: clamp(18px, 4vw, 22px); 
+}
+
+/* Hover efekat na link za društvene mreže */
+.social-link:hover { 
+  background: rgba(198, 166, 100, 0.15); 
+  border-color: var(--gold-accent); 
+  color: var(--gold-accent);  
+  box-shadow: var(--shadow-light); 
+  transform: translateY(-1px); 
+}
+
+/* Posebni stilovi za Instagram link */
+.social-link[href*="instagram"]:hover { 
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); 
+  color: white; 
+}
+
+/* Posebni stilovi za Facebook link */
+.social-link[href*="facebook"]:hover { 
+  background: #1877f2; 
+  color: white; 
+}
+
+/* Posebni stilovi za YouTube link */
+.social-link[href*="youtube"]:hover { 
+  background: #ff0000; 
+  color: white; 
+}
+
+/* Stiliziranje modalnog prozora za slike */
+.image-modal { 
+  position: fixed !important; 
+  top: 0 !important; 
+  left: 0 !important; 
+  width: 100% !important; 
+  height: 100% !important; 
+  background: rgba(0, 0, 0, 0.9) !important; 
+  z-index: 9999 !important; 
+  display: flex !important; 
+  align-items: center !important; 
+  justify-content: center !important; 
+  padding: var(--spacing-md) !important; 
+  opacity: 0; 
+  visibility: hidden; 
+  cursor: pointer; 
+  transition: all 0.3s ease; 
+}
+
+/* Vidljivi modalni prozor */
+.image-modal.modal-visible { 
+  opacity: 1 !important; 
+  visibility: visible !important; 
+}
+
+/* Loader u modalnom prozoru */
+.modal-loader { 
+  position: absolute !important; 
+  top: 50% !important; 
+  left: 50% !important; 
+  transform: translate(-50%, -50%) !important; 
+  color: white !important; 
+  text-align: center !important; 
+  font-size: var(--font-size-base) !important; 
+  z-index: 10001 !important; 
+}
+
+/* Ikona u modal loaderu */
+.modal-loader i { 
+  font-size: var(--font-size-xl) !important; 
+  margin-bottom: var(--spacing-sm) !important; 
+  display: block !important; 
+  color: var(--primary-color); 
+}
+
+/* Dugme za zatvaranje modalnog prozora */
+.modal-close { 
+  position: absolute !important; 
+  top: var(--spacing-md) !important; 
+  right: var(--spacing-md) !important; 
+  color: white !important; 
+  font-size: clamp(28px, 6vw, 40px) !important; 
+  cursor: pointer !important; 
+  z-index: 10002 !important; 
+  background: rgba(0, 0, 0, 0.7) !important; 
+  border-radius: 50% !important; 
+  width: clamp(50px, 10vw, 65px) !important; 
+  height: clamp(50px, 10vw, 65px) !important; 
+  display: flex !important; 
+  align-items: center !important; 
+  justify-content: center !important; 
+  border: 2px solid rgba(255, 255, 255, 0.3) !important; 
+  backdrop-filter: blur(10px) !important; 
+  transition: all 0.3s ease; 
+}
+
+/* Hover efekat na dugmetu za zatvaranje */
+.modal-close:hover { 
+  background: rgba(255, 255, 255, 0.2) !important; 
+  border-color: rgba(255, 255, 255, 0.6) !important; 
+  transform: scale(1.1); 
+}
+
+/* Sadržaj modalnog prozora (slika) */
+.modal-content { 
+  max-width: 100% !important; 
+  max-height: 70vh !important; 
+  object-fit: contain !important; 
+  border-radius: var(--border-radius) var(--border-radius) 0 0 !important; 
+  box-shadow: none !important;
+  cursor: default !important; 
+  z-index: 10001 !important; 
+  position: relative !important;
+  display: block !important;
+}
+
+/* Wrapper koji drži sliku i info zajedno */
+.modal-inner {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  max-width: min(480px, 95vw) !important;
+  max-height: 90vh !important;
+  border-radius: var(--border-radius) !important;
+  overflow: hidden !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
+  cursor: default !important;
+  z-index: 10001 !important;
+}
+
+/* Info panel ispod slike u modalu */
+.modal-info {
+  background: white !important;
+  padding: 16px 20px !important;
+  cursor: default !important;
+  text-align: center !important;
+}
+
+.modal-info-naziv {
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  color: #1a1a2e !important;
+  margin-bottom: 6px !important;
+}
+
+.modal-info-cijena {
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  color: #9E7A30 !important;
+  margin-bottom: 6px !important;
+  letter-spacing: 0.5px !important;
+  background: linear-gradient(135deg, #f5e6c0, #fdf6e3) !important;
+  border: 1.5px solid #C6A664 !important;
+  border-radius: 20px !important;
+  padding: 4px 16px !important;
+  display: inline-block !important;
+}
+
+.modal-info-opis {
+  font-size: 0.88rem !important;
+  color: #888 !important;
+  line-height: 1.4 !important;
+}
+
+/* === RESPONSIVE ZA JEZIČKA DUGMAD === */
+/* Prilagođeni stilovi za mobilne uređaje (ispod 768px) */
+@media (max-width: 768px) {
+  .language-switcher {
+    top: 8px !important;
+    right: 8px !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+  }
+  
+  .language-btn {
+    min-width: 32px !important;
+    height: 32px !important;
+    font-size: 13px !important;
+    padding: 4px 6px !important;
+  }
+}
+
+/* Prilagođeni stilovi za vrlo male mobilne uređaje (ispod 480px) */
+@media (max-width: 480px) {
+  .language-switcher {
+    top: 5px !important;
+    right: 5px !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+  }
+  
+  .language-btn {
+    min-width: 28px !important;
+    height: 28px !important;
+    font-size: 12px !important;
+    padding: 3px 5px !important;
+  }
+}
+
+/* Prilagođeni stilovi za najmanje mobilne uređaje (ispod 360px) */
+@media (max-width: 360px) {
+  .language-switcher {
+    flex-direction: column !important;
+    gap: 2px !important;
+    top: 3px !important;
+    right: 3px !important;
+  }
+  
+  .language-btn {
+    min-width: 25px !important;
+    height: 25px !important;
+    font-size: 11px !important;
+    padding: 2px 4px !important;
+  }
+}
+
+/* Responzivni stilovi za tablete i male desktop uređaje */
+@media (min-width: 768px) { 
+  /* Prilagođene veličine fontova za veće ekrane */
+  :root { 
+    --font-size-base: clamp(0.8rem, 1.8vw, 0.95rem); 
+    --font-size-small: clamp(0.7rem, 1.4vw, 0.82rem); 
+    --font-size-large: clamp(1.05rem, 2.8vw, 1.25rem); 
+    --font-size-xl: clamp(1.4rem, 3.5vw, 1.8rem); 
+  }
+  /* Dva artikla u redu na većim ekranima */
+  .items-container { 
+    grid-template-columns: repeat(2, 1fr) !important; 
+    gap: var(--spacing-sm) !important; 
+  }
+  /* Dva artikla u redu i u accordion sadržaju */
+  .accordion-content .items-container { 
+    grid-template-columns: repeat(2, 1fr) !important; 
+    gap: var(--spacing-sm) !important; 
+  }
+  /* Centriranje mobilnih tabova */
+  .mobile-tabs { 
+    justify-content: center; 
+    flex-wrap: wrap; 
+  }
+  /* Prilagođavanje širine tab dugmadi */
+  .tab-button { 
+    min-width: clamp(110px, 16vw, 140px); 
+  }
+  /* Prilagođavanje razmaka u hero sekciji */
+  .hero-content { 
+    padding: 0; 
+    gap: clamp(6px, 1.2vw, 10px); 
+  }
+  /* Prilagođavanje paddinga hero sekcije */
+  .hero-section { 
+    padding: var(--spacing-md) var(--spacing-lg); 
+  }
+}
+
+/* Responzivni stilovi za desktop uređaje */
+@media (min-width: 1200px) { 
+  /* Prilagođene veličine fontova za desktop ekrane */
+  :root { 
+    --font-size-base: clamp(0.75rem, 1.5vw, 0.9rem); 
+    --font-size-small: clamp(0.65rem, 1.2vw, 0.78rem); 
+    --font-size-large: clamp(1rem, 2.5vw, 1.2rem); 
+    --font-size-xl: clamp(1.3rem, 3vw, 1.6rem); 
+    --spacing-xs: 8px; 
+    --spacing-sm: 14px; 
+    --spacing-md: 20px; 
+    --spacing-lg: 28px; 
+    --spacing-xl: 38px; 
+  }
+  /* Dva artikla u redu sa većim razmakom na desktop ekranima */
+  .items-container { 
+    grid-template-columns: repeat(2, 1fr) !important; 
+    gap: var(--spacing-md) !important; 
+  }
+  /* Dva artikla u redu i u accordion sadržaju */
+  .accordion-content .items-container { 
+    grid-template-columns: repeat(2, 1fr) !important; 
+    gap: var(--spacing-md) !important; 
+  }
+  /* Prilagođavanje razmaka u hero sekciji */
+  .hero-content { gap: 8px; }
+  /* Prilagođavanje paddinga hero sekcije */
+  .hero-section { 
+    padding: var(--spacing-sm) var(--spacing-lg); 
+  }
+}
+
+/* Responzivni stilovi za mobilne uređaje */
+@media (max-width: 767px) { 
+  /* Prilagođene veličine fontova za mobilne ekrane */
+  :root { 
+    --font-size-small: clamp(0.75rem, 2vw, 0.9rem); 
+    --font-size-base: clamp(0.9rem, 2.4vw, 1.1rem); 
+    --font-size-large: clamp(1.15rem, 3.2vw, 1.4rem); 
+    --font-size-xl: clamp(1.6rem, 4.5vw, 2.2rem); 
+    --spacing-xs: clamp(3px, 0.8vw, 6px); 
+    --spacing-sm: clamp(6px, 1.8vw, 10px); 
+    --spacing-md: clamp(10px, 2.5vw, 16px); 
+    --spacing-lg: clamp(14px, 3vw, 20px); 
+  }
+  /* Prilagođavanje paddinga kontejnera */
+  .container { padding: var(--spacing-xs); }
+  /* Prilagođavanje hero sekcije za mobilne uređaje */
+  .hero-section { 
+    padding: var(--spacing-xs) var(--spacing-sm); 
+    margin-bottom: var(--spacing-sm); 
+  }
+  /* Smanjeni razmaci u hero sadržaju */
+  .hero-content { gap: clamp(2px, 0.6vw, 4px); }
+  /* Prilagođavanje mobilnih tabova */
+  .mobile-tabs { 
+    margin-bottom: var(--spacing-sm); 
+    padding: var(--spacing-xs); 
+  }
+  /* Prilagođavanje tab panela */
+  .tab-panel { 
+    padding: var(--spacing-xs); 
+    margin-bottom: var(--spacing-sm); 
+  }
+  /* Smanjivanje razmaka između accordion stavki */
+  .accordion-item { 
+    margin-bottom: clamp(2px, 0.5vw, 4px); 
+  }
+  /* Prilagođavanje accordion dugmadi */
+  .accordion-button { 
+    padding: var(--spacing-xs) var(--spacing-sm); 
+    min-height: clamp(50px, 9vw, 60px); 
+  }
+  /* Smanjivanje razmaka između stavki */
+  .items-container { gap: clamp(2px, 0.5vw, 4px); }
+  /* Prilagođavanje kartica artikala */
+  .item-card { 
+    padding: var(--spacing-xs); 
+    min-height: clamp(55px, 10vw, 65px); 
+    margin-bottom: clamp(1px, 0.3vw, 2px); 
+  }
+  /* Prilagođavanje oznake promocije */
+  .accordion-item.promocija-subcategory::after { 
+    font-size: clamp(0.6rem, 1.3vw, 0.72rem); 
+    padding: clamp(1px, 0.5vw, 3px) clamp(4px, 1.5vw, 8px); 
+    top: -5px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    border-radius: 10px; 
+  }
+  /* Prilagođavanje linkova društvenih mreža */
+  .social-link { 
+    padding: clamp(8px, 2.2vw, 12px) clamp(10px, 2.8vw, 14px); 
+  }
+  /* Prilagođavanje ikona društvenih mreža */
+  .social-link i { 
+    font-size: clamp(18px, 4.5vw, 26px) !important; 
+  }
+  /* Prilagođavanje linija teksta */
+  .hero-content h1 { line-height: 1.02; }
+  .hero-content p { line-height: 1.2; }
+}
+
+/* Responzivni stilovi za vrlo male mobilne uređaje */
+@media (max-width: 480px) { 
+  /* Dodatno smanjivanje razmaka na malim ekranima */
+  :root { 
+    --spacing-xs: clamp(2px, 0.6vw, 4px); 
+    --spacing-sm: clamp(4px, 1.2vw, 8px); 
+    --spacing-md: clamp(8px, 2vw, 12px); 
+  }
+  /* Minimalni padding za kontejner */
+  .container { padding: clamp(2px, 0.8vw, 4px); }
+  /* Optimizacija hero sekcije za male ekrane */
+  .hero-section { 
+    padding: var(--spacing-xs) var(--spacing-sm); 
+    margin-bottom: clamp(4px, 1.2vw, 8px); 
+  }
+  /* Dodatno smanjivanje razmaka u hero sadržaju */
+  .hero-content { gap: clamp(2px, 0.6vw, 4px); }
+  /* Prilagođavanje mobilnih tabova */
+  .mobile-tabs { 
+    margin-bottom: clamp(4px, 1.2vw, 8px); 
+    gap: clamp(2px, 0.6vw, 4px); 
+  }
+  /* Prilagođavanje tab panela */
+  .tab-panel { 
+    padding: clamp(4px, 1.2vw, 8px); 
+    margin-bottom: clamp(4px, 1.2vw, 8px); 
+  }
+  /* Minimalni razmaci između accordion stavki */
+  .accordion-item { 
+    margin-bottom: clamp(1px, 0.3vw, 2px); 
+  }
+  /* Daljnje smanjenje accordion dugmadi */
+  .accordion-button { 
+    padding: clamp(4px, 1.2vw, 8px) clamp(8px, 2vw, 12px); 
+    min-height: clamp(45px, 8vw, 55px); 
+  }
+  /* Minimalni razmaci između stavki */
+  .items-container { gap: clamp(1px, 0.3vw, 2px); }
+  /* Daljnje smanjenje kartica artikala */
+  .item-card { 
+    padding: clamp(4px, 1.2vw, 8px); 
+    min-height: clamp(50px, 9vw, 60px); 
+    margin-bottom: 1px; 
+  }
+  /* Smanjivanje oznake promocije */
+  .accordion-item.promocija-subcategory::after { 
+    font-size: clamp(0.58rem, 1.2vw, 0.68rem); 
+    padding: 1px 5px; 
+    top: -4px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    border-radius: 8px; 
+  }
+  /* Prilagođavanje gumba za zatvaranje modala */
+  .modal-close { 
+    width: clamp(45px, 9vw, 55px) !important; 
+    height: clamp(45px, 9vw, 55px) !important; 
+    font-size: clamp(22px, 5vw, 28px) !important; 
+    top: var(--spacing-xs) !important; 
+    right: var(--spacing-xs) !important; 
+  }
+  /* Vertikalni layout za footer */
+  .footer-content { 
+    flex-direction: column; 
+    gap: var(--spacing-sm); 
+    padding: var(--spacing-sm) var(--spacing-md); 
+  }
+  /* Sakrij tekst kod linkova društvenih mreža */
+  .social-link span { display: none; }
+  /* Prilagodi padding za linkove društvenih mreža */
+  .social-link { 
+    padding: clamp(12px, 3vw, 16px) clamp(14px, 3.5vw, 18px); 
+  }
+  /* Povećaj ikone društvenih mreža */
+  .social-link i { 
+    font-size: clamp(24px, 6vw, 32px) !important; 
+  }
+  /* Prilagodi padding za footer */
+  body { padding-bottom: clamp(55px, 12vw, 70px); }
+  .site-footer { 
+    padding: clamp(6px, 1.5vw, 10px) 0; 
+  }
+}
+
+/* Fokus stilovi za pristupačnost */
+.tab-button:focus, .item-card:focus, .accordion-button:focus { 
+  outline: 3px solid var(--gold-accent);
+  outline-offset: 2px; 
+}
+
+/* Podrška za korisnike koji preferiraju smanjene animacije */
+@media (prefers-reduced-motion: reduce) { 
+  * { 
+    transition: none !important; 
+    animation: none !important; 
+  }
+  .scroll-to-top:hover, .item-card:hover, .tab-button:hover, .accordion-item:hover { 
+    transform: none !important; 
+  }
+  .promocija-group .item-price { 
+    animation: none !important; 
+  }
+}
+
+/* ===== 18+ AGE RESTRICTOR STILOVI (BEZ UPOZORENJA) ===== */
+/* Oznaka za sadržaj s ograničenjem po godinama (18+) */
+.age-restrictor {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+  color: white;
+  font-size: clamp(0.65rem, 1.4vw, 0.75rem);
+  font-weight: 800;
+  padding: 0;
+  width: clamp(32px, 6vw, 40px);
+  height: clamp(32px, 6vw, 40px);
+  border-radius: 50%;
+  margin-left: var(--spacing-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    0 4px 12px rgba(220, 38, 38, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  position: relative;
+  backdrop-filter: blur(5px);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* Hover i aktivno stanje za oznaku 18+ */
+.accordion-button:hover .age-restrictor,
+.accordion-button.active .age-restrictor {
+  background: linear-gradient(135deg, #b91c1c, #dc2626);
+  border-color: rgba(255, 255, 255, 1);
+  color: rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    0 4px 15px rgba(185, 28, 28, 0.5),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4);
+  transform: scale(1.05);
+}
+
+/* Responzivnost za oznaku 18+ na mobilnim uređajima */
+@media (max-width: 767px) {
+  .age-restrictor {
+    font-size: clamp(0.6rem, 1.6vw, 0.7rem);
+    width: clamp(28px, 5.5vw, 36px);
+    height: clamp(28px, 5.5vw, 36px);
+    margin-left: clamp(4px, 1.2vw, 8px);
+  }
+}
+
+/* Dodatna responzivnost za oznaku 18+ na malim mobilnim uređajima */
+@media (max-width: 480px) {
+  .age-restrictor {
+    font-size: clamp(0.55rem, 1.4vw, 0.65rem);
+    width: clamp(26px, 5vw, 32px);
+    height: clamp(26px, 5vw, 32px);
+    margin-left: clamp(3px, 1vw, 6px);
+    letter-spacing: 0.2px;
+  }
+}

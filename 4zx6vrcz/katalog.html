@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Katalog Pića</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --bg:#1C1C1C;--bg2:#242424;--card:#272727;
+  --gold:#C6A664;--gold2:#9E8344;--beige:#F2E9D8;
+  --muted:#94a3b8;--border:rgba(198,166,100,.2);
+  --PW:794px;--PH:1123px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#111;color:var(--beige);-webkit-font-smoothing:antialiased}
+
+/* Price hidden mode */
+.hide-prices .cp { display:none !important; }
+.hide-prices .card { justify-content: flex-start; }
+.hide-prices .cv-sub { display:none !important; }
+
+/* Choose-prices modal */
+#priceModal{display:flex;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center}
+#priceModal .pm-box{background:#1e1e2e;border:2px solid var(--gold);border-radius:14px;padding:32px 28px;max-width:320px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+#priceModal h3{color:var(--gold);font-size:1.1rem;font-weight:800;margin-bottom:8px}
+#priceModal p{color:var(--muted);font-size:.85rem;margin-bottom:24px}
+.pm-btn{display:block;width:100%;font-weight:800;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:.9rem;margin-bottom:10px;text-decoration:none}
+.pm-btn-yes{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a1a}
+.pm-btn-no{background:#2a2a3e;color:var(--gold);border:2px solid var(--gold)!important}
+#topbar{display:none;position:sticky;top:0;z-index:300;background:linear-gradient(135deg,#1a1a1a,#242424);border-bottom:2px solid var(--gold);padding:8px 20px;align-items:center;justify-content:space-between;gap:12px}
+#topbar .tl{display:flex;align-items:center;gap:10px}
+#tbLogo{display:none;max-height:30px;max-width:90px;object-fit:contain;background:#fff;border-radius:5px;padding:2px 5px}
+.tb-title{font-size:.82rem;font-weight:700;color:var(--gold);letter-spacing:2px;white-space:nowrap}
+.btn-pdf{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a1a;border:none;padding:9px 18px;border-radius:7px;font-size:.84rem;font-weight:800;cursor:pointer;white-space:nowrap;transition:filter .2s,transform .2s;flex-shrink:0}
+.btn-pdf:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-pdf.busy{opacity:.6;pointer-events:none}
+
+/* LOADING */
+#loading{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--muted)}
+#loading i{font-size:2.4rem;color:var(--gold);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* BOOK */
+#book{display:none;flex-direction:column;align-items:center;gap:24px;padding:24px 12px 60px}
+
+/* PAGE — always fixed height, overflow hidden */
+.pg{
+  width:var(--PW);height:var(--PH);overflow:hidden;
+  background:var(--bg);display:flex;flex-direction:column;
+  box-shadow:0 6px 36px rgba(0,0,0,.7);position:relative;flex-shrink:0;
+}
+
+/* PAGE HEADER — 44px */
+.ph{
+  flex-shrink:0;height:44px;
+  background:linear-gradient(135deg,#212121,#1a1a1a);
+  border-bottom:2px solid var(--gold);
+  display:flex;align-items:center;justify-content:space-between;padding:0 22px;
+}
+.ph img{max-height:24px;max-width:76px;object-fit:contain;background:#fff;border-radius:5px;padding:2px 5px}
+.ph-title{font-size:.58rem;font-weight:700;color:var(--gold);letter-spacing:3px;text-transform:uppercase}
+.ph-side{width:76px}
+
+/* PAGE BODY */
+.pb{flex:1;padding:10px 18px 8px;display:flex;flex-direction:column;gap:5px;overflow:hidden;min-height:0;justify-content:center}
+
+/* PAGE FOOTER — 36px */
+.pf{
+  flex-shrink:0;height:36px;border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;padding:0 20px;
+}
+.pf-num{font-size:.6rem;color:var(--muted);white-space:nowrap}
+.pf-num b{color:var(--gold)}
+.pf-url{font-size:.54rem;color:var(--muted);white-space:nowrap}
+
+/* COVER */
+.pg-cover{background:radial-gradient(ellipse at 65% 35%,#2a1f0e 0%,#1a1a1a 55%,#1C1C1C 100%)}
+.cv-orb1{position:absolute;top:-80px;right:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(198,166,100,.14) 0%,transparent 70%);pointer-events:none}
+.cv-orb2{position:absolute;bottom:-100px;left:-60px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(198,166,100,.08) 0%,transparent 70%);pointer-events:none}
+.cv-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 80px;text-align:center;position:relative;z-index:1}
+.cv-logo-box{background:#fff;border-radius:14px;padding:14px 22px;margin-bottom:32px;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.cv-logo{max-width:170px;max-height:100px;object-fit:contain;display:block}
+.cv-line{width:52px;height:2px;margin:20px auto;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.cv-h1{font-size:2.7rem;font-weight:900;letter-spacing:5px;color:var(--gold);line-height:1.1;margin-bottom:10px}
+.cv-sub{font-size:.88rem;color:rgba(242,233,216,.5);letter-spacing:1px;margin-bottom:24px}
+.cv-qr-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:8px}
+.cv-qr{width:160px;height:160px;flex-shrink:0}
+.cv-qr canvas,.cv-qr img{width:160px!important;height:160px!important}
+.cv-url{font-size:.7rem;color:var(--muted);letter-spacing:.8px}
+.cv-foot{flex-shrink:0;height:36px;border-top:1px solid var(--border);display:flex;align-items:center;padding:0 20px;position:relative;z-index:1}
+.cv-foot-txt{font-size:.6rem;color:var(--muted);letter-spacing:.8px}
+
+/* LABELS */
+.lbl-main{
+  height:33px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#1a1a1a;padding:0 13px;border-radius:5px;
+  font-size:.73rem;font-weight:800;letter-spacing:1px;
+  text-transform:uppercase;display:flex;align-items:center;gap:6px;
+}
+.lbl-sub{
+  height:26px;flex-shrink:0;
+  background:rgba(198,166,100,.08);border-left:3px solid var(--gold);
+  color:var(--gold);padding:0 11px;
+  font-size:.68rem;font-weight:700;
+  display:flex;align-items:center;
+}
+
+/* CAT BLOCK */
+.cat-block{display:flex;flex-direction:column;gap:4px;flex-shrink:0}
+
+/* GRID — 3 equal columns, cards centered in each cell */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+  flex-shrink:0;
+}
+
+/* CARD — FIXED 155px, never changes */
+.card{
+  height:155px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:6px;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.ci{height:85px;flex-shrink:0;background:#1e1e1e;display:flex;align-items:center;justify-content:center}
+.ci img{max-width:100%;max-height:100%;object-fit:contain;padding:5px;display:block}
+.ci .ni{font-size:1.4rem;color:#3a3a3a}
+.cn{flex:1;padding:4px 7px 0;font-size:.67rem;font-weight:700;color:var(--beige);line-height:1.2;text-align:center;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.cu{font-size:.57rem;color:#5a6070;text-align:center;padding:0 4px}
+.cd{font-size:.58rem;color:var(--muted);text-align:center;padding:0 5px;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
+.cp{font-size:.78rem;font-weight:800;color:var(--gold);text-align:center;padding:3px 4px 5px;flex-shrink:0}
+
+/* MOBILE */
+@media(max-width:830px){
+  .pg{width:100%;height:auto;overflow:visible}
+  #book{padding:12px 8px 40px;gap:16px}
+  .grid{grid-template-columns:repeat(2,1fr);gap:5px}
+  .card{height:auto}
+  .ci{height:90px}
+  .cv-body{padding:40px 24px}
+  .cv-h1{font-size:2rem}
+  .pb{overflow:visible}
+}
+@media(max-width:480px){
+  .cv-h1{font-size:1.6rem;letter-spacing:2px}
+  .tb-title{display:none}
+}
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body{background:var(--bg)}
+  #topbar{display:none!important}
+  #book{padding:0;gap:0}
+  .pg{box-shadow:none;page-break-after:always;break-after:page}
+}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="tl">
+    <img id="tbLogo" alt=""/>
+    <span class="tb-title">KATALOG PIĆA</span>
+  </div>
+  <button class="btn-pdf" id="btnPdf" onclick="window._pdfStart&&window._pdfStart()">
+    <i class="fas fa-download"></i> Preuzmi PDF
+  </button>
+</div>
+
+<!-- Price choice modal — hidden if ?cijene param already set -->
+<div id="priceModal">
+  <div class="pm-box">
+    <h3><i class="fas fa-book-open"></i> Katalog Pića</h3>
+    <p>Kako želiš prikazati katalog?</p>
+    <button class="pm-btn pm-btn-yes" onclick="initCijene(1)"><i class="fas fa-tag"></i> Sa cijenama</button>
+    <button class="pm-btn pm-btn-no" onclick="initCijene(0)"><i class="fas fa-eye-slash"></i> Bez cijena</button>
+  </div>
+</div>
+
+<div id="loading"><i class="fas fa-spinner"></i><p>Učitavanje kataloga…</p></div>
+<div id="book"></div>
+
+<script>
+// Price toggle — reads ?cijene=1 or ?cijene=0 from URL
+// If param absent, shows the modal
+let _showPrices = null;
+
+function initCijene(val) {
+  _showPrices = val;
+  document.getElementById('priceModal').style.display = 'none';
+  if (!val) document.getElementById('book').classList.add('hide-prices');
+  else document.getElementById('book').classList.remove('hide-prices');
+  // Update PDF filename
+  window._pdfName = val ? 'Katalog-pica-CasaLoca.pdf' : 'Katalog-pica-CasaLoca-bezcijena.pdf';
+}
+
+(function() {
+  const p = new URLSearchParams(window.location.search).get('cijene');
+  if (p !== null) {
+    // Param set — skip modal immediately
+    initCijene(parseInt(p));
+  }
+  // Otherwise modal stays visible until user clicks
+})();
+</script>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+import{getFirestore,collection,getDocs,query,orderBy}from"https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
+
+const QR_URL="https://digitalnicjenovnik.com/4zx6vrcz";
+
+/* ── PIXEL BUDGET (must match CSS exactly) ── */
+const PH=1123, HEAD_H=44, FOOT_H=36, BODY_PT=10, BODY_PB=8;
+const BODY_GAP=5;   // gap between elements inside .pb
+const CAT_GAP=4;    // gap inside .cat-block (between label and grid)
+const LBL_MAIN=33;  // .lbl-main height
+const LBL_SUB=26;   // .lbl-sub height
+const CARD_H=155;   // .card height — FIXED
+const GRID_GAP=6;   // .grid gap
+const COLS=3;
+const BODY_H=PH-HEAD_H-FOOT_H-BODY_PT-BODY_PB; // 1025px
+
+function gridPx(n){const r=Math.ceil(n/COLS);return r*CARD_H+(r-1)*GRID_GAP;}
+function subPx(n){return LBL_SUB+CAT_GAP+gridPx(n);}
+
+/* ── FIREBASE ── */
+const db=getFirestore(initializeApp({
+  apiKey:"AIzaSyCW6EehwraJazNSMOXxrdUNEYx8YIQgRQE",
+  authDomain:"digitalnicjenovnik-kafic1.firebaseapp.com",
+  projectId:"digitalnicjenovnik-kafic1",
+  storageBucket:"digitalnicjenovnik-kafic1.firebasestorage.app",
+  messagingSenderId:"1020174209293",
+  appId:"1:1020174209293:web:33125083ba0b9d9cb5a044"
+}));
+
+async function loadCol(name){
+  try{const s=await getDocs(query(collection(db,name),orderBy("sortOrder","asc")));
+    return s.docs.map(d=>({id:d.id,...d.data(),sortOrder:d.data().sortOrder||999}));}
+  catch{try{const s=await getDocs(collection(db,name));
+    return s.docs.map(d=>({id:d.id,...d.data(),sortOrder:d.data().sortOrder||999}));}
+    catch{return[];}}
+}
+
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const srt=a=>[...a].sort((x,y)=>(x.sortOrder||999)-(y.sortOrder||999));
+
+/* ── BUILD BLOCKS ── */
+function buildBlocks(gk,kat,pod,items){
+  const active=items.filter(i=>i.aktivna!==false);
+  const getI=name=>srt(active.filter(i=>i.podkategorija===name||i.kategorija===name));
+  const B=[];
+  if(gk.length){
+    for(const g of srt(gk)){
+      let added=false;
+      for(const k of srt(kat.filter(k=>k.glavnaKategorijaId===g.id))){
+        const pods=srt(pod.filter(p=>p.kategorijaId===k.id));
+        if(pods.length){
+          for(const p of pods){
+            const its=getI(p.naziv);if(!its.length)continue;
+            if(!added){B.push({type:'main',label:g.naziv});added=true;}
+            B.push({type:'sub',label:`${k.naziv} – ${p.naziv}`,items:its});
+          }
+        }else{
+          const its=getI(k.naziv);if(!its.length)continue;
+          if(!added){B.push({type:'main',label:g.naziv});added=true;}
+          B.push({type:'sub',label:k.naziv,items:its});
+        }
+      }
+      const di=getI(g.naziv);
+      if(di.length){if(!added){B.push({type:'main',label:g.naziv});added=true;}B.push({type:'sub',label:g.naziv,items:di});}
+    }
+  }else if(kat.length){
+    for(const k of srt(kat)){
+      let added=false;
+      for(const p of srt(pod.filter(p=>p.kategorijaId===k.id))){
+        const its=getI(p.naziv);if(!its.length)continue;
+        if(!added){B.push({type:'main',label:k.naziv});added=true;}
+        B.push({type:'sub',label:p.naziv,items:its});
+      }
+      const di=getI(k.naziv);
+      if(di.length){if(!added)B.push({type:'main',label:k.naziv});B.push({type:'sub',label:k.naziv,items:di});}
+    }
+  }else if(active.length){B.push({type:'main',label:'Ponuda'});B.push({type:'sub',label:'Svi artikli',items:active});}
+  return B;
+}
+
+/* ── PIXEL-BUDGET PACKING ── */
+function packPages(blocks){
+  const pages=[];
+  let page={mainLabel:'',subs:[],usedH:0};
+
+  const gap=()=>page.subs.length>0||page.mainLabel?BODY_GAP:0;
+  const avail=()=>BODY_H-page.usedH;
+
+  function newPage(){
+    if(page.subs.length||page.mainLabel)pages.push(page);
+    page={mainLabel:'',subs:[],usedH:0};
+  }
+
+  for(const b of blocks){
+    if(b.type==='main'){
+      // New page if current already > 40% full
+      if(page.usedH>BODY_H*0.4)newPage();
+      if(!page.mainLabel){
+        page.mainLabel=b.label;
+        page.usedH+=LBL_MAIN+BODY_GAP;
+      }
+      continue;
+    }
+
+    // Sub block — pack with pixel budget
+    let rem=[...b.items],first=true;
+    while(rem.length>0){
+      const av=avail()-gap();
+
+      // Find max items that fit
+      let take=0;
+      for(let n=Math.min(rem.length,18);n>=1;n--){
+        if(subPx(n)<=av){take=n;break;}
+      }
+
+      if(take===0){newPage();continue;}
+
+      // Orphan prevention: absorb ≤2 leftover items only if they strictly fit
+      const left=rem.length-take;
+      if(left>0&&left<=2){
+        if(subPx(rem.length)<=av) take=rem.length;
+      }
+
+      const chunk=rem.splice(0,take);
+      page.usedH+=gap()+subPx(take);
+      page.subs.push({label:first?b.label:`${b.label} (nastavak)`,items:chunk});
+      first=false;
+      if(rem.length>0)newPage();
+    }
+  }
+  if(page.subs.length||page.mainLabel)pages.push(page);
+  return pages;
+}
+
+/* ── RENDER ── */
+let gLogo='',gCur='KM',gTotal=0,gNum=0;
+
+function cardHTML(item){
+  const img=item.slikaURL
+    ?`<img src="${esc(item.slikaURL)}" alt="${esc(item.naziv)}" loading="lazy" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-image ni\\'></i>'">`
+    :`<i class="fas fa-image ni"></i>`;
+  const price=(item.cijena!==undefined&&item.cijena!=='')
+    ?`${gCur?gCur+' ':''}${parseFloat(item.cijena).toFixed(2)}`:'';
+  return`<div class="card"><div class="ci">${img}</div><div class="cn">${esc(item.naziv)}</div>${item.opis?`<div class="cd">${esc(item.opis)}</div>`:''
+  }${item.jedinicaMjere?`<div class="cu">${esc(item.jedinicaMjere)}</div>`:''}<div class="cp">${price}</div></div>`;
+}
+
+function renderPage(data){
+  gNum++;
+  const el=document.createElement('div');el.className='pg';
+  // header
+  const hd=document.createElement('div');hd.className='ph';
+  hd.innerHTML=gLogo?`<img src="${esc(gLogo)}" alt=""/><span class="ph-title">Katalog Pića</span><div class="ph-side"></div>`
+    :`<div class="ph-side"></div><span class="ph-title">Katalog Pića</span><div class="ph-side"></div>`;
+  el.appendChild(hd);
+  // body
+  const bd=document.createElement('div');bd.className='pb';
+  if(data.mainLabel){const m=document.createElement('div');m.className='lbl-main';m.innerHTML=`<i class="fas fa-layer-group"></i>${esc(data.mainLabel)}`;bd.appendChild(m);}
+  for(const sb of data.subs){
+    const blk=document.createElement('div');blk.className='cat-block';
+    blk.innerHTML=`<div class="lbl-sub">${esc(sb.label)}</div><div class="grid">${sb.items.map(cardHTML).join('')}</div>`;
+    bd.appendChild(blk);
+  }
+  el.appendChild(bd);
+  // footer
+  const ft=document.createElement('div');ft.className='pf';
+  ft.innerHTML=`<span class="pf-num">Stranica <b>${gNum}</b> / <b>${gTotal}</b></span><span class="pf-url">${esc(QR_URL.replace('https://',''))}</span>`;
+  el.appendChild(ft);
+  return el;
+}
+
+function renderCover(sub){
+  const el=document.createElement('div');el.className='pg pg-cover';
+  el.innerHTML=`<div class="cv-orb1"></div><div class="cv-orb2"></div>
+    <div class="cv-body">
+      <div class="cv-logo-box" id="cvLB" style="display:none"><img id="cvL" class="cv-logo" alt=""/></div>
+      <div class="cv-line"></div>
+      <div class="cv-h1">KATALOG PIĆA</div>
+      ${sub?`<div class="cv-sub">${esc(sub)}</div>`:''}
+      <div class="cv-qr-wrap"><div class="cv-qr" id="qr-cover"></div><span class="cv-url">${esc(QR_URL.replace('https://',''))}</span></div>
+    </div>
+    <div class="cv-foot"><span class="cv-foot-txt">digitalnicjenovnik.com</span></div>`;
+  return el;
+}
+
+/* ── MAIN ── */
+async function build(){
+  try{
+    const[pSnap,gk,kat,pod,meni]=await Promise.all([
+      getDocs(collection(db,"web-postavke")),
+      loadCol("glavne-kategorije"),loadCol("kategorije"),loadCol("podkategorije"),loadCol("meni")
+    ]);
+    let sub='';
+    pSnap.forEach(d=>{const x=d.data();gLogo=x.logoURL||'';gCur=x.currencyCode||'KM';sub=x.heroSubtitle||'';});
+
+    const blocks=buildBlocks(gk,kat,pod,meni);
+    const pages=packPages(blocks);
+    gTotal=pages.length; gNum=0;
+
+    const book=document.getElementById('book');
+    book.innerHTML='';book.style.display='flex';
+    book.appendChild(renderCover(sub));
+    for(const pg of pages)book.appendChild(renderPage(pg));
+
+    if(gLogo){
+      const lb=document.getElementById('cvLB'),li=document.getElementById('cvL');
+      if(lb&&li){li.src=gLogo;lb.style.display='inline-flex';}
+      const tl=document.getElementById('tbLogo');if(tl){tl.src=gLogo;tl.style.display='block';}
+    }
+    setTimeout(()=>{const q=document.getElementById('qr-cover');if(q)new QRCode(q,{text:QR_URL,width:160,height:160,colorDark:'#FFFFFF',colorLight:'#1C1C1C',correctLevel:QRCode.CorrectLevel.H});},150);
+
+    document.getElementById('loading').style.display='none';
+    document.getElementById('topbar').style.display='flex';
+  }catch(err){
+    console.error(err);
+    document.getElementById('loading').innerHTML=`<div style="text-align:center;color:#94a3b8;padding:20px"><i class="fas fa-exclamation-triangle" style="font-size:2rem;color:#f87171;display:block;margin-bottom:10px"></i><p>Greška: ${err.message}</p></div>`;
+  }
+}
+
+/* ── PDF ── */
+async function fetchDU(url){
+  try{const r=await fetch(url,{mode:'cors',cache:'force-cache'});if(!r.ok)throw 0;
+    const b=await r.blob();return await new Promise((rs,rj)=>{const fr=new FileReader();fr.onload=()=>rs(fr.result);fr.onerror=rj;fr.readAsDataURL(b);});}
+  catch{return null;}
+}
+
+window._pdfStart=async function(){
+  const btn=document.getElementById('btnPdf');
+  btn.className='btn-pdf busy';
+  const{jsPDF}=window.jspdf;
+  const pgs=[...document.querySelectorAll('#book .pg')];
+  const W=794,H=1123;
+
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Učitavam slike…';
+  const imgs=[...document.querySelectorAll('#book img')];
+  const orig=new Map();
+  await Promise.allSettled(imgs.map(async img=>{
+    const src=img.src;if(!src||src.startsWith('data:')||src.startsWith('blob:'))return;
+    orig.set(img,src);const d=await fetchDU(src);if(d)img.src=d;else img.style.visibility='hidden';
+  }));
+
+  document.getElementById('topbar').style.display='none';
+  try{
+    const pdf=new jsPDF({unit:'px',format:[W,H],orientation:'portrait',compress:true});
+    for(let i=0;i<pgs.length;i++){
+      btn.innerHTML=`<i class="fas fa-spinner fa-spin"></i> ${i+1}/${pgs.length}…`;
+      await new Promise(r=>setTimeout(r,20));
+      const c=await html2canvas(pgs[i],{
+        scale:2,useCORS:false,allowTaint:false,backgroundColor:'#1C1C1C',
+        width:W,height:H,windowWidth:1200,windowHeight:H,scrollX:0,scrollY:0,
+        logging:false,willReadFrequently:true,imageTimeout:0
+      });
+      if(i>0)pdf.addPage([W,H],'portrait');
+      pdf.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,W,H,undefined,'FAST');
+    }
+    pdf.save(window._pdfName || 'Katalog-pica-CasaLoca.pdf');
+  }catch(e){alert('PDF greška: '+e.message);}
+  finally{
+    orig.forEach((src,img)=>{img.src=src;img.style.visibility='';});
+    document.getElementById('topbar').style.display='flex';
+    btn.className='btn-pdf';btn.innerHTML='<i class="fas fa-download"></i> Preuzmi PDF';
+  }
+};
+
+build();
+</script>
+</body>
+</html>

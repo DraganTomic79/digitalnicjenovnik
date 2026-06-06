@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Upravljanje Menijem</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="admin-styles.css?v=20260430d">
+  <style>
+    .size-recommendation { background: #e7f3ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #17a2b8; font-size: 0.8rem; line-height: 1.4; margin-top: 8px; }
+    .size-recommendation strong { color: #0c5460; }
+    .size-recommendation i { margin-right: 6px; }
+    
+    /* === DUGMAD ZA PREVOĐENJE === */
+    .language-switcher {
+      position: absolute !important;
+      top: 15px !important;
+      right: 15px !important;
+      display: flex !important;
+      gap: 5px !important;
+      z-index: 1000 !important;
+      flex-wrap: wrap;
+    }
+    
+    .language-btn {
+      padding: 8px 10px !important;
+      border: 2px solid #ddd !important;
+      background: white !important;
+      color: #333 !important;
+      border-radius: 8px !important;
+      cursor: pointer !important;
+      font-size: 16px !important;
+      transition: all 0.3s ease !important;
+      min-width: 40px !important;
+      height: 40px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .language-btn:hover {
+      border-color: #667eea !important;
+      background: #f8f9fa !important;
+      transform: translateY(-1px) !important;
+    }
+    
+    .language-btn.active {
+      border-color: #667eea !important;
+      background: linear-gradient(135deg, #667eea, #764ba2) !important;
+      color: white !important;
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3) !important;
+    }
+    
+    /* Responsive za dugmad */
+    @media (max-width: 768px) {
+      .language-switcher {
+        top: 8px !important;
+        right: 8px !important;
+        flex-direction: column !important;
+        gap: 3px !important;
+      }
+      
+      .language-btn {
+        min-width: 32px !important;
+        height: 32px !important;
+        font-size: 13px !important;
+        padding: 4px 6px !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .language-switcher {
+        top: 5px !important;
+        right: 5px !important;
+        flex-direction: column !important;
+        gap: 2px !important;
+      }
+      
+      .language-btn {
+        min-width: 28px !important;
+        height: 28px !important;
+        font-size: 12px !important;
+        padding: 3px 5px !important;
+      }
+    }
+    
+    @media (max-width: 360px) {
+      .language-switcher {
+        flex-direction: column !important;
+        gap: 2px !important;
+        top: 3px !important;
+        right: 3px !important;
+      }
+      
+      .language-btn {
+        min-width: 25px !important;
+        height: 25px !important;
+        font-size: 11px !important;
+        padding: 2px 4px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- HEADER -->
+    <div class="header">
+      <h1><i class="fas fa-crown" style="color: #ffd700; margin-right: 8px;"></i> Admin Panel</h1>
+      <p>Upravljanje menijem i postavkama sajta</p>
+      <div style="margin-top: 15px;">
+        <a href="index.html" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-external-link-alt"></i> Pogledaj sajt</a>
+		<a href="firebase-export-tool.html" target="_blank" class="btn btn-export btn-sm"><i class="fas fa-download"></i> Export Artikala</a>
+		<button onclick="otвориKatalogModal()" class="btn btn-sm" style="background:#C6A664;color:#1a1a1a;font-weight:700"><i class="fas fa-book-open"></i> Katalog Pića</button>
+
+        <a href="login.html" class="btn btn-secondary btn-sm"><i class="fas fa-sign-out-alt"></i> Odjavi se</a>
+      </div>
+    </div>
+
+    <!-- MOBILE TABS -->
+    <div class="mobile-tabs" id="categoryTabs">
+      <button class="tab-btn active" data-tab="glavne-kategorije"><i class="fas fa-layer-group"></i><span>Glavne</span></button>
+      <button class="tab-btn" data-tab="kategorije"><i class="fas fa-folder"></i><span>Kategorije</span></button>
+      <button class="tab-btn" data-tab="podkategorije"><i class="fas fa-tags"></i><span>Podkategorije</span></button>
+      <button class="tab-btn" data-tab="artikli"><i class="fas fa-shopping-cart"></i><span>Artikli</span></button>
+      <button class="tab-btn" data-tab="postavke"><i class="fas fa-cog"></i><span>Postavke</span></button>
+    </div>
+
+    <!-- GLAVNE KATEGORIJE -->
+    <div id="glavne-kategorije-tab" class="tab-content active">
+      <div class="main-content">
+        <div class="card">
+          <h3><i class="fas fa-layer-group"></i> Nova Glavna Kategorija</h3>
+          <div class="form-section">
+            <div class="form-group">
+              <label for="novaGlavnaKategorija"><i class="fas fa-tag"></i> Naziv *</label>
+              <input type="text" class="form-control" id="novaGlavnaKategorija" placeholder="Unesite naziv glavne kategorije">
+            </div>
+            <div class="form-group">
+              <label for="ikonaGlavneKategorije"><i class="fas fa-image"></i> Ikona</label>
+              <input type="file" class="form-control" id="ikonaGlavneKategorije" accept="image/*">
+              <div class="size-recommendation"><i class="fas fa-info-circle" style="color: #17a2b8;"></i> <strong>Preporučena veličina:</strong> 64x64px | Format: PNG, JPG | Max: 2MB</div>
+            </div>
+            <div class="form-group">
+              <label>Pregled ikone:</label>
+              <div id="glavnaIkonaPreview" class="icon-preview"><p>Ikona nije odabrana</p></div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-primary" id="dodajGlavnuKategorijuBtn"><i class="fas fa-plus"></i> Dodaj</button>
+              <button type="button" class="btn btn-success d-none" id="sacuvajGlavnuKategorijuBtn"><i class="fas fa-save"></i> Sačuvaj</button>
+              <button type="button" class="btn btn-secondary d-none" id="otkaziGlavnuKategorijuBtn"><i class="fas fa-times"></i> Otkaži</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-list"></i> Lista Glavnih Kategorija</h3>
+          <div id="listaGlavnihKategorija" class="list-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KATEGORIJE -->
+    <div id="kategorije-tab" class="tab-content">
+      <div class="main-content">
+        <div class="card">
+          <h3><i class="fas fa-folder"></i> Nova Kategorija</h3>
+          <div class="form-section">
+            <div class="form-group">
+              <label for="selectGlavnaKategorija"><i class="fas fa-layer-group"></i> Glavna kategorija</label>
+              <select class="form-control" id="selectGlavnaKategorija"><option value="">Odaberite glavnu kategoriju (opciono)</option></select>
+            </div>
+            <div class="form-group">
+              <label for="novaKategorija"><i class="fas fa-tag"></i> Naziv *</label>
+              <input type="text" class="form-control" id="novaKategorija" placeholder="Unesite naziv kategorije">
+            </div>
+            <div class="form-group">
+              <label for="ikonaKategorije"><i class="fas fa-image"></i> Ikona</label>
+              <input type="file" class="form-control" id="ikonaKategorije" accept="image/*">
+              <div class="size-recommendation"><i class="fas fa-info-circle" style="color: #17a2b8;"></i> <strong>Preporučena veličina:</strong> 64x64px | Format: PNG, JPG | Max: 2MB</div>
+            </div>
+            <div class="form-group">
+              <label>Pregled ikone:</label>
+              <div id="ikonaPreview" class="icon-preview"><p>Ikona nije odabrana</p></div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-primary" id="dodajKategorijuBtn"><i class="fas fa-plus"></i> Dodaj</button>
+              <button type="button" class="btn btn-success d-none" id="sacuvajKategorijuBtn"><i class="fas fa-save"></i> Sačuvaj</button>
+              <button type="button" class="btn btn-secondary d-none" id="otkaziKategorijuBtn"><i class="fas fa-times"></i> Otkaži</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-list"></i> Lista Kategorija</h3>
+          <div id="listaKategorija" class="list-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PODKATEGORIJE -->
+    <div id="podkategorije-tab" class="tab-content">
+      <div class="main-content">
+        <div class="card">
+          <h3><i class="fas fa-tags"></i> Nova Podkategorija</h3>
+          <div class="form-section">
+            <div class="form-group">
+              <label for="selectKategorijaPodkategorija"><i class="fas fa-folder"></i> Kategorija *</label>
+              <select class="form-control" id="selectKategorijaPodkategorija"><option value="">Odaberite kategoriju</option></select>
+            </div>
+            <div class="form-group">
+              <label for="novaPodkategorija"><i class="fas fa-tag"></i> Naziv *</label>
+              <input type="text" class="form-control" id="novaPodkategorija" placeholder="npr. Žestoka pića, Gazirane vode...">
+            </div>
+            <div class="form-group">
+              <label for="ikonaPodkategorije"><i class="fas fa-image"></i> Ikona</label>
+              <input type="file" class="form-control" id="ikonaPodkategorije" accept="image/*">
+              <div class="size-recommendation"><i class="fas fa-info-circle" style="color: #17a2b8;"></i> <strong>Preporučena veličina:</strong> 64x64px | Format: PNG, JPG | Max: 2MB</div>
+            </div>
+            <div class="form-group">
+              <label>Pregled ikone:</label>
+              <div id="podkategorijaIkonaPreview" class="icon-preview"><p>Ikona nije odabrana</p></div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-primary" id="dodajPodkategorijuBtn"><i class="fas fa-plus"></i> Dodaj</button>
+              <button type="button" class="btn btn-success d-none" id="sacuvajPodkategorijuBtn"><i class="fas fa-save"></i> Sačuvaj</button>
+              <button type="button" class="btn btn-secondary d-none" id="otkaziPodkategorijuBtn"><i class="fas fa-times"></i> Otkaži</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-list"></i> Lista Podkategorija</h3>
+          <div id="listaPodkategorija" class="list-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARTIKLI -->
+    <div id="artikli-tab" class="tab-content">
+      <div class="main-content full-width">
+        <div class="card">
+          <h3><i class="fas fa-shopping-cart"></i> Upravljanje Artiklima</h3>
+          
+          <div class="form-section">
+            <h4><i class="fas fa-plus-circle"></i> Novi Artikal</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div>
+                <div class="form-group">
+                  <label for="selectPodkategorija"><i class="fas fa-tags"></i> Podkategorija *</label>
+                  <select class="form-control" id="selectPodkategorija"><option value="">Odaberite podkategoriju</option></select>
+                </div>
+                <div class="form-group">
+                  <label for="nazivArtikla"><i class="fas fa-tag"></i> Naziv *</label>
+                  <input type="text" class="form-control" id="nazivArtikla" placeholder="Unesite naziv artikla">
+                </div>
+                <div class="form-group">
+                  <label for="cijenaArtikla"><i class="fas fa-euro-sign"></i> Cijena *</label>
+                  <div class="currency-input-container">
+                    <input type="text" class="form-control" id="cijenaArtikla" placeholder="0.00">
+                    <span class="currency-suffix"></span>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="form-group">
+                  <label for="opisArtikla"><i class="fas fa-info-circle"></i> Opis</label>
+                  <input type="text" class="form-control" id="opisArtikla" placeholder="Kratki opis artikla (opciono)">
+                </div>
+                <div class="form-group">
+                  <label for="slikaArtikla"><i class="fas fa-image"></i> Slika</label>
+                  <input type="file" class="form-control" id="slikaArtikla" accept="image/*">
+                  <div class="size-recommendation"><i class="fas fa-info-circle" style="color: #17a2b8;"></i> <strong>Preporučena veličina:</strong> 300x300px | Format: PNG, JPG | Max: 3MB</div>
+                </div>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-primary" id="dodajArtikalBtn"><i class="fas fa-plus"></i> Dodaj Artikal</button>
+              <button type="button" class="btn btn-success d-none" id="sacuvajIzmjenuBtn"><i class="fas fa-save"></i> Sačuvaj</button>
+              <button type="button" class="btn btn-secondary d-none" id="otkaziIzmjenuBtn"><i class="fas fa-times"></i> Otkaži</button>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h4><i class="fas fa-list"></i> Lista Artikala</h4>
+            <div id="listaArtikala" class="list-container" style="max-height: 500px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POSTAVKE -->
+    <div id="postavke-tab" class="tab-content">
+      <div class="main-content full-width">
+        <div class="card">
+          <h3><i class="fas fa-cog"></i> Postavke Sajta</h3>
+          
+          <div class="postavke-grid">
+            <!-- LOGO -->
+            <div class="form-section">
+              <h4><i class="fas fa-image"></i> Logo</h4>
+              <div class="form-group">
+                <input type="file" class="form-control" id="logoInput" accept="image/*">
+                <div class="size-recommendation"><i class="fas fa-info-circle" style="color: #17a2b8;"></i> <strong>Preporučena veličina:</strong> 300x120px (horizontalni format) | Format: PNG, JPG | max: 3MB</div>
+              </div>
+              <div id="logoPreview" class="logo-preview"><p>Logo trenutno nije postavljen</p></div>
+              <div class="form-actions">
+                <button type="button" class="btn btn-primary" id="uploadLogoBtn">Upload</button>
+                <button type="button" class="btn btn-danger d-none" id="ukloniLogoBtn">Ukloni</button>
+              </div>
+            </div>
+
+            <!-- VALUTA -->
+            <div class="form-section">
+              <h4><i class="fas fa-coins"></i> Valuta</h4>
+              <div class="form-group">
+                <label for="currencyCode">Kod valute (opciono)</label>
+                <input type="text" class="form-control" id="currencyCode" placeholder="npr. KM, EUR, USD... (ostaviti prazno za bez valute)" maxlength="5">
+                <small class="form-text text-muted">Ostavite prazno ako ne želite prikazati valutu pored cijena</small>
+              </div>
+              <div class="form-actions">
+                <button type="button" class="btn btn-primary" id="saveCurrencyBtn"><i class="fas fa-save"></i> Sačuvaj</button>
+                <button type="button" class="btn btn-secondary" id="resetCurrencyBtn"><i class="fas fa-eraser"></i> Ukloni valute</button>
+              </div>
+            </div>
+
+            <!-- HERO -->
+            <div class="form-section">
+              <h4><i class="fas fa-home"></i> Hero Sekcija</h4>
+              <div class="form-group">
+                <label for="heroTitle">Naslov</label>
+                <input type="text" class="form-control" id="heroTitle" placeholder="Our Menu">
+              </div>
+              <div class="form-group">
+                <label for="heroSubtitle">Podnaslov</label>
+                <input type="text" class="form-control" id="heroSubtitle" placeholder="Podnaslov...">
+              </div>
+              <div class="form-actions">
+                <button type="button" class="btn btn-primary" id="sacuvajHeroBtn">Sačuvaj</button>
+                <button type="button" class="btn btn-secondary" id="resetHeroBtn">Reset</button>
+              </div>
+            </div>
+
+            <!-- FOOTER -->
+            <div class="form-section">
+              <h4><i class="fas fa-layer-group"></i> Footer & Društvene Mreže</h4>
+              <div class="form-group">
+                <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;background:#f0f4ff;border-radius:10px;border:2px solid #d0d8f0;">
+                  <label class="toggle-switch" style="position:relative;display:inline-block;width:52px;height:28px;flex-shrink:0;margin:0">
+                    <input type="checkbox" id="footerEnabled" style="opacity:0;width:0;height:0;position:absolute">
+                    <span style="
+                      position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;
+                      background:#ccc;border-radius:28px;transition:.3s;
+                    " id="footerToggleTrack"></span>
+                    <span style="
+                      position:absolute;content:'';height:20px;width:20px;left:4px;bottom:4px;
+                      background:white;border-radius:50%;transition:.3s;box-shadow:0 2px 4px rgba(0,0,0,.3);
+                    " id="footerToggleThumb"></span>
+                  </label>
+                  <div>
+                    <div style="font-weight:700;font-size:.95rem;color:#333" id="footerToggleLabel">Footer je ISKLJUČEN</div>
+                    <div style="font-size:.78rem;color:#888">Uključi da bi footer bio vidljiv na sajtu</div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="footerText">Footer tekst</label>
+                <input type="text" class="form-control" id="footerText" placeholder="Footer tekst">
+              </div>
+              
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <h6><i class="fab fa-instagram" style="color: #E4405F;"></i> Instagram</h6>
+                <input type="url" class="form-control" id="instagramUrl" placeholder="https://instagram.com/username">
+              </div>
+              
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <h6><i class="fab fa-facebook" style="color: #1877F2;"></i> Facebook</h6>
+                <input type="url" class="form-control" id="facebookUrl" placeholder="https://facebook.com/username">
+              </div>
+              
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <h6><i class="fab fa-youtube" style="color: #FF0000;"></i> YouTube</h6>
+                <input type="url" class="form-control" id="youtubeUrl" placeholder="https://youtube.com/channel/username">
+              </div>
+              
+<div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+  <h6><i class="fab fa-x" style="color: #000000;"></i> X</h6>
+  <input type="url" class="form-control" id="twitterUrl" placeholder="https://x.com/username">
+</div>
+
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <h6><i class="fab fa-tiktok" style="color: #000000;"></i> TikTok</h6>
+                <input type="url" class="form-control" id="tiktokUrl" placeholder="https://tiktok.com/@username">
+              </div>
+              
+              <div class="form-actions">
+                <button type="button" class="btn btn-primary" id="sacuvajFooterBtn">Sačuvaj Footer</button>
+                <button type="button" class="btn btn-secondary" id="resetFooterBtn">Reset</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section" style="text-align: center; margin-top: 30px;">
+            <button type="button" class="btn btn-success" id="sacuvajPostavkeBtn" style="padding: 15px 30px; font-size: 1.1rem;">
+              <i class="fas fa-save"></i> Sačuvaj Sve Postavke
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="notificationToast" class="toast position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+    <div class="toast-header">
+      <strong class="me-auto" id="toastTitle">Obavještenje</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+    </div>
+    <div class="toast-body" id="toastMessage"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Include Translation Manager -->
+  <script src="translation-manager.js?v=20260430d"></script>
+  <script type="module" src="js/admin-controller.js?v=20260430d"></script>
+<script>
+// Footer toggle switch visual logic
+(function() {
+  function initToggle() {
+    const cb    = document.getElementById('footerEnabled');
+    const track = document.getElementById('footerToggleTrack');
+    const thumb = document.getElementById('footerToggleThumb');
+    const lbl   = document.getElementById('footerToggleLabel');
+    if (!cb || !track || !thumb) return;
+
+    function update() {
+      const on = cb.checked;
+      track.style.background = on ? '#4CAF50' : '#ccc';
+      thumb.style.transform  = on ? 'translateX(24px)' : 'translateX(0)';
+      lbl.textContent = on ? 'Footer je UKLJUČEN ✓' : 'Footer je ISKLJUČEN';
+      lbl.style.color = on ? '#2e7d32' : '#333';
+    }
+
+    cb.addEventListener('change', update);
+    // Run on load (after AdminController sets checked state)
+    const obs = new MutationObserver(update);
+    obs.observe(cb, { attributes: true, attributeFilter: ['checked'] });
+    // Also poll briefly since checkbox is set programmatically
+    let tries = 0;
+    const poll = setInterval(() => { update(); if (++tries > 20) clearInterval(poll); }, 200);
+  }
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', initToggle);
+  else
+    initToggle();
+})();
+</script>
+<script>
+function otвориKatalogModal() {
+  // Remove old modal if exists
+  var old = document.getElementById('katalogModalBody');
+  if (old) old.remove();
+
+  var m = document.createElement('div');
+  m.id = 'katalogModalBody';
+  m.style.cssText = [
+    'position:fixed','top:0','left:0','width:100%','height:100%',
+    'background:rgba(0,0,0,.8)','z-index:2147483647',
+    'display:flex','align-items:center','justify-content:center','padding:20px',
+    'box-sizing:border-box'
+  ].join(';');
+
+  m.innerHTML = `
+    <div style="background:#1e1e2e;border:2px solid #C6A664;border-radius:14px;
+      padding:32px 28px;max-width:340px;width:100%;text-align:center;
+      box-shadow:0 8px 40px rgba(0,0,0,.8);">
+      <h3 style="color:#C6A664;font-size:1.1rem;font-weight:800;margin:0 0 8px">
+        📖 Katalog Pića
+      </h3>
+      <p style="color:#94a3b8;font-size:.85rem;margin:0 0 24px">
+        Kako želiš otvoriti katalog?
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <a href="katalog.html?cijene=1" target="_blank"
+          onclick="document.getElementById('katalogModalBody').remove()"
+          style="background:linear-gradient(135deg,#C6A664,#9E8344);color:#1a1a1a;
+            font-weight:800;padding:12px;border-radius:8px;text-decoration:none;
+            font-size:.9rem;display:block">
+          🏷️ Sa cijenama
+        </a>
+        <a href="katalog.html?cijene=0" target="_blank"
+          onclick="document.getElementById('katalogModalBody').remove()"
+          style="background:#2a2a3e;color:#C6A664;border:2px solid #C6A664;
+            font-weight:800;padding:12px;border-radius:8px;text-decoration:none;
+            font-size:.9rem;display:block">
+          🚫 Bez cijena
+        </a>
+        <button onclick="document.getElementById('katalogModalBody').remove()"
+          style="background:transparent;color:#64748b;border:none;font-size:.8rem;
+            cursor:pointer;padding:6px;margin-top:4px">
+          Otkaži
+        </button>
+      </div>
+    </div>`;
+
+  // Click outside to close
+  m.addEventListener('click', function(e){
+    if (e.target === m) m.remove();
+  });
+
+  document.body.appendChild(m);
+}
+</script>
+</body>
+</html>
+</html>

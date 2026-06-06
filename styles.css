@@ -1,0 +1,668 @@
+/* =========================================================
+   VARIJABLE BOJA
+   ========================================================= */
+:root {
+  --primary-color: #C6A664;
+  --secondary-color: #9E8344;
+  --accent-color: #C6A664;
+  --dark: #1C1C1C;
+  --dark2: #242424;
+}
+
+/* =========================================================
+   OSNOVNI STILOVI STRANICE
+   ========================================================= */
+body {
+  scroll-behavior: smooth;
+  background: #1C1C1C;
+}
+
+/* =========================================================
+   LOGO PLACEHOLDER
+   ========================================================= */
+.logo-placeholder {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+}
+.logo-placeholder::before {
+  content: "QR";
+}
+
+/* =========================================================
+   SOCIAL IKONICE
+   ========================================================= */
+.social-icons a {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+.social-icons a:hover {
+  background: var(--primary-color);
+  color: white !important;
+  border-color: var(--primary-color);
+}
+
+/* =========================================================
+   LANGUAGE TOGGLE
+   ========================================================= */
+.language-toggle {
+  display: flex;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--primary-color);
+}
+.language-toggle .lang-btn {
+  border: none;
+  border-radius: 0;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  font-weight: 600;
+  min-width: 35px;
+}
+.language-toggle .lang-btn.active {
+  background: var(--primary-color);
+  color: white;
+}
+.language-toggle .lang-btn:not(.active) {
+  background: transparent;
+  color: var(--primary-color);
+}
+.language-toggle .lang-btn:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+.navbar-toggler {
+  border: 1px solid var(--primary-color) !important;
+  padding: .25rem .5rem;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+.navbar-toggler:focus {
+  box-shadow: none;
+}
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(198,166,100,1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+.navbar {
+  background: var(--dark) !important;
+  border-bottom: 2px solid var(--primary-color);
+  box-shadow: 0 2px 20px rgba(0,0,0,.4);
+  position: relative;
+}
+.navbar .nav-link { color: rgba(255,255,255,.8) !important; }
+.navbar .nav-link:hover, .navbar .nav-link.active { color: var(--primary-color) !important; }
+.navbar-brand {
+  font-size: 1rem;
+  color: var(--primary-color) !important;
+}
+.navbar-logo {
+  height: 34px;
+  width: auto;
+  max-height: 38px;
+}
+/* Sprečava prelazak u drugi red na mobilnom — samo top bar */
+.navbar > .container,
+.navbar > .container-fluid {
+  flex-wrap: nowrap !important;
+  gap: 4px;
+  align-items: center;
+}
+/* Collapse se prikazuje ispod kao block */
+.navbar-collapse {
+  flex-basis: 100% !important;
+  flex-grow: 1;
+}
+/* Na mobilnom — kompaktni navbar */
+@media (max-width: 575px) {
+  .navbar-brand { font-size: .85rem; }
+  .navbar-brand .navbar-logo { height: 26px; }
+  .social-icons a { width: 26px; height: 26px; font-size: .75rem; }
+  .language-toggle .lang-btn { padding: .2rem .5rem; font-size: .7rem; min-width: 28px; }
+}
+
+/* =========================================================
+   HERO SEKCIJA
+   ========================================================= */
+.hero-section {
+  background: linear-gradient(135deg, #1C1C1C 0%, #2a1f0e 55%, #1C1C1C 100%);
+  padding: 0 0 40px 0;
+  margin-top: 0;
+  padding-top: 28px;
+  position: relative;
+}
+.qr-showcase {
+  padding: 1rem 0;
+}
+.phone-mockup {
+  width: 150px;
+  height: 220px;
+  background: linear-gradient(160deg, #2a2a2a, #1a1a1a);
+  border-radius: 22px;
+  border: 2px solid rgba(198,166,100,.35);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 16px 48px rgba(0,0,0,.5), 0 0 0 1px rgba(198,166,100,.1);
+  position: relative;
+}
+.phone-mockup::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 4px;
+  background: rgba(198,166,100,.3);
+  border-radius: 2px;
+}
+.phone-screen {
+  background: #fafafa;
+  border-radius: 12px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 10px 10px;
+}
+.phone-screen img {
+  width: 75px;
+  height: 75px;
+  margin-bottom: 6px;
+}
+.scan-btn {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: var(--dark);
+  border: none;
+  padding: 5px 14px;
+  border-radius: 12px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  margin-top: 8px;
+  letter-spacing: .3px;
+}
+
+/* =========================================================
+   PREDNOSTI SEKCIJA
+   ========================================================= */
+.advantage-card {
+  background: white;
+  padding: 2rem 1.5rem;
+  border-radius: 15px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  /* Uklanjamo skrivene elemente - sada su odmah vidljivi */
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.advantage-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.advantage-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.advantage-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--dark), var(--dark2));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+  font-size: 2rem;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba(198,166,100,.2);
+}
+
+.advantage-icon::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.advantage-card:hover .advantage-icon::after {
+  transform: translateX(100%);
+}
+
+.advantage-card h5 {
+  color: #333;
+  font-weight: 600;
+}
+
+.advantage-card p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   PARTNERI SEKCIJA
+   ========================================================= */
+.partners-section {
+  padding: 1rem 0;
+  background: white;
+}
+
+/* =========================================================
+   PAKETI - KARTICE
+   ========================================================= */
+.g-4, .gy-4 {
+    --bs-gutter-y: 1.5rem;
+    justify-content: center;
+}
+.package-card {
+  transition: transform 0.3s ease;
+  border: 2px solid transparent;
+  /* Uklanjamo skrivene elemente - sada su odmah vidljivi */
+  opacity: 1;
+  transform: translateY(0);
+}
+.package-card:hover {
+  transform: translateY(-5px);
+}
+.package-card.featured {
+  border-color: var(--primary-color);
+  position: relative;
+}
+.badge-popular {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: var(--dark);
+  padding: 5px 15px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.price-display {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--dark);
+  margin: 1rem 0;
+}
+
+/* =========================================================
+   PACKAGE PERIOD STYLING - NOVA KLASA
+   ========================================================= */
+.package-period {
+  color: var(--primary-color) !important;
+  font-weight: 500 !important;
+  font-size: 0.9rem !important;
+  margin-bottom: 1.5rem !important;
+  padding: 0.5rem 1rem;
+  background: rgba(198, 166, 100, 0.1);
+  border-radius: 8px;
+  border-left: 3px solid var(--primary-color);
+}
+
+/* =========================================================
+   PARTNER KARTICE
+   ========================================================= */
+.partner-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 15px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  max-width: 350px;
+  margin: 0 auto;
+  position: relative;
+  /* Uklanjamo skrivene elemente - sada su odmah vidljivi */
+  opacity: 1;
+  transform: translateY(0);
+}
+.partner-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+.partner-logo-img {
+  width: 300px;
+  height: 100px;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f8f9fa;
+  position: relative;
+}
+.partner-logo-image {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 90%;
+  max-height: 80%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+.qr-code-preview {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--primary-color);
+  z-index: 10;
+}
+
+/* =========================================================
+   KONTAKT SEKCIJA
+   ========================================================= */
+.contact-section {
+  padding: 1rem 0;
+  background: white;
+}
+
+.contact-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, var(--dark), var(--dark2));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+  border: 2px solid rgba(198,166,100,.25);
+}
+
+.col-12 {
+    margin-bottom: 10px;
+    flex: 0 0 auto;
+    width: 100%;
+}
+
+/* =========================================================
+   BUTTON STILOVI
+   ========================================================= */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border: none;
+  color: var(--dark);
+  font-weight: 700;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+  transform: translateY(-2px);
+}
+.btn-outline-primary {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+.btn-outline-primary:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+footer {
+  background-color: #1c1c1c !important;
+  color: #ccc !important;
+}
+
+footer * {
+  color: #ccc !important;
+}
+
+footer a {
+  color: #ccc !important;
+  text-decoration: none;
+}
+
+footer a:hover {
+  color: white !important;
+  text-decoration: underline;
+}
+
+footer h5,
+footer h6 {
+  color: #fff !important;
+  font-weight: 600;
+}
+
+footer .btn-outline-light {
+  color: #ccc !important;
+  border-color: #ccc !important;
+}
+
+footer .btn-outline-light:hover {
+  background: white !important;
+  color: #1c1c1c !important;
+  border-color: white !important;
+}
+
+footer p {
+  color: #ccc !important;
+}
+
+footer hr {
+  background-color: #ccc !important;
+  opacity: 0.3;
+  border: none;
+  height: 1px;
+}
+
+footer .text-muted {
+  color: #999 !important;
+}
+
+.py-5 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+}
+
+/* =========================================================
+   BACK TO TOP
+   ========================================================= */
+#backToTop {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  display: none;
+  z-index: 1000;
+  width: 45px;
+  height: 45px;
+}
+
+/* =========================================================
+   ANIMACIJE - OPCIONALNE (samo za hover efekte)
+   ========================================================= */
+/* Uklanjamo problematične animacije koje skrivaju sadržaj */
+.partner-card.animate,
+.package-card.animate,
+.advantage-card.animate {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* =========================================================
+   VALIDACIJA FORMI
+   ========================================================= */
+.form-control.is-invalid {
+  border-color: #dc3545;
+}
+.form-control.is-valid {
+  border-color: var(--accent-color);
+}
+
+/* =========================================================
+   RESPONSIVE STILOVI
+   ========================================================= */
+@media (max-width: 991px) {
+  .navbar-collapse {
+    background: var(--dark2);
+    padding: .5rem 1rem 1rem;
+    border-top: 1px solid rgba(198,166,100,.2);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  }
+}
+
+@media (max-width: 768px) {
+  .phone-mockup {
+    width: 120px;
+    height: 180px;
+  }
+  .hero-section {
+    padding-top: 56px;
+  }
+  .navbar-logo {
+    height: 32px;
+  }
+  .partner-logo-img {
+    width: 280px;
+    height: 90px;
+  }
+  
+  .advantage-card {
+    padding: 1.5rem 1rem;
+  }
+  
+  .advantage-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-section {
+    padding: 26px 0 25px 0;
+    text-align: center;
+  }
+  
+  .hero-section h1 {
+    font-size: 1.8rem;
+  }
+  
+  .hero-section .btn {
+    display: inline-block;
+    margin: 0.3rem auto;
+  }
+  
+  .hero-section .btn-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .price-display {
+    font-size: 1.8rem;
+  }
+  
+  .partner-card {
+    padding: 1rem;
+  }
+  
+  .qr-code-preview {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+  }
+  
+  .advantage-card {
+    padding: 1.5rem 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .package-period {
+    font-size: 0.8rem !important;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+/* =========================================================
+   RAZMAK OD VRHA SEKCIJE DO NASLOVA
+   ========================================================= */
+section h2, section h3, section h4 {
+  margin-top: 20px;
+}
+/* =========================================================
+   OVERRIDE — Bootstrap plava boja (border-primary, btn-outline)
+   ========================================================= */
+
+/* Featured paket — zlatni obrub umjesto plavog */
+.package-card.featured.border-primary {
+  border-color: var(--primary-color) !important;
+}
+
+/* Toggle dugme "Pogledaj sve detalje" — neutralni stil */
+.package-toggle-btn,
+.btn-outline-secondary.package-toggle-btn {
+  color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  background: transparent !important;
+}
+.package-toggle-btn:hover,
+.package-toggle-btn:focus,
+.package-toggle-btn:active,
+.package-toggle-btn:not(.collapsed),
+.btn-outline-secondary.package-toggle-btn:hover,
+.btn-outline-secondary.package-toggle-btn:focus,
+.btn-outline-secondary.package-toggle-btn:active {
+  color: var(--dark) !important;
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Bootstrap focus ring — ukloni plavi outline na svim elementima */
+.package-toggle-btn:focus-visible,
+.btn:focus-visible {
+  outline: 2px solid var(--primary-color) !important;
+  outline-offset: 2px !important;
+  box-shadow: none !important;
+}
