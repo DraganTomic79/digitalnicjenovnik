@@ -198,7 +198,7 @@ class AdminController {
         'dodaj', 'sacuvaj', 'otkazi', 'listaContainer'
       ], 
       artikal: [
-        'naziv', 'cijena', 'podkategorijaSelect', 'opis', 'slika',
+        'naziv', 'cijena', 'podkategorijaSelect', 'opis', 'opis2', 'slika',
         'dodaj', 'sacuvaj', 'otkazi', 'listaContainer'
       ], 
       postavke: [
@@ -259,6 +259,7 @@ class AdminController {
         cijena: 'cijenaArtikla', 
         podkategorijaSelect: 'selectPodkategorija', 
         opis: 'opisArtikla', 
+        opis2: 'opisArtikla2', 
         slika: 'slikaArtikla', 
         dodaj: 'dodajArtikalBtn', 
         sacuvaj: 'sacuvajIzmjenuBtn', 
@@ -1049,6 +1050,7 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
         cijena: el.cijena?.value?.trim() || "", 
         podkategorija: podkategorija, 
         opis: el.opis?.value?.trim() || "", 
+        opis2: el.opis2?.value?.trim() || "", 
         imageFile: base.imageFile 
       }; 
     } 
@@ -1097,6 +1099,8 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
           podkategorija: data.podkategorija, 
           podkategorijaId: podkat?.id || null, 
           opis: data.opis, 
+        opis2: data.opis2 || "", 
+          opis2: data.opis2 || "", 
           slikaURL: imageURL 
         } 
       }; 

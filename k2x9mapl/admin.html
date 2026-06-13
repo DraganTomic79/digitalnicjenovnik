@@ -6,7 +6,7 @@
   <title>Admin Panel - Upravljanje Menijem</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="admin-styles.css?v=20260430d">
+  <link rel="stylesheet" href="admin-styles.css?v=20260613">
   <style>
     .size-recommendation { background: #e7f3ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #17a2b8; font-size: 0.8rem; line-height: 1.4; margin-top: 8px; }
     .size-recommendation strong { color: #0c5460; }
@@ -266,8 +266,12 @@
               </div>
               <div>
                 <div class="form-group">
-                  <label for="opisArtikla"><i class="fas fa-info-circle"></i> Opis</label>
+                  <label for="opisArtikla"><i class="fas fa-info-circle"></i> Opis 1</label>
                   <input type="text" class="form-control" id="opisArtikla" placeholder="Kratki opis artikla (opciono)">
+                </div>
+                <div class="mb-3">
+                  <label for="opisArtikla2"><i class="fas fa-info-circle"></i> Opis 2 <small class="text-muted">(dodatni opis, manji font)</small></label>
+                  <input type="text" class="form-control" id="opisArtikla2" placeholder="Drugi opis (opciono)">
                 </div>
                 <div class="form-group">
                   <label for="slikaArtikla"><i class="fas fa-image"></i> Slika</label>
@@ -423,8 +427,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Include Translation Manager -->
-  <script src="translation-manager.js?v=20260430d"></script>
-  <script type="module" src="js/admin-controller.js?v=20260430d"></script>
+  <script src="translation-manager.js?v=20260613"></script>
+  <script type="module" src="js/admin-controller.js?v=20260613"></script>
 <script>
 // Footer toggle switch visual logic
 (function() {

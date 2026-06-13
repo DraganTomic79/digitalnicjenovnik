@@ -419,7 +419,7 @@ class MenuApp {
         translatedDescription = this.translationManager ? 
           this.translationManager.translateDescription(item.opis) : item.opis;
       }
-      return `<div class="item-card">${imageElement}<div class="item-info"><div class="item-name">${this.sanitizeHtml(translatedNaziv)}</div><div class="item-description">${this.sanitizeHtml(translatedDescription)}</div></div><div class="item-price">${priceDisplay}</div></div>`;
+      const opis2 = item.opis2 ? this.sanitizeHtml(item.opis2) : ''; return `<div class="item-card">${imageElement}<div class="item-info"><div class="item-name">${this.sanitizeHtml(translatedNaziv)}</div><div class="item-description">${this.sanitizeHtml(translatedDescription)}</div>${opis2 ? `<div class="item-description2">${opis2}</div>` : ''}</div><div class="item-price">${priceDisplay}</div></div>`;
     }).join('');
   }
 
@@ -480,7 +480,7 @@ class MenuApp {
         <div class="modal-info" onclick="event.stopPropagation()">
           <div class="modal-info-naziv">${this.sanitizeHtml(naziv)}</div>
           ${cijena ? `<div class="modal-info-cijena">${cijena}${this.sanitizeHtml(jedinica)}</div>` : ''}
-          ${opis ? `<div class="modal-info-opis">${this.sanitizeHtml(opis)}</div>` : ''}
+          ${opis ? `<div class="modal-info-opis">${this.sanitizeHtml(opis)}</div>` : ''}${item.opis2 ? `<div class="modal-info-opis2">${this.sanitizeHtml(item.opis2)}</div>` : ''}
         </div>`;
     }
     
