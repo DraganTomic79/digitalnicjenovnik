@@ -1099,7 +1099,6 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
           podkategorija: data.podkategorija, 
           podkategorijaId: podkat?.id || null, 
           opis: data.opis, 
-        opis2: data.opis2 || "", 
           opis2: data.opis2 || "", 
           slikaURL: imageURL 
         } 
@@ -1144,6 +1143,7 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
         podkategorija: data.podkategorija, 
         podkategorijaId: podkat?.id || null, 
         opis: data.opis, 
+        opis2: data.opis2 || "", 
         slikaURL: imageURL 
       }; 
     } 
