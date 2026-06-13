@@ -353,9 +353,7 @@ function cardHTML(item){
     :`<i class="fas fa-image ni"></i>`;
   const price=(item.cijena!==undefined&&item.cijena!=='')
     ?`${gCur?gCur+' ':''}${parseFloat(item.cijena).toFixed(2)}`:'';
-  return`<div class="card"><div class="ci">${img}</div><div class="cn">${esc(item.naziv)}</div>${item.opis?`<div class="cd">${esc(item.opis)}</div>`:''}
-${item.opis2?`<div class="cd2">${esc(item.opis2)}</div>`:''}
-  }${item.jedinicaMjere?`<div class="cu">${esc(item.jedinicaMjere)}</div>`:''}<div class="cp">${price}</div></div>`;
+  return`<div class="card"><div class="ci">${img}</div><div class="cn">${esc(item.naziv)}</div>${item.opis?`<div class="cd">${esc(item.opis)}</div>`:''} ${item.opis2?`<div class="cd2">${esc(item.opis2)}</div>`:''} ${item.jedinicaMjere?`<div class="cu">${esc(item.jedinicaMjere)}</div>`:''}<div class="cp">${price}</div></div>`;
 }
 
 function renderPage(data){
