@@ -60,7 +60,9 @@
       "Vodka": "Vodka",
       "Žestoka pića": "Žestoka pića",
       "Kokteli": "Kokteli",
-      "Likeri - Aperitivi": "Likeri - Aperitivi"	  
+      "Likeri - Aperitivi": "Likeri - Aperitivi",
+	  "Sladoledi": "Sladoledi",
+	  "Voćni sladoledi": "Voćni sladoledi"
     },
     
     "items": {
@@ -104,7 +106,8 @@
 	"Vitinka Dunja-Smokva": "Vitinka Dunja-Smokva",
 	"Sanpelegrino Nar-Narandža": "Sanpelegrino Nar-Narandža",
 	"Sanpelegrino Limun-Menta": "Sanpelegrino Limun-Menta",
-	"Paulaner Weissbier Pšenično pivo": "Paulaner Weissbier Pšenično pivo"
+	"Paulaner Weissbier Pšenično pivo": "Paulaner Weissbier Pšenično pivo",
+	"Sladoled Jagoda": "Sladoled Jagoda"
     },
     
     "descriptions": {
@@ -130,7 +133,9 @@
 	"Svijetli Rum, Pepsi, Monin Limeta": "Svijetli Rum, Pepsi, Monin Limeta",
 	"Gin, Tonic Water, Monin Strawberry": "Gin, Tonic Water, Monin Strawberry",
 	"Gin, Bitter Lemon, Monin Pure cane": "Gin, Bitter Lemon, Monin Pure cane",
-	"0.25 lit (prirodna mineralna voda)": "0.25 lit (prirodna mineralna voda)"
+	"0.25 lit (prirodna mineralna voda)": "0.25 lit (prirodna mineralna voda)",
+	"Porcija 150 gr (3 kugle)": "Porcija 150 gr (3 kugle)",
+	"Sladoled po najboljem domaćem receptu": "Sladoled po najboljem domaćem receptu"
     }
   },
   
@@ -195,7 +200,9 @@
       "Vodka": "Vodkas",
       "Žestoka pića": "Spirits",
       "Kokteli": "Cocktails",
-	"Likeri - Aperitivi": "Liqueurs - Aperitifs"
+	  "Likeri - Aperitivi": "Liqueurs - Aperitifs",
+	  "Sladoledi": "Ice Creams",
+	  "Voćni sladoledi": "Fruit Ice Creams"
     },
     
     "items": {
@@ -239,7 +246,8 @@
 	"Vitinka Dunja-Smokva": "Vitinka Quince-Fig",
 	"Sanpelegrino Nar-Narandža": "Sanpelegrino Pomegranate-Orange",
 	"Sanpelegrino Limun-Menta": "Sanpelegrino Lemon-Mint",
-	"Paulaner Weissbier Pšenično pivo": "Paulaner Weissbier Wheat beer"
+	"Paulaner Weissbier Pšenično pivo": "Paulaner Weissbier Wheat beer",
+	"Sladoled Jagoda": "Strawberry Ice Cream"
     },
     
     "descriptions": {
@@ -265,7 +273,9 @@
 	"Svijetli Rum, Pepsi, Monin Limeta": "Light Rum, Pepsi, Monin Lime",
 	"Gin, Tonic Water, Monin Strawberry": "Gin, Tonic Water, Monin Strawberry",
 	"Gin, Bitter Lemon, Monin Pure cane": "Gin, Bitter Lemon, Monin Pure cane",
-	"0.25 lit (prirodna mineralna voda)": "0.25 liter (natural mineral water)"
+	"0.25 lit (prirodna mineralna voda)": "0.25 liter (natural mineral water)",
+	"Porcija 150 gr (3 kugle)": "150 g Serving (3 Scoops)",
+	"Sladoled po najboljem domaćem receptu": "Ice Cream Made Using the Finest Homemade Recipe"
     }
   },
   
@@ -330,7 +340,9 @@
       "Vodka": "Wodkas",
       "Žestoka pića": "Spirituosen",
       "Kokteli": "Cocktails",
-      "Likeri - Aperitivi": "Liköre - Aperitifs"
+      "Likeri - Aperitivi": "Liköre - Aperitifs",
+	  "Sladoledi": "Eiscremes",
+	  "Voćni sladoledi": "Fruchteis"
     },
     
     "items": {
@@ -374,7 +386,8 @@
 	"Vitinka Dunja-Smokva": "Vitinka Quitte-Feige",
 	"Sanpelegrino Nar-Narandža": "Sanpelegrino Granatapfel-Orange",
 	"Sanpelegrino Limun-Menta": "Sanpelegrino Zitrone-Minze",
-	"Paulaner Weissbier Pšenično pivo": "Paulaner Weissbier"
+	"Paulaner Weissbier Pšenično pivo": "Paulaner Weissbier",
+	"Sladoled Jagoda": "Erdbeereis"
     },
     
     "descriptions": {
@@ -400,7 +413,9 @@
 	"Svijetli Rum, Pepsi, Monin Limeta": "Heller Rum, Pepsi, Monin Limette",
 	"Gin, Tonic Water, Monin Strawberry": "Gin, Tonic Water, Monin Erdbeere",
 	"Gin, Bitter Lemon, Monin Pure cane": "Gin, Bitter Lemon, Monin Reiner Zucker",
-	"0.25 lit (prirodna mineralna voda)": "0.25 liter (natürliches Mineralwasser)"
+	"0.25 lit (prirodna mineralna voda)": "0.25 liter (natürliches Mineralwasser)",
+	"Porcija 150 gr (3 kugle)": "Portion 150 g (3 Kugeln)",
+	"Sladoled po najboljem domaćem receptu": "Eis nach unserem besten hausgemachten Rezept"
     }
   }
 }
