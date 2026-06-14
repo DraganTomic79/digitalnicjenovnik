@@ -134,7 +134,8 @@
       "Bez glutena i laktoze": "Bez glutena i laktoze",
       "Prirodni sastojci, bez konzervansa": "Prirodni sastojci, bez konzervansa",
 	  "Porcija 150 gr (3 kugle)": "Porcija 150 gr (3 kugle)",
-	  "Sladoled po najboljem domaćem receptu": "Sladoled po najboljem domaćem receptu"
+	  "Sladoled po najboljem domaćem receptu": "Sladoled po najboljem domaćem receptu",
+	  "2 lit": "2 lit"
     }
   },
   "en": {
@@ -272,7 +273,8 @@
       "Bez glutena i laktoze": "Gluten-free and lactose-free",
       "Prirodni sastojci, bez konzervansa": "Natural ingredients, no preservatives",
 	  "Porcija 150 gr (3 kugle)": "150 g Serving (3 Scoops)",
-	"Sladoled po najboljem domaćem receptu": "Ice Cream Made Using the Finest Homemade Recipe"
+	"Sladoled po najboljem domaćem receptu": "Ice Cream Made Using the Finest Homemade Recipe",
+	"2 lit": "2 liter",
     }
   },
   "de": {
@@ -410,7 +412,8 @@
       "Bez glutena i laktoze": "Gluten- und laktosefrei",
       "Prirodni sastojci, bez konzervansa": "Natürliche Zutaten, ohne Konservierungsstoffe",
 	  "Porcija 150 gr (3 kugle)": "Portion 150 g (3 Kugeln)",
-	"Sladoled po najboljem domaćem receptu": "Eis nach unserem besten hausgemachten Rezept"
+	"Sladoled po najboljem domaćem receptu": "Eis nach unserem besten hausgemachten Rezept",
+	"2 lit": "2 Liter",
     }
   }
 }
