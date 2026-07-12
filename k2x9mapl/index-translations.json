@@ -58,7 +58,7 @@
       "Konjak": "Konjak",
       "Vodka": "Vodka",
       "Žestoka pića": "Žestoka pića",
-	  "Ledeni čajevi": "Ledeni čajevi",
+	  "Ledeni Čajevi": "Ledeni čajevi",
       "Kokteli": "Kokteli",
 	  "Sladoledi": "Sladoledi",
 	  "Voćni sladoledi": "Voćni sladoledi"
@@ -211,8 +211,8 @@
       "Konjak": "Cognacs",
       "Vodka": "Vodkas",
       "Žestoka pića": "Spirits",
+	  "Ledeni Čajevi": "Iced tea",
       "Kokteli": "Cocktails",
-	  "Ledeni čajevi": "Iced tea",
 	  "Sladoledi": "Ice Creams",
 	  "Voćni sladoledi": "Fruit Ice Creams"
     },
@@ -365,7 +365,7 @@
       "Vodka": "Wodkas",
       "Žestoka pića": "Spirituosen",
       "Kokteli": "Cocktails",
-	  "Ledeni čajevi": "Eistee",
+	  "Ledeni Čajevi": "Eistee",
 	  "Sladoledi": "Eiscremes",
 	  "Voćni sladoledi": "Fruchteis"
     },
