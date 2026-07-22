@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Kafic3</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-EDDYKYZG4J"></script>
+  <script>
+     window.dataLayer = window.dataLayer || [];
+     function gtag(){dataLayer.push(arguments);}
+     gtag('js', new Date());
+     gtag('config', 'G-EDDYKYZG4J');
+  </script>
+  
+  <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="index-styles.css?v=20260722" />
+</head>
+<body>
+  <div class="container">
+    <!-- HERO SECTION -->
+    <div class="hero-section">
+      <!-- DUGMAD ZA JEZIKE -->
+      <div class="language-switcher">
+        <button class="language-btn active" data-lang="sr" title="Srpski">🇷🇸</button>
+        <button class="language-btn" data-lang="en" title="English">🇬🇧</button>
+        <button class="language-btn" data-lang="de" title="Deutsch">🇩🇪</button>
+      </div>
+
+      <div class="hero-content">
+        <!-- LOGO SECTION -->
+        <div class="logo-container" id="logoContainer" style="display: none;">
+          <img id="siteLogo" alt="Logo" class="site-logo" />
+        </div>
+        
+        <!-- DYNAMIC TITLE AND SUBTITLE - WITH LOADING STATE -->
+        <div class="hero-loading">
+          <i class="fas fa-spinner fa-spin"></i>
+          <span>Loading...</span>
+        </div>
+        <h1 id="heroTitle" style="display: none;"></h1>
+        <p id="heroSubtitle" style="display: none;"></p>
+      </div>
+    </div>
+    
+    <!-- CATEGORY TABS -->
+    <div class="mobile-tabs" id="categoryTabs">
+      <div class="loading">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>Loading categories...</span>
+      </div>
+    </div>
+    
+    <!-- TAB CONTENT -->
+    <div class="tab-content" id="tabContent">
+      <div class="loading">
+        <i class="fas fa-spinner fa-spin"></i>
+        <h3>Loading menu...</h3>
+        <p>Please wait a moment</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCROLL TO TOP BUTTON -->
+  <button class="scroll-to-top" id="scrollToTop" aria-label="Back to top">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+  
+  <!-- FOOTER SECTION -->
+  <footer class="site-footer" id="siteFooter" style="display: none;">
+    <div class="footer-content">
+      <div class="footer-text" id="footerText"></div>
+      <div class="footer-links">
+        <a href="#" id="instagramLink" class="social-link" target="_blank" rel="noopener" style="display: none;">
+          <i class="fab fa-instagram"></i>
+          <span>Instagram</span>
+        </a>
+        <a href="#" id="facebookLink" class="social-link" target="_blank" rel="noopener" style="display: none;">
+          <i class="fab fa-facebook"></i>
+          <span>Facebook</span>
+        </a>
+        <a href="#" id="youtubeLink" class="social-link" target="_blank" rel="noopener" style="display: none;">
+          <i class="fab fa-youtube"></i>
+          <span>YouTube</span>
+        </a>
+        <a href="#" id="twitterLink" class="social-link" target="_blank" rel="noopener" style="display: none;">
+          <i class="fab fa-x"></i>
+          <span>X</span>
+        </a>
+        <a href="#" id="tiktokLink" class="social-link" target="_blank" rel="noopener" style="display: none;">
+          <i class="fab fa-tiktok"></i>
+          <span>TikTok</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Translation Manager MORA biti prije index-script.js -->
+  <script src="index-translation-manager.js?v=20260722"></script>
+  <script type="module" src="index-script.js?v=20260722"></script>
+</body>
+</html>

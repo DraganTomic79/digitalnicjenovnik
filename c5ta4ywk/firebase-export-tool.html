@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Export Artikala</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 700px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    button {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 18px 30px;
+      font-size: 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: 600;
+      transition: all 0.3s;
+      margin-bottom: 15px;
+    }
+    button:hover {
+      background: #059669;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(16,185,129,0.4);
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .close-icon {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 24px;
+      color: #666;
+      background: none;
+      border: none;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      padding: 0;
+      margin: 0;
+      transition: all 0.2s;
+    }
+    .close-icon:hover {
+      background: #f3f4f6;
+      transform: none;
+      box-shadow: none;
+      color: #111;
+    }
+    #status {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+      min-height: 100px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #333;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+    .checkbox-container input {
+      margin-right: 10px;
+    }
+    .success-message {
+      background: #ecfdf5;
+      border: 1px solid #10b981;
+      color: #10b981;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 20px;
+      font-weight: 500;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="close-icon" onclick="closeWindow()">✖</button>
+    <h1>✅ Export Artikala</h1>
+    <p class="subtitle">CSV sa svim kategorijama - UTF-8 encoding</p>
+    
+    <div class="checkbox-container">
+      <input type="checkbox" id="autoClose" checked>
+      <label for="autoClose">Automatski zatvori prozor nakon preuzimanja</label>
+    </div>
+    
+    <button onclick="exportPerfectCSV()">
+      📊 Exportuj CSV
+    </button>
+    
+    <div id="status">Klikni dugme da exportuješ...</div>
+    <div id="successMsg" class="success-message">
+      CSV fajl je uspješno generisan i preuzet! Prozor će se zatvoriti za <span id="countdown">3</span> sekunde...
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  
+  <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDkdX8R51_tM5KBgSBWvDEGkzW65F-jo8w",
+  authDomain: "digitalnicjenovnik-kafic3.firebaseapp.com",
+  projectId: "digitalnicjenovnik-kafic3",
+  storageBucket: "digitalnicjenovnik-kafic3.firebasestorage.app",
+  messagingSenderId: "848812318853",
+  appId: "1:848812318853:web:573e474a946c2a8be189ec",
+  measurementId: "G-HB2DWVHGFT"
+};
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    
+    let allMainCategories = [];
+    let allCategories = [];
+    let allSubcategories = [];
+    
+    function log(message) {
+      const status = document.getElementById('status');
+      status.innerHTML += message + '\n';
+      status.scrollTop = status.scrollHeight;
+    }
+    
+    function clearLog() {
+      document.getElementById('status').innerHTML = '';
+    }
+    
+    // Funkcija za zatvaranje prozora
+    function closeWindow() {
+      // Ako je prozor otvoren kao iframe u admin panelu
+      if (window.parent && window.parent !== window) {
+        try {
+          window.parent.postMessage('closeExportTool', '*');
+        } catch (e) {
+          console.error('Greška pri zatvaranju iframe-a:', e);
+        }
+      }
+      
+      // Pokušaj zatvoriti prozor direktno
+      window.close();
+      
+      // Ako ništa od navedenog ne uspije, sakrij sadržaj
+      document.body.innerHTML = '';
+      document.body.style.background = 'transparent';
+    }
+    
+    // Odbrojavanje i automatsko zatvaranje
+    function startCountdown(seconds) {
+      const countdownEl = document.getElementById('countdown');
+      const successMsg = document.getElementById('successMsg');
+      
+      successMsg.style.display = 'block';
+      
+      let timeLeft = seconds;
+      countdownEl.textContent = timeLeft;
+      
+      const countdownTimer = setInterval(() => {
+        timeLeft--;
+        countdownEl.textContent = timeLeft;
+        
+        if (timeLeft <= 0) {
+          clearInterval(countdownTimer);
+          if (document.getElementById('autoClose').checked) {
+            closeWindow();
+          } else {
+            successMsg.innerHTML = 'CSV fajl je uspješno generisan i preuzet!';
+          }
+        }
+      }, 1000);
+    }
+    
+    async function exportPerfectCSV() {
+      clearLog();
+      log('🔄 Pocetak exporta...\n');
+      
+      // Onemogući dugmad tokom exporta
+      const buttons = document.querySelectorAll('button');
+      buttons.forEach(btn => btn.disabled = true);
+      
+      try {
+        // 1. Ucitaj sve kategorije
+        log('📥 Ucitavam kategorije...');
+        const mainCats = await db.collection('glavne-kategorije').get();
+        mainCats.forEach(doc => {
+          allMainCategories.push({ id: doc.id, ...doc.data() });
+        });
+        log('  ✅ ' + allMainCategories.length + ' glavnih kategorija');
+        
+        const cats = await db.collection('kategorije').get();
+        cats.forEach(doc => {
+          allCategories.push({ id: doc.id, ...doc.data() });
+        });
+        log('  ✅ ' + allCategories.length + ' kategorija');
+        
+        const subcats = await db.collection('podkategorije').get();
+        subcats.forEach(doc => {
+          allSubcategories.push({ id: doc.id, ...doc.data() });
+        });
+        log('  ✅ ' + allSubcategories.length + ' podkategorija\n');
+        
+        // 2. Ucitaj artikle
+        log('🍕 Ucitavam artikle...');
+        const items = await db.collection('meni').orderBy('sortOrder', 'asc').get();
+        log('  ✅ ' + items.size + ' artikala\n');
+        
+        // 2b. Pripremi sve artikle sa kategorijama za sortiranje
+        log('📝 Organizujem artikle po kategorijama...\n');
+        const itemsArray = [];
+        
+        items.forEach(doc => {
+          const data = doc.data();
+          
+          let subcatName = '';
+          let catName = '';
+          let mainCatName = '';
+          let mainCatOrder = 999;
+          let catOrder = 999;
+          let subcatOrder = 999;
+          
+          // Nađi podkategoriju
+          if (data.podkategorijaId) {
+            const subcat = allSubcategories.find(s => s.id === data.podkategorijaId);
+            if (subcat) {
+              subcatName = subcat.naziv || '';
+              subcatOrder = subcat.sortOrder || 999;
+              
+              // Nađi kategoriju
+              if (subcat.kategorijaId) {
+                const cat = allCategories.find(c => c.id === subcat.kategorijaId);
+                if (cat) {
+                  catName = cat.naziv || '';
+                  catOrder = cat.sortOrder || 999;
+                  
+                  // Nađi glavnu kategoriju
+                  let mainCat = null;
+                  if (cat.glavnakategorijaId) {
+                    mainCat = allMainCategories.find(m => m.id === cat.glavnakategorijaId);
+                  }
+                  if (!mainCat && cat.glavnaKategorijaId) {
+                    mainCat = allMainCategories.find(m => m.id === cat.glavnaKategorijaId);
+                  }
+                  if (!mainCat && cat.mainCategoryId) {
+                    mainCat = allMainCategories.find(m => m.id === cat.mainCategoryId);
+                  }
+                  
+                  if (mainCat) {
+                    mainCatName = mainCat.naziv || '';
+                    mainCatOrder = mainCat.sortOrder || 999;
+                  }
+                }
+              }
+            }
+          }
+          
+          itemsArray.push({
+            id: doc.id,
+            data: data,
+            mainCatName: mainCatName,
+            catName: catName,
+            subcatName: subcatName,
+            mainCatOrder: mainCatOrder,
+            catOrder: catOrder,
+            subcatOrder: subcatOrder
+          });
+        });
+        
+        // Sortiraj po hijerarhiji
+        itemsArray.sort((a, b) => {
+          // 1. Po glavnoj kategoriji
+          if (a.mainCatOrder !== b.mainCatOrder) return a.mainCatOrder - b.mainCatOrder;
+          if (a.mainCatName !== b.mainCatName) return a.mainCatName.localeCompare(b.mainCatName);
+          
+          // 2. Po kategoriji
+          if (a.catOrder !== b.catOrder) return a.catOrder - b.catOrder;
+          if (a.catName !== b.catName) return a.catName.localeCompare(b.catName);
+          
+          // 3. Po podkategoriji
+          if (a.subcatOrder !== b.subcatOrder) return a.subcatOrder - b.subcatOrder;
+          if (a.subcatName !== b.subcatName) return a.subcatName.localeCompare(b.subcatName);
+          
+          // 4. Po redosledu artikla
+          return (a.data.sortOrder || 999) - (b.data.sortOrder || 999);
+        });
+        
+        log('✅ Artikli sortirani po hijerarhiji!\n');
+        
+        // 3. Kreiraj CSV 
+        log('📝 Kreiram CSV...\n');
+        
+        // Mobilni uređaj detekcija
+        const isMobile = navigator.userAgent.match(/mobile|android|iphone|ipad/i);
+        
+        // Za mobilne uređaje dodajemo tri BOM oznake umjesto jedne
+        // Ovo daje jači signal aplikacijama da je fajl u UTF-8 formatu
+        let csv = '\uFEFF\uFEFF\uFEFF'; // Trostruki BOM za veću kompatibilnost
+        
+        // Dodaj zaglavlje za CSV
+        csv += 'Glavna Kategorija,Kategorija,Podkategorija,Naziv,Cijena,Opis,Redosled,Aktivan,ID\n';
+        
+        let foundCount = 0;
+        let notFoundCount = 0;
+        
+        itemsArray.forEach(item => {
+          const data = item.data;
+          
+          if (item.mainCatName) foundCount++;
+          else notFoundCount++;
+          
+          // Dodatno osiguraj da znakovi budu u ispravnom UTF-8 formatu
+          // Dodajemo dvostruko kodiranje za mobilne uređaje
+          const mainCatName = item.mainCatName || '';
+          const catName = item.catName || '';
+          const subcatName = item.subcatName || '';
+          const naziv = data.naziv || '';
+          const opis = (data.opis || '').replace(/"/g, '""');
+          
+          // Dodaj red u CSV - sortirano po hijerarhiji
+          csv += '"' + mainCatName + '",';
+          csv += '"' + catName + '",';
+          csv += '"' + subcatName + '",';
+          csv += '"' + naziv + '",';
+          csv += '"' + (data.cijena || 0) + '",';
+          csv += '"' + opis + '",';
+          csv += '"' + (data.sortOrder || 0) + '",';
+          csv += '"' + (data.aktivna ? 'DA' : 'NE') + '",';
+          csv += '"' + item.id + '"\n';
+        });
+        
+        // 4. Download - precizniji MIME tipovi za mobilne uređaje
+        let mimeType, fileName;
+        
+        // Posebno rukovanje za mobilne uređaje
+        if (isMobile) {
+          // Za mobilne uređaje, koristimo text/csv sa posebnim parametrima
+          mimeType = 'text/csv;charset=UTF-8';
+          fileName = 'digitalnicjenovnik-mobile-' + new Date().toISOString().split('T')[0] + '.csv';
+          log('📱 Optimizujem za mobilni uređaj...');
+        } else {
+          // Za desktop, standardni pristup
+          mimeType = 'text/csv;charset=utf-8';
+          fileName = 'digitalnicjenovnik-' + new Date().toISOString().split('T')[0] + '.csv';
+        }
+        
+        const blob = new Blob([csv], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        
+        // Posebno rukovanje za iOS uređaje
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+          log('📱 iOS uređaj detektovan, koristim specijaliziranu metodu preuzimanja...');
+          
+          // Za iOS uređaje
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const data = e.target.result;
+            const link = document.createElement('a');
+            link.href = data;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Također otvorimo u novom tabu
+            setTimeout(() => {
+              window.open(url, '_blank');
+            }, 100);
+          };
+          reader.readAsDataURL(blob);
+        } 
+        // Posebno rukovanje za Android uređaje
+        else if (isMobile) {
+          log('📱 Android/mobilni uređaj detektovan, koristim prilagođenu metodu preuzimanja...');
+          
+          // Metoda 1: Direktni download
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          // Metoda 2: Otvaranje u novom tabu kao backup
+          setTimeout(() => {
+            window.open(url, '_blank');
+          }, 100);
+        } 
+        // Za desktop računala
+        else {
+          // Standardni pristup za desktop
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+        
+        log('✅ CSV kreiran i preuzet!\n');
+        log('══════════════════════════════');
+        log('📊 STATISTIKA:');
+        log('  Artikli ukupno: ' + itemsArray.length);
+        log('  Sa kategorijama: ' + foundCount);
+        log('  Bez kategorija: ' + notFoundCount);
+        log('══════════════════════════════\n');
+        log('✅ ORGANIZACIJA:');
+        log('  Sortirano po:');
+        log('  1. Glavna Kategorija');
+        log('  2. Kategorija');
+        log('  3. Podkategorija');
+        log('  4. Redosled artikla');
+        log('══════════════════════════════\n');
+        log('📥 Fajl preuzet!');
+        
+        // 5. Pokreni odbrojavanje za zatvaranje
+        if (document.getElementById('autoClose').checked) {
+          startCountdown(3);
+        } else {
+          document.getElementById('successMsg').style.display = 'block';
+          document.getElementById('successMsg').innerHTML = 'CSV fajl je uspješno generisan i preuzet!';
+        }
+        
+      } catch (error) {
+        log('\n❌ GRESKA: ' + error.message);
+      } finally {
+        // Omogući dugmad nakon završetka
+        buttons.forEach(btn => btn.disabled = false);
+      }
+    }
+    
+    // Slušaj poruke od admin prozora (ako je otvoren kao iframe)
+    window.addEventListener('message', function(event) {
+      if (event.data === 'closeExportTool') {
+        closeWindow();
+      }
+    });
+  </script>
+</body>
+</html>
