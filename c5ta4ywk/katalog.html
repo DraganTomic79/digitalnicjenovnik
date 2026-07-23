@@ -20,7 +20,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#111;color:var(--beige);
 
 /* Price hidden mode */
 .hide-prices .cp { display:none !important; }
-.hide-prices .card { justify-content: flex-start; }
+.hide-prices .card { justify-content: flex-start; height: auto !important; min-height: 120px; }
+.hide-prices .cn { padding-top: 2px; }
+.hide-prices .cd { margin-top: 1px; }
+.hide-prices .cd2 { margin-top: 1px; }
 .hide-prices .cv-sub { display:none !important; }
 
 /* Choose-prices modal */
@@ -196,7 +199,7 @@ function initCijene(val) {
   if (!val) document.getElementById('book').classList.add('hide-prices');
   else document.getElementById('book').classList.remove('hide-prices');
   // Update PDF filename
-  window._pdfName = val ? 'Katalog-pica-k2x9mapl.pdf' : 'Katalog-pica-k2x9mapl-bezcijena.pdf';
+  window._pdfName = val ? 'Katalog-pica-c5ta4ywk.pdf' : 'Katalog-pica-c5ta4ywk-bezcijena.pdf';
 }
 
 (function() {
@@ -213,7 +216,7 @@ function initCijene(val) {
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
 import{getFirestore,collection,getDocs,query,orderBy}from"https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 
-const QR_URL="https://digitalnicjenovnik.com/k2x9mapl";
+const QR_URL="https://digitalnicjenovnik.com/c5ta4ywk";
 
 /* ── PIXEL BUDGET (must match CSS exactly) ── */
 const PH=1123, HEAD_H=44, FOOT_H=36, BODY_PT=10, BODY_PB=8;
@@ -231,12 +234,12 @@ function subPx(n){return LBL_SUB+CAT_GAP+gridPx(n);}
 
 /* ── FIREBASE ── */
 const db=getFirestore(initializeApp({
-  apiKey: "AIzaSyDkdX8R51_tM5KBgSBWvDEGkzW65F-jo8w",
-  authDomain: "digitalnicjenovnik-kafic3.firebaseapp.com",
-  projectId: "digitalnicjenovnik-kafic3",
-  storageBucket: "digitalnicjenovnik-kafic3.firebasestorage.app",
-  messagingSenderId: "848812318853",
-  appId: "1:848812318853:web:573e474a946c2a8be189ec"
+  apiKey:"AIzaSyBvegEdujvS-INu91MhMtcawYfXnDiZg-Y",
+  authDomain:"digitalnicjenovnik-kafic2.firebaseapp.com",
+  projectId:"digitalnicjenovnik-kafic2",
+  storageBucket:"digitalnicjenovnik-kafic2.firebasestorage.app",
+  messagingSenderId:"1029765650849",
+  appId:"1:1029765650849:web:33125083ba0b9d9cb5a044"
 }));
 
 async function loadCol(name){
@@ -464,7 +467,7 @@ window._pdfStart=async function(){
       if(i>0)pdf.addPage([W,H],'portrait');
       pdf.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,W,H,undefined,'FAST');
     }
-    pdf.save(window._pdfName || 'Katalog-pica-k2x9mapl.pdf');
+    pdf.save(window._pdfName || 'Katalog-pica-c5ta4ywk.pdf');
   }catch(e){alert('PDF greška: '+e.message);}
   finally{
     orig.forEach((src,img)=>{img.src=src;img.style.visibility='';});
