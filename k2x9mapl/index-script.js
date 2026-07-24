@@ -441,7 +441,7 @@ class MenuApp {
         });
       }
     }, 10);
-    return `<img id="${imageId}" src="${item.slikaURL}" alt="${altText}" class="item-image clickable-image" style="cursor: pointer;" /><div class="item-placeholder" style="display: none;"><i class="fas fa-image"></i></div>`;
+    return `<div class="item-image-wrapper"><img id="${imageId}" src="${item.slikaURL}" alt="${altText}" class="item-image clickable-image" style="cursor: pointer;" /><div class="item-placeholder" style="display: none;"><i class="fas fa-image"></i></div><span class="image-zoom-overlay"><i class="fas fa-expand"></i></span></div>`;
   }
 
   /* Otvara modalni prozor sa slikom */

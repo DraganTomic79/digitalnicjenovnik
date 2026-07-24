@@ -708,6 +708,16 @@ body {
   font-weight: 500 !important; 
 }
 
+/* Omotač oko slike artikla - referentna tačka za overlay koji signalizira da je slika klikabilna */
+.item-image-wrapper { 
+  position: relative; 
+  flex-shrink: 0; 
+  width: clamp(55px, 12vw, 75px); 
+  height: clamp(55px, 12vw, 75px); 
+  border-radius: var(--border-radius); 
+  overflow: hidden; 
+}
+
 /* Stiliziranje slike artikla i placeholder-a */
 .item-image, .item-placeholder { 
   width: clamp(55px, 12vw, 75px); 
@@ -722,6 +732,32 @@ body {
   object-fit: cover; 
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.1)); 
   cursor: pointer; 
+  transition: transform 0.2s ease; 
+}
+
+.item-image-wrapper:active .item-image { 
+  transform: scale(0.94); 
+}
+
+/* Suptilan overlay preko cijele slike sa ikonicom uvećanja u sredini - diskretno pulsira da naznači da je slika klikabilna */
+.image-zoom-overlay { 
+  position: absolute; 
+  inset: 0; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  color: #fff; 
+  font-size: clamp(12px, 3vw, 15px); 
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); 
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0) 70%); 
+  pointer-events: none; 
+  opacity: 0.75; 
+  animation: zoomOverlayPulse 2.6s ease-in-out infinite; 
+}
+
+@keyframes zoomOverlayPulse { 
+  0%, 100% { opacity: 0.55; transform: scale(1); } 
+  50% { opacity: 0.95; transform: scale(1.12); } 
 }
 
 /* Placeholder za sliku artikla */

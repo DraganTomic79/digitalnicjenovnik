@@ -419,7 +419,8 @@ class MenuApp {
         translatedDescription = this.translationManager ? 
           this.translationManager.translateDescription(item.opis) : item.opis;
       }
-      return `<div class="item-card">${imageElement}<div class="item-info"><div class="item-name">${this.sanitizeHtml(translatedNaziv)}</div><div class="item-description">${this.sanitizeHtml(translatedDescription)}</div></div><div class="item-price">${priceDisplay}</div></div>`;
+      const translatedOpis2 = item.opis2 ? (this.translationManager ? this.translationManager.translateDescription(item.opis2) : item.opis2) : '';
+      const opis2 = translatedOpis2 ? this.sanitizeHtml(translatedOpis2) : ''; return `<div class="item-card">${imageElement}<div class="item-info"><div class="item-name">${this.sanitizeHtml(translatedNaziv)}</div><div class="item-description">${this.sanitizeHtml(translatedDescription)}</div>${opis2 ? `<div class="item-description2">${opis2}</div>` : ''}</div><div class="item-price">${priceDisplay}</div></div>`;
     }).join('');
   }
 
@@ -440,7 +441,7 @@ class MenuApp {
         });
       }
     }, 10);
-    return `<img id="${imageId}" src="${item.slikaURL}" alt="${altText}" class="item-image clickable-image" style="cursor: pointer;" /><div class="item-placeholder" style="display: none;"><i class="fas fa-image"></i></div>`;
+    return `<div class="item-image-wrapper"><img id="${imageId}" src="${item.slikaURL}" alt="${altText}" class="item-image clickable-image" style="cursor: pointer;" /><div class="item-placeholder" style="display: none;"><i class="fas fa-image"></i></div><span class="image-zoom-overlay"><i class="fas fa-expand"></i></span></div>`;
   }
 
   /* Otvara modalni prozor sa slikom */
@@ -480,7 +481,7 @@ class MenuApp {
         <div class="modal-info" onclick="event.stopPropagation()">
           <div class="modal-info-naziv">${this.sanitizeHtml(naziv)}</div>
           ${cijena ? `<div class="modal-info-cijena">${cijena}${this.sanitizeHtml(jedinica)}</div>` : ''}
-          ${opis ? `<div class="modal-info-opis">${this.sanitizeHtml(opis)}</div>` : ''}
+          ${opis ? `<div class="modal-info-opis">${this.sanitizeHtml(opis)}</div>` : ''}${item.opis2 ? `<div class="modal-info-opis2">${this.sanitizeHtml(this.translationManager ? this.translationManager.translateDescription(item.opis2) : item.opis2)}</div>` : ''}
         </div>`;
     }
     
@@ -589,9 +590,11 @@ class MenuApp {
 
     if (!webPostavke) return;
 
+    // Sačuvaj Firebase vrijednosti na app objektu (za translation manager)
     this.heroTitleDB = webPostavke.heroTitle || '';
     this.heroSubtitleDB = webPostavke.heroSubtitle || '';
 
+    // Primijeni odmah ako je aktivan jezik 'sr' (default)
     const currentLang = this.translationManager?.currentLanguage || 'sr';
     if (currentLang === 'sr') {
       const titleEl = document.getElementById('heroTitle');
