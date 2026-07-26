@@ -6,24 +6,21 @@
 <title>Cjenovnik</title>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{
-  --bg:#141414;--card:#1c1c1c;
-  --gold:#C6A664;--gold2:#9E8344;--beige:#F2E9D8;
-  --muted:#8b8578;--border:rgba(198,166,100,.22);
-  --PW:794px;--PH:1123px;
+  --bg:#1c1c1c;--beige:#f2ede4;
+  --gold:#C6A664;--gold2:#9E8344;
+  --muted:#8f887a;--dots:rgba(242,237,228,.25);
+  --PW:794px;--PH:1123px;--sc:1;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Poppins',Arial,sans-serif;background:#0c0c0c;color:var(--beige);-webkit-font-smoothing:antialiased}
 
-#topbar{display:none;position:sticky;top:0;z-index:300;background:linear-gradient(135deg,#181818,#111);border-bottom:2px solid var(--gold);padding:8px 20px;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-#topbar .tl{display:flex;align-items:center;gap:10px}
-#tbLogo{display:none;max-height:30px;max-width:90px;object-fit:contain;background:#fff;border-radius:5px;padding:2px 5px}
-.tb-title{font-family:'Playfair Display',serif;font-size:.85rem;font-weight:700;color:var(--gold);letter-spacing:2px;white-space:nowrap}
-.tb-btns{display:flex;gap:8px}
+#topbar{display:none;position:sticky;top:0;z-index:300;background:linear-gradient(135deg,#202020,#141414);border-bottom:2px solid var(--gold);padding:8px 20px;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.tb-btns{display:flex;gap:8px;margin-left:auto}
+.tb-label{font-family:'Playfair Display',serif;font-size:.8rem;font-weight:700;color:var(--gold);letter-spacing:2px}
 .btn-pdf{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a1a;border:none;padding:9px 16px;border-radius:7px;font-size:.8rem;font-weight:800;cursor:pointer;white-space:nowrap;transition:filter .2s,transform .2s;flex-shrink:0}
 .btn-pdf:hover{filter:brightness(1.1);transform:translateY(-1px)}
 .btn-pdf.busy{opacity:.6;pointer-events:none}
@@ -33,7 +30,7 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0c0c0c;color:var(--beige
 #loading i{font-size:2.4rem;color:var(--gold);animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-#book{display:none;flex-direction:column;align-items:center;gap:24px;padding:24px 12px 60px}
+#book{display:none;flex-direction:column;align-items:center;padding:24px 12px 60px}
 
 .pg{
   width:var(--PW);height:var(--PH);overflow:hidden;
@@ -41,81 +38,54 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0c0c0c;color:var(--beige
   box-shadow:0 6px 36px rgba(0,0,0,.7);position:relative;flex-shrink:0;
 }
 
-/* CONTENT PAGE HEADER */
-.ph{flex-shrink:0;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;border-bottom:1px solid var(--border)}
-.ph img{max-height:26px;max-width:80px;object-fit:contain;background:#fff;border-radius:5px;padding:2px 5px}
-.ph-title{font-family:'Playfair Display',serif;font-size:.78rem;font-weight:700;color:var(--gold);letter-spacing:5px;text-transform:uppercase}
-.ph-side{width:80px}
+/* HEADER — logo + naziv kafića (ako je unesen), bez ičeg hardkodovanog */
+.ph{flex-shrink:0;min-height:70px;display:flex;align-items:center;justify-content:center;gap:14px;padding:14px 40px;border-bottom:1px solid var(--gold);position:relative}
+.ph::after{content:'';position:absolute;left:40px;right:40px;bottom:-3px;height:1px;background:var(--gold);opacity:.35}
+.ph-logo{max-height:52px;max-width:190px;object-fit:contain;display:block}
+.ph-name{font-family:'Playfair Display',serif;font-weight:800;font-size:1.4rem;color:var(--gold);letter-spacing:1px;text-align:center}
 
-.pb{flex:1;padding:24px 40px 20px;display:flex;flex-direction:column;gap:14px;overflow:hidden;min-height:0}
+.pb{flex:1;padding:20px 40px 14px;overflow:hidden;min-height:0;display:flex;flex-direction:column}
+.pb-inner{width:100%;transform-origin:top left;}
 
-.pf{flex-shrink:0;height:34px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 40px}
-.pf-num{font-size:.6rem;color:var(--muted);white-space:nowrap}
-.pf-num b{color:var(--gold)}
-.pf-url{font-size:.54rem;color:var(--muted);white-space:nowrap;letter-spacing:.5px}
+.pf{flex-shrink:0;min-height:26px;border-top:1px solid rgba(198,166,100,.25);display:flex;align-items:center;justify-content:center;padding:6px 40px}
+.pf-txt{font-size:.58rem;color:var(--muted);letter-spacing:.6px;text-align:center}
 
-/* COVER */
-.pg-cover{background:radial-gradient(ellipse at 60% 30%,#231a0c 0%,#161616 55%,#111 100%)}
-.cv-orb1{position:absolute;top:-80px;right:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(198,166,100,.14) 0%,transparent 70%);pointer-events:none}
-.cv-orb2{position:absolute;bottom:-100px;left:-60px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(198,166,100,.08) 0%,transparent 70%);pointer-events:none}
-.cv-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 80px;text-align:center;position:relative;z-index:1}
-.cv-logo-box{background:#fff;border-radius:14px;padding:14px 22px;margin-bottom:30px;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(0,0,0,.5)}
-.cv-logo{max-width:170px;max-height:100px;object-fit:contain;display:block}
-.cv-orn{display:flex;align-items:center;gap:10px;margin:18px 0;color:var(--gold)}
-.cv-orn::before,.cv-orn::after{content:'';width:46px;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
-.cv-orn::after{background:linear-gradient(90deg,var(--gold),transparent)}
-.cv-h1{font-family:'Playfair Display',serif;font-size:2.9rem;font-weight:900;font-style:italic;letter-spacing:2px;color:var(--gold);line-height:1.1;margin-bottom:6px}
-.cv-sub{font-size:.8rem;color:rgba(242,233,216,.55);letter-spacing:4px;text-transform:uppercase;margin-bottom:6px}
-.cv-qr-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:14px}
-.cv-qr{width:150px;height:150px;flex-shrink:0}
-.cv-qr canvas,.cv-qr img{width:150px!important;height:150px!important}
-.cv-url{font-size:.68rem;color:var(--muted);letter-spacing:.8px}
-.cv-foot{flex-shrink:0;height:36px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:0 20px;position:relative;z-index:1}
-.cv-foot-txt{font-size:.6rem;color:var(--muted);letter-spacing:.8px}
+/* KATEGORIJE */
+.cat-block{display:flex;flex-direction:column;gap:calc(6px*var(--sc));break-inside:avoid-column;margin-bottom:calc(14px*var(--sc))}
+.lbl-main{text-align:center;font-family:'Playfair Display',serif;font-weight:800;font-size:calc(1rem*var(--sc));letter-spacing:calc(3px*var(--sc));text-transform:uppercase;color:var(--gold);padding-bottom:calc(6px*var(--sc));border-bottom:1px solid var(--dots)}
+.lbl-sub{font-size:calc(.62rem*var(--sc));font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);opacity:.9}
 
-/* CATEGORY LABELS */
-.lbl-main{flex-shrink:0;text-align:center;font-family:'Playfair Display',serif;font-weight:800;font-size:1.05rem;letter-spacing:5px;text-transform:uppercase;color:var(--gold);padding-bottom:10px;border-bottom:1px solid var(--border)}
-.lbl-sub{flex-shrink:0;font-size:.68rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);padding-left:10px;border-left:2px solid var(--gold);opacity:.9}
+.cat-cols{display:grid;column-gap:calc(24px*var(--sc));row-gap:0}
+.col{display:flex;flex-direction:column;min-width:0}
 
-.cat-block{display:flex;flex-direction:column;gap:8px;flex-shrink:0}
-.rows{display:flex;flex-direction:column}
+.row-wrap{padding:calc(3px*var(--sc)) 0;break-inside:avoid}
+.row{display:flex;align-items:baseline;gap:5px}
+.row-name{font-family:'Poppins',sans-serif;font-weight:600;font-size:calc(.68rem*var(--sc));color:var(--beige);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
+.row-dots{flex:1;border-bottom:1px dotted var(--dots);height:0;transform:translateY(-3px);min-width:10px}
+.row-price{font-family:'Playfair Display',serif;font-weight:700;color:var(--gold);font-size:calc(.68rem*var(--sc));white-space:nowrap;flex-shrink:0}
+.row-desc{font-size:calc(.56rem*var(--sc));color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.25}
 
-.row{display:flex;align-items:baseline;gap:6px;padding:5px 0}
-.row-name{font-family:'Poppins',sans-serif;font-weight:600;font-size:.82rem;color:var(--beige);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:62%}
-.row-dots{flex:1;border-bottom:1px dotted rgba(242,233,216,.28);height:0;transform:translateY(-4px);min-width:16px}
-.row-price{font-family:'Playfair Display',serif;font-weight:700;color:var(--gold);font-size:.82rem;white-space:nowrap;flex-shrink:0}
-.row-wrap{display:flex;flex-direction:column}
-.row-desc{font-size:.62rem;color:var(--muted);font-style:italic;margin-top:-3px;padding-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* mjerni kontejner (van ekrana, za automatsko uklapanje na jednu stranicu) */
+#measure{position:absolute;left:-9999px;top:0;visibility:hidden;pointer-events:none}
 
 @media(max-width:830px){
   .pg{width:100%;height:auto;overflow:visible}
-  #book{padding:12px 8px 40px;gap:16px}
+  #book{padding:12px 8px 40px}
   .ph,.pb,.pf{padding-left:20px;padding-right:20px}
-  .cv-body{padding:40px 24px}
-  .cv-h1{font-size:2.1rem}
   .pb{overflow:visible}
-}
-@media(max-width:480px){
-  .cv-h1{font-size:1.7rem}
-  .tb-title{display:none}
-  .row-name{max-width:52%}
 }
 @media print{
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   body{background:var(--bg)}
   #topbar{display:none!important}
-  #book{padding:0;gap:0}
-  .pg{box-shadow:none;page-break-after:always;break-after:page}
+  .pg{box-shadow:none}
 }
 </style>
 </head>
 <body>
 
 <div id="topbar">
-  <div class="tl">
-    <img id="tbLogo" alt=""/>
-    <span class="tb-title">CJENOVNIK</span>
-  </div>
+  <span class="tb-label">Cjenovnik</span>
   <div class="tb-btns">
     <button class="btn-pdf" id="btnPdfA4" onclick="window._pdfStart&&window._pdfStart('A4')">
       <i class="fas fa-download"></i> PDF A4
@@ -128,23 +98,14 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0c0c0c;color:var(--beige
 
 <div id="loading"><i class="fas fa-spinner"></i><p>Učitavanje cjenovnika…</p></div>
 <div id="book"></div>
+<div id="measure"></div>
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
 import{getFirestore,collection,getDocs,query,orderBy}from"https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 
 const QR_URL="https://digitalnicjenovnik.com/c5ta4ywk";
-
-/* ── PIXEL BUDGET (A4 base — A5 export just scales the same canvas down) ── */
 const PW=794, PH=1123;
-const HEAD_H=64, FOOT_H=34, BODY_PT=24, BODY_PB=20;
-const BLOCK_GAP=18;
-const CAT_MAIN_H=34, CAT_MAIN_GAP=14;
-const CAT_SUB_H=22, CAT_SUB_GAP=10;
-const ROW_GAP=2;
-const BODY_H=PH-HEAD_H-FOOT_H-BODY_PT-BODY_PB;
-
-function rowH(item){return item.opis ? 44 : 28;}
 
 /* ── FIREBASE ── */
 const db=getFirestore(initializeApp({
@@ -207,95 +168,84 @@ function buildBlocks(gk,kat,pod,items){
   return B;
 }
 
-/* ── PACKING — jedna kolona, redovi varijabilne visine ── */
-function packPages(blocks){
-  const pages=[];
-  let page={mainLabel:'',subs:[],usedH:0};
-  const gapBeforeBlock=()=>(page.subs.length>0||page.mainLabel)?BLOCK_GAP:0;
-  const avail=()=>BODY_H-page.usedH;
-
-  function commit(){if(page.subs.length||page.mainLabel)pages.push(page);page={mainLabel:'',subs:[],usedH:0};}
-
-  for(const b of blocks){
-    if(b.type==='main'){
-      if(page.usedH>BODY_H*0.4)commit();
-      page.mainLabel=b.label;
-      page.usedH+=CAT_MAIN_H+CAT_MAIN_GAP;
-      continue;
-    }
-    let rem=[...b.items],first=true;
-    while(rem.length>0){
-      const headOverhead=CAT_SUB_H+CAT_SUB_GAP+gapBeforeBlock();
-      const av=avail()-headOverhead;
-      if(av<=20){commit();continue;}
-      let used=0,take=0;
-      for(let i=0;i<rem.length;i++){
-        const h=rowH(rem[i])+(i>0?ROW_GAP:0);
-        if(used+h<=av){used+=h;take=i+1;}else break;
-      }
-      if(take===0){commit();continue;}
-      const left=rem.length-take;
-      if(left>0&&left<=2){
-        let extra=0;for(let i=take;i<rem.length;i++)extra+=rowH(rem[i])+ROW_GAP;
-        if(used+extra<=av)take=rem.length;
-      }
-      const chunk=rem.splice(0,take);
-      page.usedH+=headOverhead+used;
-      page.subs.push({label:first?b.label:`${b.label} (nastavak)`,items:chunk});
-      first=false;
-      if(rem.length>0)commit();
-    }
-  }
-  commit();
-  return pages;
-}
-
-/* ── RENDER ── */
-let gLogo='',gCur='KM',gTotal=0,gNum=0;
+let gCur='KM';
 
 function rowHTML(item){
   const price=(item.cijena!==undefined&&item.cijena!=='')?`${gCur?gCur+' ':''}${parseFloat(item.cijena).toFixed(2)}`:'';
   return `<div class="row-wrap">
     <div class="row"><span class="row-name">${esc(item.naziv)}</span><span class="row-dots"></span><span class="row-price">${price}</span></div>
     ${item.opis?`<div class="row-desc">${esc(item.opis)}</div>`:''}
+    ${item.opis2?`<div class="row-desc">${esc(item.opis2)}</div>`:''}
   </div>`;
 }
 
-function renderPage(data){
-  gNum++;
+function colsHTML(items,n){
+  const N=Math.max(1,Math.min(n,items.length||1));
+  const per=Math.ceil(items.length/N)||1;
+  const chunks=[];
+  for(let i=0;i<N;i++)chunks.push(items.slice(i*per,(i+1)*per));
+  return `<div class="cat-cols" style="grid-template-columns:repeat(${N},1fr)">${chunks.map(c=>`<div class="col">${c.map(rowHTML).join('')}</div>`).join('')}</div>`;
+}
+
+function bodyHTML(blocks,n){
+  let out='';
+  for(const b of blocks){
+    if(b.type==='main'){out+=`<div class="lbl-main">${esc(b.label)}</div>`;continue;}
+    out+=`<div class="cat-block"><div class="lbl-sub">${esc(b.label)}</div>${colsHTML(b.items,n)}</div>`;
+  }
+  return out;
+}
+
+/* ── AUTOMATSKO UKLAPANJE NA JEDNU STRANICU ──
+   Proba kombinacije (broj kolona po kategoriji × faktor smanjenja fonta)
+   dok se cijeli sadržaj ne uklopi u raspoloživu visinu tijela stranice. */
+function measure(html,width,n,scale){
+  const m=document.getElementById('measure');
+  m.style.width=width+'px';
+  m.innerHTML=`<div class="pb-inner" style="--sc:${scale}">${html}</div>`;
+  const h=m.firstElementChild.getBoundingClientRect().height;
+  m.innerHTML='';
+  return h;
+}
+
+function fitContent(blocks,availH,width){
+  const colsTiers=[2,3,4];
+  const scaleTiers=[1,.92,.85,.78,.72,.66];
+  let best=null;
+  for(const scale of scaleTiers){
+    for(const n of colsTiers){
+      const html=bodyHTML(blocks,n);
+      const h=measure(html,width,n,scale);
+      if(h<=availH)return{n,scale,html,h};
+      if(!best||h<best.h)best={n,scale,html,h};
+    }
+  }
+  return best; // najbolji mogući (i dalje malo prelazi) ako ništa ne stane idealno
+}
+
+/* ── RENDER ── */
+function renderPage(logo,name,blocks){
   const el=document.createElement('div');el.className='pg';
+
   const hd=document.createElement('div');hd.className='ph';
-  hd.innerHTML=gLogo?`<img src="${esc(gLogo)}" alt=""/><span class="ph-title">Cjenovnik</span><div class="ph-side"></div>`
-    :`<div class="ph-side"></div><span class="ph-title">Cjenovnik</span><div class="ph-side"></div>`;
+  if(logo)hd.innerHTML+=`<img src="${esc(logo)}" class="ph-logo" alt=""/>`;
+  if(name)hd.innerHTML+=`<span class="ph-name">${esc(name)}</span>`;
   el.appendChild(hd);
 
   const bd=document.createElement('div');bd.className='pb';
-  if(data.mainLabel){const m=document.createElement('div');m.className='lbl-main';m.textContent=data.mainLabel;bd.appendChild(m);}
-  for(const sb of data.subs){
-    const blk=document.createElement('div');blk.className='cat-block';
-    blk.innerHTML=`<div class="lbl-sub">${esc(sb.label)}</div><div class="rows">${sb.items.map(rowHTML).join('')}</div>`;
-    bd.appendChild(blk);
-  }
   el.appendChild(bd);
 
   const ft=document.createElement('div');ft.className='pf';
-  ft.innerHTML=`<span class="pf-num">Stranica <b>${gNum}</b> / <b>${gTotal}</b></span><span class="pf-url">${esc(QR_URL.replace('https://',''))}</span>`;
+  ft.innerHTML=`<span class="pf-txt">${esc(QR_URL.replace('https://',''))}</span>`;
   el.appendChild(ft);
-  return el;
-}
 
-function renderCover(title,sub){
-  const el=document.createElement('div');el.className='pg pg-cover';
-  el.innerHTML=`<div class="cv-orb1"></div><div class="cv-orb2"></div>
-    <div class="cv-body">
-      <div class="cv-logo-box" id="cvLB" style="display:none"><img id="cvL" class="cv-logo" alt=""/></div>
-      <div class="cv-h1">${esc(title||'Cjenovnik')}</div>
-      <div class="cv-orn"><i class="fas fa-mug-hot"></i></div>
-      ${sub?`<div class="cv-sub">${esc(sub)}</div>`:''}
-      <div class="cv-qr-wrap"><div class="cv-qr" id="qr-cover"></div><span class="cv-url">${esc(QR_URL.replace('https://',''))}</span></div>
-    </div>
-    <div class="cv-foot"><span class="cv-foot-txt">digitalnicjenovnik.com</span></div>`;
-  return el;
+  document.getElementById('book').appendChild(el);
+
+  // izmjeri raspoloživu visinu tijela i uklopi sadržaj
+  const availH=bd.clientHeight;
+  const width=bd.clientWidth;
+  const fit=fitContent(blocks,availH,width);
+  bd.innerHTML=`<div class="pb-inner" style="--sc:${fit.scale}">${fit.html}</div>`;
 }
 
 /* ── MAIN ── */
@@ -305,30 +255,22 @@ async function build(){
       getDocs(collection(db,"web-postavke")),
       loadCol("glavne-kategorije"),loadCol("kategorije"),loadCol("podkategorije"),loadCol("meni")
     ]);
-    let title='',sub='';
-    pSnap.forEach(d=>{const x=d.data();gLogo=x.logoURL||'';gCur=x.currencyCode||'KM';title=x.heroTitle||'Cjenovnik';sub=x.heroSubtitle||'';});
+    let logo='',name='';
+    pSnap.forEach(d=>{const x=d.data();logo=x.logoURL||'';gCur=x.currencyCode||'KM';name=x.heroTitle||'';});
 
     const blocks=buildBlocks(gk,kat,pod,meni);
-    const pages=packPages(blocks);
-    gTotal=pages.length;gNum=0;
+
+    if(document.fonts&&document.fonts.ready){try{await document.fonts.ready;}catch{}}
 
     const book=document.getElementById('book');
     book.innerHTML='';book.style.display='flex';
-    book.appendChild(renderCover(title,sub));
-    for(const pg of pages)book.appendChild(renderPage(pg));
-
-    if(gLogo){
-      const lb=document.getElementById('cvLB'),li=document.getElementById('cvL');
-      if(lb&&li){li.src=gLogo;lb.style.display='inline-flex';}
-      const tl=document.getElementById('tbLogo');if(tl){tl.src=gLogo;tl.style.display='block';}
-    }
-    setTimeout(()=>{const q=document.getElementById('qr-cover');if(q)new QRCode(q,{text:QR_URL,width:150,height:150,colorDark:'#FFFFFF',colorLight:'#141414',correctLevel:QRCode.CorrectLevel.H});},150);
+    renderPage(logo,name,blocks);
 
     document.getElementById('loading').style.display='none';
     document.getElementById('topbar').style.display='flex';
   }catch(err){
     console.error(err);
-    document.getElementById('loading').innerHTML=`<div style="text-align:center;color:#8b8578;padding:20px"><i class="fas fa-exclamation-triangle" style="font-size:2rem;color:#f87171;display:block;margin-bottom:10px"></i><p>Greška: ${err.message}</p></div>`;
+    document.getElementById('loading').innerHTML=`<div style="text-align:center;color:#8f887a;padding:20px"><i class="fas fa-exclamation-triangle" style="font-size:2rem;color:#f87171;display:block;margin-bottom:10px"></i><p>Greška: ${err.message}</p></div>`;
   }
 }
 
@@ -346,12 +288,12 @@ window._pdfStart=async function(format){
   const otherBtn=document.getElementById(otherBtnId);
   btn.classList.add('busy');otherBtn.classList.add('busy');
   const{jsPDF}=window.jspdf;
-  const pgs=[...document.querySelectorAll('#book .pg')];
+  const pg=document.querySelector('#book .pg');
   const CW=794,CH=1123;
   const outW=format==='A5'?559:794, outH=format==='A5'?794:1123;
 
   const origHTML=btn.innerHTML;
-  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Učitavam slike…';
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Učitavam sliku…';
   const imgs=[...document.querySelectorAll('#book img')];
   const orig=new Map();
   await Promise.allSettled(imgs.map(async img=>{
@@ -361,18 +303,13 @@ window._pdfStart=async function(format){
 
   document.getElementById('topbar').style.display='none';
   try{
+    const c=await html2canvas(pg,{
+      scale:2,useCORS:false,allowTaint:false,backgroundColor:'#1c1c1c',
+      width:CW,height:CH,windowWidth:1200,windowHeight:CH,scrollX:0,scrollY:0,
+      logging:false,willReadFrequently:true,imageTimeout:0
+    });
     const pdf=new jsPDF({unit:'px',format:[outW,outH],orientation:'portrait',compress:true});
-    for(let i=0;i<pgs.length;i++){
-      btn.innerHTML=`<i class="fas fa-spinner fa-spin"></i> ${i+1}/${pgs.length}…`;
-      await new Promise(r=>setTimeout(r,20));
-      const c=await html2canvas(pgs[i],{
-        scale:2,useCORS:false,allowTaint:false,backgroundColor:'#141414',
-        width:CW,height:CH,windowWidth:1200,windowHeight:CH,scrollX:0,scrollY:0,
-        logging:false,willReadFrequently:true,imageTimeout:0
-      });
-      if(i>0)pdf.addPage([outW,outH],'portrait');
-      pdf.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,outW,outH,undefined,'FAST');
-    }
+    pdf.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,outW,outH,undefined,'FAST');
     pdf.save(`Cjenovnik-c5ta4ywk-${format}.pdf`);
   }catch(e){alert('PDF greška: '+e.message);}
   finally{
