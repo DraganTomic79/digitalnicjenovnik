@@ -3,7 +3,7 @@
 /* === CSS VARIJABLE === */
 /* Definiranje ključnih varijabli za dizajn (boje, gradijenti, sjenke, fontovi) */
 :root { 
-  --primary-gradient: linear-gradient(135deg, #667eea, #764ba2); 
+  --primary-gradient: linear-gradient(135deg, #C6A664, #9E8344); 
   --success-gradient: linear-gradient(135deg, #56ab2f, #a8e6cf); 
   --warning-gradient: linear-gradient(135deg, #f093fb, #f5576c); 
   --danger-gradient: linear-gradient(135deg, #ff6b6b, #ee5a24); 
@@ -15,7 +15,7 @@
   --font-size-base: clamp(0.8rem, 2vw, 1rem); 
   --font-size-small: clamp(0.7rem, 1.5vw, 0.85rem); 
   --font-size-large: clamp(1.4rem, 4vw, 2.2rem); 
-  --primary-color: #667eea; 
+  --primary-color: #9E8344; 
   --text-color: #333; 
   --text-muted: #666; 
   --text-light: #999; 
@@ -107,7 +107,7 @@ body {
 }
 /* Hover efekt za neaktivna tab dugmad */
 .tab-btn:not(.active):hover { 
-  background: rgba(102, 126, 234, 0.1); 
+  background: rgba(158, 131, 68, 0.1); 
   color: var(--primary-color); 
 }
 /* Ikone u tab dugmadima */
@@ -221,7 +221,7 @@ body {
 .form-control:focus { 
   outline: none; 
   border-color: var(--primary-color); 
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); 
+  box-shadow: 0 0 0 3px rgba(158, 131, 68, 0.1); 
   background: white; 
 }
 /* Placeholder tekst u input poljima */
@@ -425,8 +425,8 @@ label i {
   object-fit: cover !important;
   flex-shrink: 0 !important;
   background: var(--primary-gradient) !important;
-  border: 2px solid rgba(102, 126, 234, 0.3) !important; 
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25) !important; 
+  border: 2px solid rgba(158, 131, 68, 0.3) !important; 
+  box-shadow: 0 2px 8px rgba(158, 131, 68, 0.25) !important; 
   padding: 2px !important; 
   border-radius: 6px !important; 
 }
@@ -434,7 +434,7 @@ label i {
 /* Ikona u listi kategorija — mala, čista, bez box stilova */
 .list-cat-icon {
   font-size: 1.1rem;
-  color: #667eea;
+  color: #9E8344;
   margin-right: 10px;
   width: 24px;
   height: 24px;
@@ -452,7 +452,7 @@ label i {
   margin-right: 10px;
   flex-shrink: 0;
   background: var(--primary-gradient);
-  border: 1px solid rgba(102, 126, 234, 0.3);
+  border: 1px solid rgba(158, 131, 68, 0.3);
 }
 
 /* === EMPTY STATE === */
@@ -474,14 +474,14 @@ label i {
 /* Stiliziranje pregleda ikona i logoa sa gradijentnom pozadinom */
 .icon-preview, .logo-preview { 
   background: var(--primary-gradient); 
-  border: 2px solid rgba(102, 126, 234, 0.3); 
+  border: 2px solid rgba(158, 131, 68, 0.3); 
   border-radius: var(--border-radius); 
   display: flex; 
   align-items: center; 
   justify-content: center; 
   overflow: hidden; 
   position: relative; 
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2); 
+  box-shadow: 0 4px 12px rgba(158, 131, 68, 0.2); 
 }
 /* Dodatni efekt šahovske pozadine za preview komponente */
 .icon-preview::before, .logo-preview::before { 
@@ -515,11 +515,11 @@ label i {
   max-width: 60px; 
   max-height: 60px; 
   object-fit: contain; 
-  background: linear-gradient(135deg, #667eea, #764ba2) !important; 
-  border: 2px solid rgba(102, 126, 234, 0.3) !important; 
+  background: linear-gradient(135deg, #C6A664, #9E8344) !important; 
+  border: 2px solid rgba(158, 131, 68, 0.3) !important; 
   border-radius: 8px !important; 
   padding: 8px !important; 
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25) !important; 
+  box-shadow: 0 2px 8px rgba(158, 131, 68, 0.25) !important; 
   position: relative; 
   z-index: 1; 
 }
@@ -975,16 +975,18 @@ label i {
   }
 }
 
-/* Export dugme - Ljubičasta */
+/* Export dugme - Zlatno (usklađeno sa brendom) */
 .btn-export {
-  background-color: #8b5cf6;
-  border-color: #8b5cf6;
-  color: white;
+  background-color: #242424;
+  border-color: #C6A664;
+  border-width: 2px;
+  color: #C6A664;
 }
 
 .btn-export:hover {
-  background-color: #7c3aed;
-  border-color: #7c3aed;
+  background-color: #C6A664;
+  border-color: #C6A664;
+  color: #1a1a1a;
 }
 /* ===== PUBLISH / UNPUBLISH DUGMAD I BADGE ===== */
 .btn-toggle-objavi {
