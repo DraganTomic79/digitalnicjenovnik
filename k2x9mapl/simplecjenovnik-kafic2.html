@@ -30,6 +30,19 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0c0c0c;color:var(--beige
 #loading i{font-size:2.4rem;color:var(--gold);animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* Prikaz bez cijena */
+.hide-prices .row-price{display:none}
+.hide-prices .row{grid-template-columns:1fr auto}
+
+/* Modal — izbor sa/bez cijena */
+#priceModal{display:flex;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center}
+#priceModal .pm-box{background:#1e1e2e;border:2px solid var(--gold);border-radius:14px;padding:32px 28px;max-width:320px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+#priceModal h3{color:var(--gold);font-size:1.1rem;font-weight:800;margin-bottom:8px;font-family:'Playfair Display',serif}
+#priceModal p{color:var(--muted);font-size:.85rem;margin-bottom:24px}
+.pm-btn{display:block;width:100%;font-weight:800;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:.9rem;margin-bottom:10px}
+.pm-btn-yes{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a1a}
+.pm-btn-no{background:#2a2a3e;color:var(--gold);border:2px solid var(--gold)!important}
+
 #book{display:none;flex-direction:column;align-items:center;gap:24px;padding:24px 12px 60px}
 
 .pg{
@@ -45,7 +58,7 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0c0c0c;color:var(--beige
 
 /* TIJELO — cijela stranica u 2 kolone */
 .pb{flex:1;padding:20px 40px 14px;display:grid;grid-template-columns:1fr 1fr;column-gap:34px;overflow:hidden;min-height:0;position:relative}
-.lbl-main-full{grid-column:1/-1;text-align:center;font-family:'Playfair Display',serif;font-weight:800;font-size:1.05rem;letter-spacing:.3px;color:var(--gold);margin-bottom:4px}
+.lbl-main-full{grid-column:1/-1;text-align:center;font-family:'Playfair Display',serif;font-weight:800;font-size:1.35rem;letter-spacing:.3px;color:var(--gold);margin-bottom:4px}
 .pcol{display:flex;flex-direction:column;gap:12px;min-width:0}
 
 .pf{flex-shrink:0;height:30px;border-top:1px solid rgba(198,166,100,.25);display:flex;align-items:center;justify-content:space-between;padding:0 40px}
@@ -55,7 +68,7 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0c0c0c;color:var(--beige
 
 /* KATEGORIJE */
 .cat-block{display:flex;flex-direction:column;gap:5px;flex-shrink:0}
-.lbl-sub{flex-shrink:0;font-size:.64rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);opacity:.85}
+.lbl-sub{flex-shrink:0;font-size:.82rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);opacity:.85}
 
 .divider{flex-shrink:0;display:flex;align-items:center;gap:8px;color:var(--gold);opacity:.5;margin:2px 0}
 .divider.full-row{grid-column:1/-1}
@@ -64,7 +77,7 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0c0c0c;color:var(--beige
 
 .row-wrap{padding:2px 0}
 .row{display:grid;grid-template-columns:1fr auto 3.4em;column-gap:10px;align-items:baseline}
-.row-name{font-family:'Poppins',sans-serif;font-weight:600;font-size:.72rem;color:var(--beige);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-name{font-family:'Poppins',sans-serif;font-weight:600;font-size:.62rem;color:var(--beige);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row-unit{font-style:italic;font-size:.6rem;color:var(--muted);white-space:nowrap}
 .row-price{font-family:'Playfair Display',serif;font-weight:700;color:var(--gold);font-size:.72rem;white-space:nowrap;text-align:right}
 .row-price-cur{font-weight:400;color:var(--muted);font-size:.85em;margin-right:2px}
@@ -84,9 +97,36 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0c0c0c;color:var(--beige
   #book{padding:0;gap:0}
   .pg{box-shadow:none;page-break-after:always;break-after:page}
 }
+#measure{position:absolute;left:-9999px;top:0;visibility:hidden;pointer-events:none}
 </style>
 </head>
 <body>
+
+<!-- Modal — izbor sa/bez cijena, prikazuje se odmah pri otvaranju -->
+<div id="priceModal">
+  <div class="pm-box">
+    <h3><i class="fas fa-receipt"></i> Cjenovnik</h3>
+    <p>Kako želiš prikazati cjenovnik?</p>
+    <button class="pm-btn pm-btn-yes" onclick="initCijene(1)"><i class="fas fa-tag"></i> Sa cijenama</button>
+    <button class="pm-btn pm-btn-no" onclick="initCijene(0)"><i class="fas fa-eye-slash"></i> Bez cijena</button>
+  </div>
+</div>
+
+<script>
+// Prikaz sa/bez cijena — čita ?cijene=1 ili ?cijene=0 iz URL-a; ako nije zadano, prikazuje modal
+let _showPrices=null;
+function initCijene(val){
+  _showPrices=val;
+  document.getElementById('priceModal').style.display='none';
+  if(!val)document.getElementById('book').classList.add('hide-prices');
+  else document.getElementById('book').classList.remove('hide-prices');
+  window._pdfNameSuffix=val?'':'-bezcijena';
+}
+(function(){
+  const p=new URLSearchParams(window.location.search).get('cijene');
+  if(p!==null)initCijene(parseInt(p));
+})();
+</script>
 
 <div id="topbar">
   <span class="tb-label">Cjenovnik</span>
@@ -102,6 +142,7 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0c0c0c;color:var(--beige
 
 <div id="loading"><i class="fas fa-spinner"></i><p>Učitavanje cjenovnika…</p></div>
 <div id="book"></div>
+<div id="measure"></div>
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
@@ -109,17 +150,54 @@ import{getFirestore,collection,getDocs,query,orderBy}from"https://www.gstatic.co
 
 const QR_URL="https://digitalnicjenovnik.com/k2x9mapl";
 
-/* ── PIXEL BUDGET — cijela stranica u 2 kolone (kao referentna slika) ── */
+/* ── PIXEL BUDGET — cijela stranica u 2 kolone (kao referentna slika) ──
+   Razmaci (BLOCK_GAP, CAT_SUB_GAP, ROW_GAP, CAT_MAIN_GAP) odgovaraju stvarnim
+   CSS gap/margin vrijednostima. Visine naslova/redova se MJERE u stvarnom DOM-u
+   (calibrate()) tako da se prelamanje savršeno poklapa sa stvarnim izgledom
+   i automatski prati promjene veličine fonta. */
 const PW=794, PH=1123;
 const HEAD_H=64, FOOT_H=30, BODY_PT=20, BODY_PB=14;
-const BLOCK_GAP=12;
-const CAT_MAIN_H=24, CAT_MAIN_GAP=8;
-const CAT_SUB_H=18, CAT_SUB_GAP=6;
-const DIVIDER_H=18, DIVIDER_GAP=4;
-const ROW_GAP=1;
+const BLOCK_GAP=12;      // .pcol{gap:12px} — između cat-block-ova
+const CAT_SUB_GAP=5;     // .cat-block{gap:5px} — između lbl-sub i prvog reda
+const ROW_GAP=5;         // .cat-block{gap:5px} — između redova (isti flex gap)
+const CAT_MAIN_GAP=4;    // .lbl-main-full{margin-bottom:4px}
+const DIVIDER_GAP=4;     // .divider{margin:2px 0} (gornja+donja)
+const SAFETY=6;          // mala rezerva protiv zaokruživanja
 const BODY_H=PH-HEAD_H-FOOT_H-BODY_PT-BODY_PB;
 
-function rowH(item){return 20+(item.opis?11:0)+(item.opis2?11:0);}
+let CAT_MAIN_H=30, CAT_SUB_H=20, DIVIDER_H=14;
+let ROWH0=22, ROWH1=34, ROWH2=46; // fallback dok se ne izmjeri; calibrate() ih odmah ažurira
+
+function rowH(item){return item.opis&&item.opis2?ROWH2:(item.opis?ROWH1:ROWH0);}
+
+async function calibrate(){
+  if(document.fonts&&document.fonts.ready){try{await document.fonts.ready;}catch{}}
+  const m=document.getElementById('measure');
+  const PAD=80,GAP=34;
+  const contentW=PW-PAD;
+  const colW=(contentW-GAP)/2;
+
+  m.style.width=colW+'px';
+  m.innerHTML=`<div class="lbl-sub">Test podkategorija</div>`;
+  CAT_SUB_H=Math.ceil(m.firstElementChild.getBoundingClientRect().height);
+
+  function measureRow(o1,o2){
+    m.innerHTML=`<div class="row-wrap"><div class="row"><span class="row-name">Naziv artikla Test</span><span class="row-unit">0.25</span><span class="row-price"><span class="row-price-cur">BAM</span><span class="row-price-num">10.00</span></span></div>${o1?'<div class="row-desc">Opis test linija artikla</div>':''}${o2?'<div class="row-desc">Opis2 test linija artikla</div>':''}</div>`;
+    return Math.ceil(m.firstElementChild.getBoundingClientRect().height);
+  }
+  ROWH0=measureRow(false,false);
+  ROWH1=measureRow(true,false);
+  ROWH2=measureRow(true,true);
+
+  m.style.width=contentW+'px';
+  m.innerHTML=`<div class="lbl-main-full">Test Naslov Kategorije</div>`;
+  CAT_MAIN_H=Math.ceil(m.firstElementChild.getBoundingClientRect().height);
+
+  m.innerHTML=`<div class="divider"><i class="fas fa-gem"></i></div>`;
+  DIVIDER_H=Math.ceil(m.firstElementChild.getBoundingClientRect().height);
+
+  m.innerHTML='';
+}
 
 /* ── FIREBASE ── */
 const db=getFirestore(initializeApp({
@@ -213,7 +291,7 @@ function packPages(blocks){
       const col=page[page.active];
       const gapBeforeBlock=col.subs.length>0?BLOCK_GAP:0;
       const headOverhead=CAT_SUB_H+CAT_SUB_GAP+gapBeforeBlock;
-      const av=page.budget-col.usedH-headOverhead;
+      const av=page.budget-col.usedH-headOverhead-SAFETY;
       if(av<=14){advance();continue;}
       let used=0,take=0;
       for(let i=0;i<rem.length;i++){
@@ -293,6 +371,7 @@ async function build(){
     pSnap.forEach(d=>{const x=d.data();gLogo=x.logoURL||'';gCur=x.currencyCode||'KM';});
 
     const blocks=buildBlocks(gk,kat,pod,meni);
+    await calibrate();
     const pages=packPages(blocks);
     gTotal=Math.max(1,pages.length);gNum=0;
 
@@ -350,7 +429,7 @@ window._pdfStart=async function(format){
       if(i>0)pdf.addPage([outW,outH],'portrait');
       pdf.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,outW,outH,undefined,'FAST');
     }
-    pdf.save(`Cjenovnik-k2x9mapl-${format}.pdf`);
+    pdf.save(`Cjenovnik-k2x9mapl${window._pdfNameSuffix||''}-${format}.pdf`);
   }catch(e){alert('PDF greška: '+e.message);}
   finally{
     orig.forEach((src,img)=>{img.src=src;img.style.visibility='';});
