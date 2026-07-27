@@ -1333,9 +1333,9 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
           `<div style="position:relative;text-align:center;">` + 
           `<img src="${imageURL}" alt="Trenutna ikona" ` + 
           `style="max-width:60px;max-height:60px;object-fit:contain;` + 
-          `background:linear-gradient(135deg,#667eea,#764ba2);padding:8px;` + 
-          `border-radius:8px;border:2px solid rgba(102,126,234,0.3);` + 
-          `box-shadow:0 2px 8px rgba(102,126,234,0.25);" />` + 
+          `background:linear-gradient(135deg,#C6A664,#9E8344);padding:8px;` + 
+          `border-radius:8px;border:2px solid rgba(158,131,68,0.3);` + 
+          `box-shadow:0 2px 8px rgba(158,131,68,0.25);" />` + 
           `<p style="font-size:12px;color:white;margin-top:8px;` + 
           `text-shadow:0 1px 3px rgba(0,0,0,0.5);font-weight:600;">` + 
           `Trenutna ikona (odaberite novu sliku za zamjenu)` + 
