@@ -6,7 +6,7 @@
   <title>Admin Panel - Upravljanje Menijem</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="admin-styles.css?v=20260430d">
+  <link rel="stylesheet" href="admin-styles.css?v=20260727a">
   <style>
     .size-recommendation { background: #e7f3ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #17a2b8; font-size: 0.8rem; line-height: 1.4; margin-top: 8px; }
     .size-recommendation strong { color: #0c5460; }
@@ -41,16 +41,16 @@
     }
     
     .language-btn:hover {
-      border-color: #667eea !important;
+      border-color: #9E8344 !important;
       background: #f8f9fa !important;
       transform: translateY(-1px) !important;
     }
     
     .language-btn.active {
-      border-color: #667eea !important;
-      background: linear-gradient(135deg, #667eea, #764ba2) !important;
+      border-color: #9E8344 !important;
+      background: linear-gradient(135deg, #C6A664, #9E8344) !important;
       color: white !important;
-      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3) !important;
+      box-shadow: 0 4px 8px rgba(158, 131, 68, 0.3) !important;
     }
     
     /* Responsive za dugmad */
@@ -113,6 +113,7 @@
         <a href="index.html" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-external-link-alt"></i> Pogledaj sajt</a>
 		<a href="firebase-export-tool.html" target="_blank" class="btn btn-export btn-sm"><i class="fas fa-download"></i> Export Artikala</a>
 		<button onclick="otвориKatalogModal()" class="btn btn-sm" style="background:#C6A664;color:#1a1a1a;font-weight:700"><i class="fas fa-book-open"></i> Katalog Pića</button>
+		<button onclick="otvoriSimpleCjenovnikModal()" class="btn btn-sm" style="background:#C6A664;color:#1a1a1a;font-weight:700"><i class="fas fa-receipt"></i> Simple Cjenovnik</button>
 
         <a href="login.html" class="btn btn-secondary btn-sm"><i class="fas fa-sign-out-alt"></i> Odjavi se</a>
       </div>
@@ -265,8 +266,12 @@
               </div>
               <div>
                 <div class="form-group">
-                  <label for="opisArtikla"><i class="fas fa-info-circle"></i> Opis</label>
+                  <label for="opisArtikla"><i class="fas fa-info-circle"></i> Opis 1</label>
                   <input type="text" class="form-control" id="opisArtikla" placeholder="Kratki opis artikla (opciono)">
+                </div>
+                <div class="mb-3">
+                  <label for="opisArtikla2"><i class="fas fa-info-circle"></i> Opis 2 <small class="text-muted">(dodatni opis, manji font)</small></label>
+                  <input type="text" class="form-control" id="opisArtikla2" placeholder="Drugi opis (opciono)">
                 </div>
                 <div class="form-group">
                   <label for="slikaArtikla"><i class="fas fa-image"></i> Slika</label>
@@ -422,8 +427,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Include Translation Manager -->
-  <script src="translation-manager.js?v=20260430d"></script>
-  <script type="module" src="js/admin-controller.js?v=20260430d"></script>
+  <script src="translation-manager.js?v=20260727a"></script>
+  <script type="module" src="js/admin-controller.js?v=20260727a"></script>
 <script>
 // Footer toggle switch visual logic
 (function() {
@@ -505,6 +510,55 @@ function otвориKatalogModal() {
     </div>`;
 
   // Click outside to close
+  m.addEventListener('click', function(e){
+    if (e.target === m) m.remove();
+  });
+
+  document.body.appendChild(m);
+}
+
+function otvoriSimpleCjenovnikModal() {
+  var old = document.getElementById('simpleCjenovnikModalBody');
+  if (old) old.remove();
+  var m = document.createElement('div');
+  m.id = 'simpleCjenovnikModalBody';
+  m.style.cssText = ['position:fixed','top:0','left:0','width:100%','height:100%',
+    'background:rgba(0,0,0,.8)','z-index:2147483647',
+    'display:flex','align-items:center','justify-content:center','padding:20px',
+    'box-sizing:border-box'].join(';');
+  m.innerHTML = `
+    <div style="background:#1e1e2e;border:2px solid #C6A664;border-radius:14px;
+      padding:32px 28px;max-width:340px;width:100%;text-align:center;
+      box-shadow:0 8px 40px rgba(0,0,0,.8);">
+      <h3 style="color:#C6A664;font-size:1.1rem;font-weight:800;margin:0 0 8px">
+        🧾 Simple Cjenovnik
+      </h3>
+      <p style="color:#94a3b8;font-size:.85rem;margin:0 0 24px">
+        Kako želiš otvoriti cjenovnik?
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <a href="simplecjenovnik.html?cijene=1" target="_blank"
+          onclick="document.getElementById('simpleCjenovnikModalBody').remove()"
+          style="background:linear-gradient(135deg,#C6A664,#9E8344);color:#1a1a1a;
+            font-weight:800;padding:12px;border-radius:8px;text-decoration:none;
+            font-size:.9rem;display:block">
+          🏷️ Sa cijenama
+        </a>
+        <a href="simplecjenovnik.html?cijene=0" target="_blank"
+          onclick="document.getElementById('simpleCjenovnikModalBody').remove()"
+          style="background:#2a2a3e;color:#C6A664;border:2px solid #C6A664;
+            font-weight:800;padding:12px;border-radius:8px;text-decoration:none;
+            font-size:.9rem;display:block">
+          🚫 Bez cijena
+        </a>
+        <button onclick="document.getElementById('simpleCjenovnikModalBody').remove()"
+          style="background:transparent;color:#64748b;border:none;font-size:.8rem;
+            cursor:pointer;padding:6px;margin-top:4px">
+          Otkaži
+        </button>
+      </div>
+    </div>`;
+
   m.addEventListener('click', function(e){
     if (e.target === m) m.remove();
   });
