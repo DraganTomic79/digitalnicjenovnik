@@ -990,7 +990,7 @@ body {
   gap: var(--spacing-sm); 
 }
 
-/* Tekst u podnožju (npr. Wifi podaci) — moderan "pill" izgled */
+/* Tekst u podnožju (npr. Wifi podaci) — moderan "pill" izgled; sakriven kad je prazan */
 .footer-text { 
   margin: 0; 
   font-size: var(--font-size-small); 
@@ -1001,7 +1001,7 @@ body {
   border-radius: var(--border-radius-xl); 
   font-weight: 600; 
   letter-spacing: .2px; 
-  display: inline-flex; 
+  display: none; 
   align-items: center; 
   gap: 6px; 
   text-align: center; 
@@ -1560,5 +1560,32 @@ body {
     height: clamp(26px, 5vw, 32px);
     margin-left: clamp(3px, 1vw, 6px);
     letter-spacing: 0.2px;
+  }
+}
+
+/* ===== Kompaktan footer kad ima Wifi/tekst =====
+   Kad je footer-tekst prisutan, ikonice društvenih mreža se malo smanje
+   da footer ne naraste previše i ne oduzima prostor meniju. Kad nema
+   teksta, ikonice ostaju na svojoj punoj (dosadašnjoj) veličini. */
+.site-footer.has-footer-text .social-link {
+  padding: clamp(6px, 1.6vw, 9px) clamp(9px, 2.2vw, 12px) !important;
+}
+.site-footer.has-footer-text .social-link i {
+  font-size: clamp(15px, 3.4vw, 18px) !important;
+}
+@media (max-width: 767px) {
+  .site-footer.has-footer-text .social-link {
+    padding: clamp(8px, 2.2vw, 11px) clamp(10px, 2.6vw, 13px) !important;
+  }
+  .site-footer.has-footer-text .social-link i {
+    font-size: clamp(16px, 3.8vw, 20px) !important;
+  }
+}
+@media (max-width: 480px) {
+  .site-footer.has-footer-text .social-link {
+    padding: clamp(9px, 2.4vw, 12px) clamp(11px, 2.8vw, 14px) !important;
+  }
+  .site-footer.has-footer-text .social-link i {
+    font-size: clamp(18px, 4.2vw, 22px) !important;
   }
 }

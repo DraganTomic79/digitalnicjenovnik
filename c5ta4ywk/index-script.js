@@ -619,7 +619,14 @@ class MenuApp {
 
   /* Prikazuje footer sa socijalnim linkovima */
   displayFooter(postavke) {
-    if (this.elements.footerText) this.elements.footerText.textContent = postavke.footerText || '';
+    const text = (postavke.footerText || '').trim();
+    if (this.elements.footerText) {
+      this.elements.footerText.textContent = text;
+      this.elements.footerText.style.display = text ? 'inline-flex' : 'none';
+    }
+    if (this.elements.siteFooter) {
+      this.elements.siteFooter.classList.toggle('has-footer-text', !!text);
+    }
     const socialLinks = [ 
       { element: this.elements.instagramLink, url: postavke.instagramUrl, name: 'Instagram' }, 
       { element: this.elements.facebookLink, url: postavke.facebookUrl, name: 'Facebook' }, 
