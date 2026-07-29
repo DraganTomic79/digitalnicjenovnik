@@ -614,12 +614,19 @@ class MenuApp {
   loadFooter(webPostavke) { 
     if (!this.elements.siteFooter) return; 
     if (webPostavke && webPostavke.footerEnabled) this.displayFooter(webPostavke); 
-    else this.elements.siteFooter.style.display = 'none'; 
+    else { this.elements.siteFooter.style.display = 'none'; document.body.style.paddingBottom = ''; }
   }
 
   /* Prikazuje footer sa socijalnim linkovima */
   displayFooter(postavke) {
-    if (this.elements.footerText) this.elements.footerText.textContent = postavke.footerText || '';
+    const text = (postavke.footerText || '').trim();
+    if (this.elements.footerText) {
+      this.elements.footerText.textContent = text;
+      this.elements.footerText.style.display = text ? 'inline-flex' : 'none';
+    }
+    if (this.elements.siteFooter) {
+      this.elements.siteFooter.classList.toggle('has-footer-text', !!text);
+    }
     const socialLinks = [ 
       { element: this.elements.instagramLink, url: postavke.instagramUrl, name: 'Instagram' }, 
       { element: this.elements.facebookLink, url: postavke.facebookUrl, name: 'Facebook' }, 
@@ -634,6 +641,12 @@ class MenuApp {
       } 
     });
     this.elements.siteFooter.style.display = 'block';
+    /* Uskladi razmak na dnu stranice sa stvarnom visinom footera
+       (npr. duži Wifi tekst koji se prelomi u 2 reda na uskom ekranu) */
+    requestAnimationFrame(() => {
+      const h = this.elements.siteFooter.offsetHeight;
+      if (h) document.body.style.paddingBottom = (h + 14) + 'px';
+    });
   }
 
   /* Postavlja real-time listenere za ažuriranje podataka */
