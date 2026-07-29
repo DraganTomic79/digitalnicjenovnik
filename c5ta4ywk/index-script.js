@@ -614,7 +614,7 @@ class MenuApp {
   loadFooter(webPostavke) { 
     if (!this.elements.siteFooter) return; 
     if (webPostavke && webPostavke.footerEnabled) this.displayFooter(webPostavke); 
-    else this.elements.siteFooter.style.display = 'none'; 
+    else { this.elements.siteFooter.style.display = 'none'; document.body.style.paddingBottom = ''; }
   }
 
   /* Prikazuje footer sa socijalnim linkovima */
@@ -634,6 +634,12 @@ class MenuApp {
       } 
     });
     this.elements.siteFooter.style.display = 'block';
+    /* Uskladi razmak na dnu stranice sa stvarnom visinom footera
+       (npr. duži Wifi tekst koji se prelomi u 2 reda na uskom ekranu) */
+    requestAnimationFrame(() => {
+      const h = this.elements.siteFooter.offsetHeight;
+      if (h) document.body.style.paddingBottom = (h + 14) + 'px';
+    });
   }
 
   /* Postavlja real-time listenere za ažuriranje podataka */

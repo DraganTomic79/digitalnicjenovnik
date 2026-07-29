@@ -63,7 +63,7 @@ body {
   -webkit-font-smoothing: antialiased; 
   line-height: 1.6; 
   overflow-x: hidden; 
-  padding-bottom: 80px; 
+  padding-bottom: 110px; 
 }
 
 /* Glavni kontejner za sadržaj */
@@ -978,23 +978,33 @@ body {
   z-index: 100; 
 }
 
-/* Sadržaj podnožja */
+/* Sadržaj podnožja — tekst uvijek iznad linkova, na svim uređajima */
 .footer-content { 
   max-width: 1200px; 
   margin: 0 auto; 
   padding: 0 var(--spacing-md); 
   display: flex; 
+  flex-direction: column; 
   align-items: center; 
   justify-content: center; 
-  gap: var(--spacing-lg); 
-  flex-wrap: wrap; 
+  gap: var(--spacing-sm); 
 }
 
-/* Tekst u podnožju */
+/* Tekst u podnožju (npr. Wifi podaci) — moderan "pill" izgled */
 .footer-text { 
   margin: 0; 
   font-size: var(--font-size-small); 
-  color: var(--text-muted); 
+  color: var(--text-color); 
+  background: rgba(198, 166, 100, 0.12); 
+  border: 1px solid var(--glass-border); 
+  padding: 7px 16px; 
+  border-radius: var(--border-radius-xl); 
+  font-weight: 600; 
+  letter-spacing: .2px; 
+  display: inline-flex; 
+  align-items: center; 
+  gap: 6px; 
+  text-align: center; 
 }
 
 /* Linkovi u podnožju */
@@ -1451,9 +1461,8 @@ body {
     top: var(--spacing-xs) !important; 
     right: var(--spacing-xs) !important; 
   }
-  /* Vertikalni layout za footer */
+  /* Prilagođeni razmaci za footer na mobilnom */
   .footer-content { 
-    flex-direction: column; 
     gap: var(--spacing-sm); 
     padding: var(--spacing-sm) var(--spacing-md); 
   }
