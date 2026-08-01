@@ -162,13 +162,18 @@ const CAT_SUB_GAP=5;     // .cat-block{gap:5px} — između lbl-sub i prvog reda
 const ROW_GAP=5;         // .cat-block{gap:5px} — između redova (isti flex gap)
 const CAT_MAIN_GAP=4;    // .lbl-main-full{margin-bottom:4px}
 const DIVIDER_GAP=4;     // .divider{margin:2px 0} (gornja+donja)
-const SAFETY=10;         // rezerva protiv zaokruživanja
+const SAFETY=18;         // rezerva protiv zaokruživanja
 const BODY_H=PH-HEAD_H-FOOT_H-BODY_PT-BODY_PB;
 
 let DIVIDER_H=14;
 let ROWH0=22, ROWH1=34, ROWH2=46; // fallback dok se ne izmjeri; calibrate() ih odmah ažurira
 
-function rowH(item){return item.opis&&item.opis2?ROWH2:(item.opis?ROWH1:ROWH0);}
+function rowH(item){
+  const hasO1=!!item.opis, hasO2=!!item.opis2;
+  if(hasO1&&hasO2)return ROWH2;
+  if(hasO1||hasO2)return ROWH1;
+  return ROWH0;
+}
 
 async function calibrate(){
   if(document.fonts&&document.fonts.ready){try{await document.fonts.ready;}catch{}}
@@ -314,7 +319,7 @@ function packPages(blocks){
       const labelText=first?b.label:`${b.label} (nastavak)`;
       const headOverhead=subH(labelText)+CAT_SUB_GAP+gapBeforeBlock;
       const av=page.budget-col.usedH-headOverhead-SAFETY;
-      if(av<=18){advance();continue;}
+      if(av<=24){advance();continue;}
       let used=0,take=0;
       for(let i=0;i<rem.length;i++){
         const h=rowH(rem[i])+(i>0?ROW_GAP:0);
