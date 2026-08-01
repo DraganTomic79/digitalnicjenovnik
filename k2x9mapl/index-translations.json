@@ -173,6 +173,7 @@
       "0.25 lit": "0.25 lit",
       "0.30 lit": "0.30 lit",
       "0.33 lit": "0.33 lit",
+	  "0.40 lit": "0.40 lit",
       "0.50 lit": "0.50 lit",
       "0.70 lit": "0.70 lit",
       "0.75 lit": "0.75 lit",
@@ -188,7 +189,9 @@
       "Prirodni sastojci, bez konzervansa": "Prirodni sastojci, bez konzervansa",
 	  "Porcija 150 gr (3 kugle)": "Porcija 150 gr (3 kugle)",
 	  "Sladoled po najboljem domaćem receptu": "Sladoled po najboljem domaćem receptu",
-	  "2 lit": "2 lit"
+	  "2 lit": "2 lit",
+	  "19 gr / Instant napitak sa dodatkom vitamina": "19 gr / Instant napitak sa dodatkom vitamina",
+	  "24 gr / Instant napitak sa dodatkom vitamina": "24 gr / Instant napitak sa dodatkom vitamina"
     }
   },
   "en": {
@@ -365,6 +368,7 @@
       "0.25 lit": "0.25 liter",
       "0.30 lit": "0.30 liter",
       "0.33 lit": "0.33 liter",
+	  "0.40 lit": "0.40 Liter",
       "0.50 lit": "0.50 liter",
       "0.70 lit": "0.70 liter",
       "0.75 lit": "0.75 liter",
@@ -380,7 +384,9 @@
       "Prirodni sastojci, bez konzervansa": "Natural ingredients, no preservatives",
 	  "Porcija 150 gr (3 kugle)": "150 g Serving (3 Scoops)",
 	"Sladoled po najboljem domaćem receptu": "Ice Cream Made Using the Finest Homemade Recipe",
-	"2 lit": "2 liter"
+	"2 lit": "2 liter",
+	"19 gr / Instant napitak sa dodatkom vitamina": "19 g / Instant Drink with Added Vitamins",
+	"24 gr / Instant napitak sa dodatkom vitamina": "24 g / Instant Drink with Added Vitamins"
     }
   },
   "de": {
@@ -557,6 +563,7 @@
       "0.25 lit": "0.25 Liter",
       "0.30 lit": "0.30 liter",
       "0.33 lit": "0.33 Liter",
+	  "0.40 lit": "0.40 Liter",
       "0.50 lit": "0.50 Liter",
       "0.70 lit": "0.70 Liter",
       "0.75 lit": "0.75 Liter",
@@ -572,7 +579,9 @@
       "Prirodni sastojci, bez konzervansa": "Natürliche Zutaten, ohne Konservierungsstoffe",
 	  "Porcija 150 gr (3 kugle)": "Portion 150 g (3 Kugeln)",
 	"Sladoled po najboljem domaćem receptu": "Eis nach unserem besten hausgemachten Rezept",
-	"2 lit": "2 Liter"
+	"2 lit": "2 Liter",
+	"19 gr / Instant napitak sa dodatkom vitamina": "19 g / Instantgetränk mit Vitaminzusatz",
+	  "24 gr / Instant napitak sa dodatkom vitamina": "24 g / Instantgetränk mit Vitaminzusatz"
     }
   }
 }

@@ -139,6 +139,7 @@
       "0.25 lit": "0.25 lit",
       "0.30 lit": "0.30 lit",
       "0.33 lit": "0.33 lit",
+	  "0.40 lit": "0.40 lit",
       "0.50 lit": "0.50 lit",
       "0.70 lit": "0.70 lit",
       "0.75 lit": "0.75 lit",
@@ -149,7 +150,9 @@
       "Gin, Tonic Water, Monin Strawberry": "Gin, Tonic Water, Monin Strawberry",
       "Gin, Bitter Lemon, Monin Pure cane": "Gin, Bitter Lemon, Monin Pure cane",
       "0.25 lit (prirodna mineralna voda)": "0.25 lit (prirodna mineralna voda)",
-      "Italijanski Gelato sladoled": "Italijanski Gelato sladoled"
+      "Italijanski Gelato sladoled": "Italijanski Gelato sladoled",
+	  "19 gr / Instant napitak sa dodatkom vitamina": "19 gr / Instant napitak sa dodatkom vitamina",
+	  "24 gr / Instant napitak sa dodatkom vitamina": "24 gr / Instant napitak sa dodatkom vitamina"
     }
   },
   "en": {
@@ -292,6 +295,7 @@
       "0.25 lit": "0.25 liter",
       "0.30 lit": "0.30 liter",
       "0.33 lit": "0.33 liter",
+	  "0.40 lit": "0.40 liter"
       "0.50 lit": "0.50 liter",
       "0.70 lit": "0.70 liter",
       "0.75 lit": "0.75 liter",
@@ -302,7 +306,9 @@
       "Gin, Tonic Water, Monin Strawberry": "Gin, Tonic Water, Monin Strawberry",
       "Gin, Bitter Lemon, Monin Pure cane": "Gin, Bitter Lemon, Monin Pure cane",
       "0.25 lit (prirodna mineralna voda)": "0.25 liter (natural mineral water)",
-      "Italijanski Gelato sladoled": "Italian Gelato ice cream"
+      "Italijanski Gelato sladoled": "Italian Gelato ice cream",
+	"19 gr / Instant napitak sa dodatkom vitamina": "19 g / Instant Drink with Added Vitamins",
+	"24 gr / Instant napitak sa dodatkom vitamina": "24 g / Instant Drink with Added Vitamins"
     }
   },
   "de": {
@@ -445,6 +451,7 @@
       "0.25 lit": "0.25 Liter",
       "0.30 lit": "0.30 liter",
       "0.33 lit": "0.33 Liter",
+	  "0.40 lit": "0.40 liter",
       "0.50 lit": "0.50 Liter",
       "0.70 lit": "0.70 Liter",
       "0.75 lit": "0.75 Liter",
@@ -455,7 +462,9 @@
       "Gin, Tonic Water, Monin Strawberry": "Gin, Tonic Water, Monin Erdbeere",
       "Gin, Bitter Lemon, Monin Pure cane": "Gin, Bitter Lemon, Monin Reiner Zucker",
       "0.25 lit (prirodna mineralna voda)": "0.25 liter (natürliches Mineralwasser)",
-      "Italijanski Gelato sladoled": "Italienisches Gelato-Eis"
+      "Italijanski Gelato sladoled": "Italienisches Gelato-Eis",
+	  "19 gr / Instant napitak sa dodatkom vitamina": "19 g / Instantgetränk mit Vitaminzusatz",
+	  "24 gr / Instant napitak sa dodatkom vitamina": "24 g / Instantgetränk mit Vitaminzusatz"
     }
   }
 }
