@@ -97,7 +97,6 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0c0c0c;color:var(--beige
   #book{padding:0;gap:0}
   .pg{box-shadow:none;page-break-after:always;break-after:page}
 }
-#measure{position:absolute;left:-9999px;top:0;visibility:hidden;pointer-events:none}
 </style>
 </head>
 <body>
@@ -117,15 +116,21 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0c0c0c;color:var(--beige
 let _showPrices=null;
 function initCijene(val){
   _showPrices=val;
-  document.getElementById('priceModal').style.display='none';
-  if(!val)document.getElementById('book').classList.add('hide-prices');
-  else document.getElementById('book').classList.remove('hide-prices');
+  const modal=document.getElementById('priceModal');
+  const book=document.getElementById('book');
+  if(modal)modal.style.display='none';
+  if(book){
+    if(!val)book.classList.add('hide-prices');
+    else book.classList.remove('hide-prices');
+  }
   window._pdfNameSuffix=val?'':'-bezcijena';
 }
-(function(){
+function _initCijeneFromUrl(){
   const p=new URLSearchParams(window.location.search).get('cijene');
   if(p!==null)initCijene(parseInt(p));
-})();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',_initCijeneFromUrl);
+else _initCijeneFromUrl();
 </script>
 
 <div id="topbar">
@@ -142,7 +147,6 @@ function initCijene(val){
 
 <div id="loading"><i class="fas fa-spinner"></i><p>Učitavanje cjenovnika…</p></div>
 <div id="book"></div>
-<div id="measure"></div>
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
@@ -150,79 +154,111 @@ import{getFirestore,collection,getDocs,query,orderBy}from"https://www.gstatic.co
 
 const QR_URL="https://digitalnicjenovnik.com/4zx6vrcz";
 
-/* ── PIXEL BUDGET — cijela stranica u 2 kolone (kao referentna slika) ──
-   Razmaci (BLOCK_GAP, CAT_SUB_GAP, ROW_GAP, CAT_MAIN_GAP) odgovaraju stvarnim
-   CSS gap/margin vrijednostima. Visine naslova/redova se MJERE u stvarnom DOM-u
-   (calibrate()) tako da se prelamanje savršeno poklapa sa stvarnim izgledom
-   i automatski prati promjene veličine fonta. */
+/* ── IZGRADNJA STRANICA — umjesto predviđanja visina, gradimo red po red
+   DIREKTNO u pravom DOM-u i nakon svakog dodavanja STVARNO mjerimo da li
+   stane (scrollHeight vs raspoloživa visina). Ako ne stane, red se uklanja
+   i pokušava u sledećoj koloni / na sledećoj stranici. Ovo garantuje da
+   nikad neće doći do preklapanja sa footerom, bez obzira na font, dužinu
+   opisa ili naziva kategorije — jer se ne pretpostavlja ništa, samo mjeri. */
 const PW=794, PH=1123;
-const HEAD_H=64, FOOT_H=30, BODY_PT=20, BODY_PB=14;
-const BLOCK_GAP=12;      // .pcol{gap:12px} — između cat-block-ova
-const CAT_SUB_GAP=5;     // .cat-block{gap:5px} — između lbl-sub i prvog reda
-const ROW_GAP=5;         // .cat-block{gap:5px} — između redova (isti flex gap)
-const CAT_MAIN_GAP=4;    // .lbl-main-full{margin-bottom:4px}
-const DIVIDER_GAP=4;     // .divider{margin:2px 0} (gornja+donja)
-const SAFETY=18;         // rezerva protiv zaokruživanja
-const BODY_H=PH-HEAD_H-FOOT_H-BODY_PT-BODY_PB;
 
-let DIVIDER_H=14;
-let ROWH0=22, ROWH1=34, ROWH2=46; // fallback dok se ne izmjeri; calibrate() ih odmah ažurira
+let gLogo='',gCur='KM',gNum=0;
+let book, curPb, curCol1, curCol2, activeCol, curPf, pagesEls=[];
 
-function rowH(item){
-  const hasO1=!!item.opis, hasO2=!!item.opis2;
-  if(hasO1&&hasO2)return ROWH2;
-  if(hasO1||hasO2)return ROWH1;
-  return ROWH0;
+function rowHTML(item){
+  const has=(item.cijena!==undefined&&item.cijena!=='');
+  const price=has?`${gCur?`<span class="row-price-cur">${gCur}</span>`:''}<span class="row-price-num">${parseFloat(item.cijena).toFixed(2)}</span>`:'';
+  const unit=item.jedinicaMjere?esc(item.jedinicaMjere):'';
+  return `<div class="row-wrap">
+    <div class="row"><span class="row-name">${esc(item.naziv)}</span><span class="row-unit">${unit}</span><span class="row-price">${price}</span></div>
+    ${item.opis?`<div class="row-desc">${esc(item.opis)}</div>`:''}
+    ${item.opis2?`<div class="row-desc">${esc(item.opis2)}</div>`:''}
+  </div>`;
+}
+function elFromHTML(html){ const d=document.createElement('div'); d.innerHTML=html; return d.firstElementChild; }
+
+function newPage(titleLabel,showDivider){
+  gNum++;
+  const pg=document.createElement('div');pg.className='pg';
+  /* Forsiraj desktop dimenzije za vrijeme izgradnje/mjerenja — bez obzira na
+     stvarnu širinu ekrana, da mobilni CSS ne poremeti proračun prelamanja. */
+  pg.style.width=PW+'px';pg.style.height=PH+'px';
+
+  const hd=document.createElement('div');hd.className='ph';
+  if(gLogo)hd.innerHTML=`<img src="${esc(gLogo)}" class="ph-logo" alt=""/>`;
+  pg.appendChild(hd);
+
+  const pb=document.createElement('div');pb.className='pb';
+  pb.style.gridTemplateColumns='1fr 1fr';
+  if(showDivider)pb.appendChild(elFromHTML(`<div class="divider full-row"><i class="fas fa-gem"></i></div>`));
+  if(titleLabel)pb.appendChild(elFromHTML(`<div class="lbl-main-full">${esc(titleLabel)}</div>`));
+  const c1=document.createElement('div');c1.className='pcol';
+  const c2=document.createElement('div');c2.className='pcol';
+  pb.appendChild(c1);pb.appendChild(c2);
+  pg.appendChild(pb);
+
+  const pf=document.createElement('div');pf.className='pf';
+  pf.innerHTML=`<span class="pf-num">Stranica <b>${gNum}</b> / <b>__TOTAL__</b></span><span class="pf-url">${esc(QR_URL.replace('https://',''))}</span>`;
+  pg.appendChild(pf);
+
+  book.appendChild(pg);
+  curPb=pb;curCol1=c1;curCol2=c2;activeCol=c1;curPf=pf;
+  pagesEls.push(pg);
 }
 
-async function calibrate(){
-  if(document.fonts&&document.fonts.ready){try{await document.fonts.ready;}catch{}}
-  const m=document.getElementById('measure');
-  const PAD=80,GAP=34;
-  const contentW=PW-PAD;
-  const colW=(contentW-GAP)/2;
+function fits(){ return activeCol.scrollHeight<=curPb.clientHeight+0.5; }
 
-  function measureRow(o1,o2){
-    m.style.width=colW+'px';
-    m.innerHTML=`<div class="row-wrap"><div class="row"><span class="row-name">Naziv artikla Test</span><span class="row-unit">0.25</span><span class="row-price"><span class="row-price-cur">BAM</span><span class="row-price-num">10.00</span></span></div>${o1?'<div class="row-desc">Opis test linija artikla</div>':''}${o2?'<div class="row-desc">Opis2 test linija artikla</div>':''}</div>`;
-    return Math.ceil(m.firstElementChild.getBoundingClientRect().height);
+function placeSubBlock(label,items){
+  let idx=0,first=true;
+  while(idx<items.length){
+    const headerText=first?label:`${label} (nastavak)`;
+    const block=document.createElement('div');block.className='cat-block';
+    const hdr=elFromHTML(`<div class="lbl-sub">${esc(headerText)}</div>`);
+    block.appendChild(hdr);
+    activeCol.appendChild(block);
+    if(!fits()){
+      activeCol.removeChild(block);
+      if(activeCol===curCol1){activeCol=curCol2;}
+      else{newPage(null,false);}
+      continue; // pokušaj ponovo u novoj koloni/stranici
+    }
+    let addedAny=false;
+    while(idx<items.length){
+      const rowEl=elFromHTML(rowHTML(items[idx]));
+      block.appendChild(rowEl);
+      if(fits()){idx++;addedAny=true;first=false;}
+      else{block.removeChild(rowEl);break;}
+    }
+    if(!addedAny){
+      activeCol.removeChild(block);
+      if(activeCol===curCol1){activeCol=curCol2;}
+      else{newPage(null,false);}
+      continue;
+    }
+    if(idx<items.length){
+      if(activeCol===curCol1){activeCol=curCol2;}
+      else{newPage(null,false);}
+    }
   }
-  ROWH0=measureRow(false,false);
-  ROWH1=measureRow(true,false);
-  ROWH2=measureRow(true,true);
-
-  m.style.width=contentW+'px';
-  m.innerHTML=`<div class="divider"><i class="fas fa-gem"></i></div>`;
-  DIVIDER_H=Math.ceil(m.firstElementChild.getBoundingClientRect().height);
-
-  m.innerHTML='';
 }
 
-/* Visina naslova podkategorije/kategorije se mjeri sa STVARNIM tekstom (ne probnim),
-   jer duži nazivi mogu prelomiti u 2+ reda u uskoj koloni — samo tako je proračun
-   uvijek tačan bez obzira na dužinu naziva. Rezultat se kešira po tekstu. */
-const _subHCache=new Map();
-function subH(text){
-  if(_subHCache.has(text))return _subHCache.get(text);
-  const m=document.getElementById('measure');
-  const colW=((PW-80)-34)/2;
-  m.style.width=colW+'px';
-  m.innerHTML=`<div class="lbl-sub">${esc(text)}</div>`;
-  const h=Math.ceil(m.firstElementChild.getBoundingClientRect().height);
-  m.innerHTML='';
-  _subHCache.set(text,h);
-  return h;
-}
-const _mainHCache=new Map();
-function mainH(text){
-  if(_mainHCache.has(text))return _mainHCache.get(text);
-  const m=document.getElementById('measure');
-  m.style.width=(PW-80)+'px';
-  m.innerHTML=`<div class="lbl-main-full">${esc(text)}</div>`;
-  const h=Math.ceil(m.firstElementChild.getBoundingClientRect().height);
-  m.innerHTML='';
-  _mainHCache.set(text,h);
-  return h;
+function buildPages(blocks){
+  pagesEls=[];gNum=0;
+  let firstMainSeen=false;
+  for(const b of blocks){
+    if(b.type==='main'){
+      const divider=firstMainSeen;firstMainSeen=true;
+      newPage(b.label,divider);
+      continue;
+    }
+    placeSubBlock(b.label,b.items);
+  }
+  // upiši stvarni ukupan broj stranica u svaki footer
+  const total=pagesEls.length;
+  pagesEls.forEach(pg=>{
+    const b=pg.querySelector('.pf-num b:last-child');
+    if(b)b.textContent=String(total);
+  });
 }
 
 /* ── FIREBASE ── */
@@ -286,107 +322,7 @@ function buildBlocks(gk,kat,pod,items){
   return B;
 }
 
-/* ── PACKING — naslov glavne kategorije je puni red preko cijele širine stranice;
-   obje kolone kreću usklađeno ispod njega i pune se: prvo kolona 1, pa kolona 2. ── */
-function packPages(blocks){
-  const pages=[];
-  let firstMainSeen=false;
-  let page=makePage(0,null,false);
-
-  function makePage(titleH,titleLabel,showDivider){
-    return{titleLabel,showDivider,budget:BODY_H-titleH,
-      col1:{subs:[],usedH:0},col2:{subs:[],usedH:0},active:'col1'};
-  }
-  function commitPage(){if(page.titleLabel||page.col1.subs.length||page.col2.subs.length)pages.push(page);}
-  function advance(){ // kolona 1 puna → pređi na kolonu 2; kolona 2 puna → nova stranica (bez ponavljanja naslova)
-    if(page.active==='col1'){page.active='col2';}
-    else{commitPage();page=makePage(0,null,false);}
-  }
-
-  for(const b of blocks){
-    if(b.type==='main'){
-      commitPage();
-      const divider=firstMainSeen;firstMainSeen=true;
-      const dividerH=divider?DIVIDER_H+DIVIDER_GAP:0;
-      const titleH=mainH(b.label)+CAT_MAIN_GAP+dividerH;
-      page=makePage(titleH,b.label,divider);
-      continue;
-    }
-    let rem=[...b.items],first=true;
-    while(rem.length>0){
-      const col=page[page.active];
-      const gapBeforeBlock=col.subs.length>0?BLOCK_GAP:0;
-      const labelText=first?b.label:`${b.label} (nastavak)`;
-      const headOverhead=subH(labelText)+CAT_SUB_GAP+gapBeforeBlock;
-      const av=page.budget-col.usedH-headOverhead-SAFETY;
-      if(av<=24){advance();continue;}
-      let used=0,take=0;
-      for(let i=0;i<rem.length;i++){
-        const h=rowH(rem[i])+(i>0?ROW_GAP:0);
-        if(used+h<=av){used+=h;take=i+1;}else break;
-      }
-      if(take===0){advance();continue;}
-      const left=rem.length-take;
-      if(left>0&&left<=2){
-        let extra=0;for(let i=take;i<rem.length;i++)extra+=rowH(rem[i])+ROW_GAP;
-        if(used+extra<=av)take=rem.length;
-      }
-      const chunk=rem.splice(0,take);
-      col.usedH+=headOverhead+used;
-      col.subs.push({label:first?b.label:`${b.label} (nastavak)`,items:chunk});
-      first=false;
-      if(rem.length>0)advance();
-    }
-  }
-  commitPage();
-  return pages;
-}
-
-/* ── RENDER ── */
-let gLogo='',gCur='KM',gTotal=0,gNum=0;
-
-function rowHTML(item){
-  const has=(item.cijena!==undefined&&item.cijena!=='');
-  const price=has?`${gCur?`<span class="row-price-cur">${gCur}</span>`:''}<span class="row-price-num">${parseFloat(item.cijena).toFixed(2)}</span>`:'';
-  const unit=item.jedinicaMjere?esc(item.jedinicaMjere):'';
-  return `<div class="row-wrap">
-    <div class="row"><span class="row-name">${esc(item.naziv)}</span><span class="row-unit">${unit}</span><span class="row-price">${price}</span></div>
-    ${item.opis?`<div class="row-desc">${esc(item.opis)}</div>`:''}
-    ${item.opis2?`<div class="row-desc">${esc(item.opis2)}</div>`:''}
-  </div>`;
-}
-
-function colHTML(col){
-  let out='';
-  for(const sb of col.subs){
-    out+=`<div class="cat-block"><div class="lbl-sub">${esc(sb.label)}</div>${sb.items.map(rowHTML).join('')}</div>`;
-  }
-  return out;
-}
-
-function renderPage(page){
-  gNum++;
-  const el=document.createElement('div');el.className='pg';
-
-  const hd=document.createElement('div');hd.className='ph';
-  if(gLogo)hd.innerHTML=`<img src="${esc(gLogo)}" class="ph-logo" alt=""/>`;
-  el.appendChild(hd);
-
-  const bd=document.createElement('div');bd.className='pb';
-  if(page.titleLabel){
-    if(page.showDivider)bd.innerHTML+=`<div class="divider full-row"><i class="fas fa-gem"></i></div>`;
-    bd.innerHTML+=`<div class="lbl-main-full">${esc(page.titleLabel)}</div>`;
-  }
-  const c1=document.createElement('div');c1.className='pcol';c1.innerHTML=colHTML(page.col1);
-  const c2=document.createElement('div');c2.className='pcol';c2.innerHTML=colHTML(page.col2);
-  bd.appendChild(c1);bd.appendChild(c2);
-  el.appendChild(bd);
-
-  const ft=document.createElement('div');ft.className='pf';
-  ft.innerHTML=`<span class="pf-num">Stranica <b>${gNum}</b> / <b>${gTotal}</b></span><span class="pf-url">${esc(QR_URL.replace('https://',''))}</span>`;
-  el.appendChild(ft);
-  return el;
-}
+/* ── PACKING + RENDER: vidi buildPages()/newPage()/placeSubBlock() iznad ── */
 
 /* ── MAIN ── */
 async function build(){
@@ -398,14 +334,29 @@ async function build(){
     pSnap.forEach(d=>{const x=d.data();gLogo=x.logoURL||'';gCur=x.currencyCode||'KM';});
 
     const blocks=buildBlocks(gk,kat,pod,meni);
-    await calibrate();
-    const pages=packPages(blocks);
-    gTotal=Math.max(1,pages.length);gNum=0;
+    if(document.fonts&&document.fonts.ready){try{await document.fonts.ready;}catch{}}
 
-    const book=document.getElementById('book');
-    book.innerHTML='';book.style.display='flex';
-    if(pages.length===0)pages.push({titleLabel:null,showDivider:false,col1:{subs:[]},col2:{subs:[]}});
-    for(const pg of pages)book.appendChild(renderPage(pg));
+    book=document.getElementById('book');
+    book.innerHTML='';
+    /* Gradimo van vidljivog toka (ali SA layout-om, ne display:none) da bismo
+       mogli stvarno mjeriti visine dok gradimo — bez ovoga bi sve mjere bile 0. */
+    book.style.cssText='display:flex;position:fixed;left:0;top:-99999px;visibility:hidden;';
+
+    buildPages(blocks);
+    if(pagesEls.length===0)newPage(null,false);
+
+    /* Sad je izgrađeno i tačno izmjereno — skini forsirane desktop dimenzije
+       da mobilni CSS može preuzeti za sam prikaz (raspodjela sadržaja po
+       stranicama je već tačno odlučena mjerenjem, ovo mijenja samo izgled). */
+    pagesEls.forEach(pg=>{
+      pg.style.removeProperty('width');
+      pg.style.removeProperty('height');
+      const pbEl=pg.querySelector('.pb');
+      if(pbEl)pbEl.style.removeProperty('grid-template-columns');
+    });
+
+    /* Sad je izgrađeno i tačno izmjereno — vrati na normalan (vidljiv) prikaz */
+    book.style.cssText='display:flex;';
 
     document.getElementById('loading').style.display='none';
     document.getElementById('topbar').style.display='flex';
