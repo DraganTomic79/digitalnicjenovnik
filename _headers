@@ -1,0 +1,65 @@
+# Root nivo — HTML, JS, CSS, JSON nikad keširati
+/*.html
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+/*.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/*.css
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/*.json
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# Slike keširati 7 dana
+/*.png
+  Cache-Control: public, max-age=604800
+
+/*.jpg
+  Cache-Control: public, max-age=604800
+
+/*.ico
+  Cache-Control: public, max-age=604800
+
+# Podfolder 4zx6vrcz — isti principi
+/4zx6vrcz/*.html
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+/4zx6vrcz/*.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/4zx6vrcz/js/*.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/4zx6vrcz/*.css
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/4zx6vrcz/*.json
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# Podfolder k2x9mapl — isti principi kao 4zx6vrcz
+/k2x9mapl/*.html
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+/k2x9mapl/*.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/k2x9mapl/js/*.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/k2x9mapl/*.css
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/k2x9mapl/*.json
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/4zx6vrcz/katalog.html
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
