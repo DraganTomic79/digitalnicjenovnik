@@ -79,12 +79,15 @@ class IndexTranslationManager {
     // Dodaj event listenere na svako dugme
     languageButtons.forEach(btn => {
       const langCode = btn.getAttribute('data-lang');
-      
-      // Postavi aktivno dugme na osnovu trenutnog jezika
+
+      // Prvo skini "active" sa SVIH dugmadi (npr. SR je u HTML-u tvrdo markiran
+      // kao podrazumijevano aktivan prije nego se JS učita) — pa tek onda
+      // označi ISKLJUČIVO ono koje stvarno odgovara trenutnom jeziku.
+      btn.classList.remove('active');
       if (langCode === this.currentLanguage) {
         btn.classList.add('active');
       }
-      
+
       // Dodaj click event
       btn.addEventListener('click', () => this.changeLanguage(langCode));
     });
