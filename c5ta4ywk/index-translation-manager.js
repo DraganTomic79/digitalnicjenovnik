@@ -4,7 +4,7 @@ class IndexTranslationManager {
   constructor() {
     this.translations = {};
     this.currentLanguage = 'sr';
-    this.loadTranslations();
+    this.translationsReady = this.loadTranslations();
     this.init();
   }
 
@@ -44,22 +44,26 @@ class IndexTranslationManager {
     }
   }
 
-  init() {
+  async init() {
+    // Sačekaj da se prevodi STVARNO učitaju (umjesto nagađanja sa fiksnim timeout-om)
+    await this.translationsReady;
+
     // Učitaj sačuvani jezik iz localStorage
     const savedLanguage = localStorage.getItem('siteLanguage');
     if (savedLanguage && this.translations[savedLanguage]) {
       this.currentLanguage = savedLanguage;
     }
-    
+
+    const start = () => {
+      this.setupLanguageButtons();
+      this.applyTranslations();
+    };
+
     // Čekaj da se DOM učita
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
-        this.setupLanguageButtons();
-        setTimeout(() => this.applyTranslations(), 200);
-      });
+      document.addEventListener('DOMContentLoaded', start);
     } else {
-      this.setupLanguageButtons();
-      setTimeout(() => this.applyTranslations(), 200);
+      start();
     }
   }
 
