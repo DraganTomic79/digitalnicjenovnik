@@ -1182,6 +1182,41 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     }
   }
 
+  /* MASOVNA (NE)VIDLJIVOST SVIH ARTIKALA */
+  /** Sakriva SVE artikle odjednom (npr. kad je kafić zatvoren/na renoviranju) */
+  async sakrijSveArtikle() {
+    const potvrda = confirm(
+      'Ovo će SAKRITI SVE artikle iz menija — gosti neće vidjeti nijedan artikal dok ih ponovo ne objaviš.\n\nDa li si siguran/na?'
+    );
+    if (!potvrda) return;
+    try {
+      Utils.prikaziPoruku('Sakrivam sve artikle…', 'info');
+      const broj = await FirebaseService.sakrijSveArtikle();
+      Utils.prikaziPoruku(`Sakriveno artikala: ${broj}`, 'success');
+      await this.loadEntity('artikal');
+    } catch (error) {
+      Utils.debug.error('Greška masovnog sakrivanja artikala:', error);
+      Utils.prikaziPoruku('Greška prilikom masovnog sakrivanja artikala', 'error');
+    }
+  }
+
+  /** Vraća vidljivost SVIM artiklima odjednom */
+  async objaviSveArtikle() {
+    const potvrda = confirm(
+      'Ovo će OBJAVITI SVE artikle — svi će ponovo biti vidljivi gostima (uključujući one koje si ranije ručno sakrio/la).\n\nDa li si siguran/na?'
+    );
+    if (!potvrda) return;
+    try {
+      Utils.prikaziPoruku('Objavljujem sve artikle…', 'info');
+      const broj = await FirebaseService.objaviSveArtikle();
+      Utils.prikaziPoruku(`Objavljeno artikala: ${broj}`, 'success');
+      await this.loadEntity('artikal');
+    } catch (error) {
+      Utils.debug.error('Greška masovnog objavljivanja artikala:', error);
+      Utils.prikaziPoruku('Greška prilikom masovnog objavljivanja artikala', 'error');
+    }
+  }
+
   /* UI UPDATE */
   /** Ažurira UI za određeni tip entiteta */
   async updateUI(entityType) { 
@@ -1957,6 +1992,6 @@ if (typeof window !== 'undefined' && !window.adminControllerLoaded) {
   window.adminControllerLoaded = true; 
   
   document.addEventListener('DOMContentLoaded', () => {
-    new AdminController();
+    window.adminController = new AdminController();
   });
 }

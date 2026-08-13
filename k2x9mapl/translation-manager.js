@@ -4,7 +4,7 @@ class TranslationManager {
   constructor() {
     this.translations = {};
     this.currentLanguage = 'sr'; // Defaultni jezik
-    this.loadTranslations();
+    this.translationsReady = this.loadTranslations();
     this.init();
   }
 
@@ -26,7 +26,10 @@ class TranslationManager {
   }
 
   // Inicijalizuj sistem prevoda
-  init() {
+  async init() {
+    // Sačekaj da se prevodi STVARNO učitaju (umjesto nagađanja sa fiksnim timeout-om)
+    await this.translationsReady;
+
     // Učitaj sačuvani jezik iz localStorage
     const savedLanguage = localStorage.getItem('adminPanelLanguage');
     if (savedLanguage && this.translations[savedLanguage]) {
@@ -35,9 +38,9 @@ class TranslationManager {
 
     // Kreiraj dugmad za prevod
     this.createLanguageButtons();
-    
+
     // Primeni trenutni jezik
-    setTimeout(() => this.applyTranslations(), 100);
+    this.applyTranslations();
   }
 
   // Kreiraj dugmad za jezike
