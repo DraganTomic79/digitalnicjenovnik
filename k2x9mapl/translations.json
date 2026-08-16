@@ -95,7 +95,20 @@
     "dashItemsTotal": "Artikli ukupno",
     "dashItemsActive": "Aktivni artikli",
     "dashItemsHidden": "Sakriveni artikli",
-    "siteCode": "Kod sajta:"
+    "siteCode": "Kod sajta:",
+    "siteNameHeader": "Naziv Kafića",
+    "siteNameHint": "(prikazuje se u Dashboard-u i kao naslov stranice u browseru)",
+    "footerOn": "Footer je UKLJUČEN ✓",
+    "footerOff": "Footer je ISKLJUČEN",
+    "footerToggleHint": "Uključi da bi footer bio vidljiv na sajtu",
+    "sidebarMenu": "Meni",
+    "sidebarTools": "Alati",
+    "toolExportItems": "Export Artikala",
+    "toolCatalog": "Katalog Pića",
+    "toolSimplePricelist": "Simple Cjenovnik",
+    "opis2Label": "Opis 2",
+    "opis2Hint": "(dodatni opis, manji font)",
+    "placeholderDescription2": "Drugi opis (opciono)"
   },
   "en": {
     "pageTitle": "Admin Panel - Menu Management",
@@ -193,7 +206,20 @@
     "dashItemsTotal": "Items total",
     "dashItemsActive": "Active items",
     "dashItemsHidden": "Hidden items",
-    "siteCode": "Site code:"
+    "siteCode": "Site code:",
+    "siteNameHeader": "Venue Name",
+    "siteNameHint": "(shown on the Dashboard and as the browser page title)",
+    "footerOn": "Footer is ON ✓",
+    "footerOff": "Footer is OFF",
+    "footerToggleHint": "Turn on to make the footer visible on the site",
+    "sidebarMenu": "Menu",
+    "sidebarTools": "Tools",
+    "toolExportItems": "Export Items",
+    "toolCatalog": "Drink Catalog",
+    "toolSimplePricelist": "Simple Price List",
+    "opis2Label": "Description 2",
+    "opis2Hint": "(extra description, smaller font)",
+    "placeholderDescription2": "Second description (optional)"
   },
   "de": {
     "pageTitle": "Admin-Panel - Menü-Verwaltung",
@@ -291,6 +317,19 @@
     "dashItemsTotal": "Artikel gesamt",
     "dashItemsActive": "Aktive Artikel",
     "dashItemsHidden": "Versteckte Artikel",
-    "siteCode": "Seitencode:"
+    "siteCode": "Seitencode:",
+    "siteNameHeader": "Name des Lokals",
+    "siteNameHint": "(wird im Dashboard und als Browser-Seitentitel angezeigt)",
+    "footerOn": "Footer ist AKTIV ✓",
+    "footerOff": "Footer ist DEAKTIVIERT",
+    "footerToggleHint": "Aktivieren, damit der Footer auf der Seite sichtbar ist",
+    "sidebarMenu": "Menü",
+    "sidebarTools": "Werkzeuge",
+    "toolExportItems": "Artikel exportieren",
+    "toolCatalog": "Getränkekatalog",
+    "toolSimplePricelist": "Einfache Preisliste",
+    "opis2Label": "Beschreibung 2",
+    "opis2Hint": "(zusätzliche Beschreibung, kleinere Schrift)",
+    "placeholderDescription2": "Zweite Beschreibung (optional)"
   }
 }

@@ -6,7 +6,7 @@
   <title>Admin Panel - Upravljanje Menijem</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="admin-styles.css?v=20260816">
+  <link rel="stylesheet" href="admin-styles.css?v=20260816o">
   <style>
     .size-recommendation { background: #e7f3ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #17a2b8; font-size: 0.8rem; line-height: 1.4; margin-top: 8px; }
     .size-recommendation strong { color: #0c5460; }
@@ -235,6 +235,13 @@
 
       /* Jezički prekidač se sad prikazuje u mobilnoj traci (mt-brand), pa je ova traka na mobilnom suvišna */
       .main-topbar { display: none; }
+
+      /* Kartice na Dashboard-u — manje, jer nema puno sadržaja u njima */
+      .dashboard-grid { grid-template-columns: repeat(auto-fit, minmax(122px, 1fr)); gap: 8px; }
+      .dash-card { padding: 10px 12px; gap: 8px; }
+      .dash-card .dc-icon { width: 32px; height: 32px; font-size: .85rem; border-radius: 8px; }
+      .dash-card .dc-num { font-size: 1.15rem; }
+      .dash-card .dc-lbl { font-size: .6rem; margin-top: 1px; }
     }
 
 
@@ -247,7 +254,7 @@
       <button class="hamburger" id="hamburgerBtn" aria-label="Otvori meni"><i class="fas fa-bars"></i></button>
       <div class="mt-brand">
         <h1>Admin Panel</h1>
-        <span>Digitalni Cjenovnik · k2x9mapl</span>
+        <span class="brand-subtitle" data-code="k2x9mapl">Digitalni Cjenovnik · k2x9mapl</span>
       </div>
     </div>
     <div id="sidebarBackdrop"></div>
@@ -258,11 +265,11 @@
         <div class="icon"><i class="fas fa-crown"></i></div>
         <div>
           <h1>Admin Panel</h1>
-          <span>Digitalni Cjenovnik · k2x9mapl</span>
+          <span class="brand-subtitle" data-code="k2x9mapl">Digitalni Cjenovnik · k2x9mapl</span>
         </div>
       </div>
 
-      <div class="sidebar-section-label">Meni</div>
+      <div class="sidebar-section-label" id="lblMeni">Meni</div>
       <div class="sidebar-nav" id="categoryTabs">
         <button class="tab-btn active" data-tab="dashboard"><i class="fas fa-chart-pie"></i><span>Dashboard</span></button>
         <button class="tab-btn" data-tab="glavne-kategorije"><i class="fas fa-layer-group"></i><span>Glavne kategorije</span></button>
@@ -272,16 +279,16 @@
         <button class="tab-btn" data-tab="postavke"><i class="fas fa-cog"></i><span>Postavke</span></button>
       </div>
 
-      <div class="sidebar-section-label">Alati</div>
+      <div class="sidebar-section-label" id="lblAlati">Alati</div>
       <div class="sidebar-tools">
-        <a href="index.html" target="_blank"><i class="fas fa-external-link-alt"></i><span>Pogledaj sajt</span></a>
-        <a href="firebase-export-tool.html" target="_blank"><i class="fas fa-download"></i><span>Export Artikala</span></a>
-        <a href="#" onclick="otвориKatalogModal();return false;"><i class="fas fa-book-open"></i><span>Katalog Pića</span></a>
-        <a href="#" onclick="otvoriSimpleCjenovnikModal();return false;"><i class="fas fa-receipt"></i><span>Simple Cjenovnik</span></a>
+        <a href="index.html" target="_blank"><i class="fas fa-external-link-alt"></i><span id="toolPogledajSajt">Pogledaj sajt</span></a>
+        <a href="firebase-export-tool.html" target="_blank"><i class="fas fa-download"></i><span id="toolExportArtikala">Export Artikala</span></a>
+        <a href="#" onclick="otвориKatalogModal();return false;"><i class="fas fa-book-open"></i><span id="toolKatalogPica">Katalog Pića</span></a>
+        <a href="#" onclick="otvoriSimpleCjenovnikModal();return false;"><i class="fas fa-receipt"></i><span id="toolSimpleCjenovnik">Simple Cjenovnik</span></a>
       </div>
 
       <div class="sidebar-foot">
-        <a href="login.html"><i class="fas fa-sign-out-alt"></i><span>Odjavi se</span></a>
+        <a href="login.html"><i class="fas fa-sign-out-alt"></i><span id="lblOdjava">Odjavi se</span></a>
       </div>
     </aside>
 
@@ -297,6 +304,8 @@
           <h3><i class="fas fa-chart-pie"></i> Dashboard</h3>
           <p style="margin:-6px 0 16px;color:#888;font-size:.82rem;font-weight:600;">
             <i class="fas fa-globe" style="color:#C6A664;margin-right:5px;"></i><span id="lblKodSajta">Kod sajta:</span> <b style="color:#333">k2x9mapl</b>
+            &nbsp;&nbsp;·&nbsp;&nbsp;
+            <i class="fas fa-signature" style="color:#C6A664;margin-right:5px;"></i><span id="lblNazivKafica">Naziv:</span> <b id="valNazivKafica" style="color:#333">–</b>
           </p>
           <div class="dashboard-grid">
             <div class="dash-card"><div class="dc-icon"><i class="fas fa-layer-group"></i></div><div><div class="dc-num" id="statGlavneKategorije">–</div><div class="dc-lbl" id="lblGlavneKategorije">Glavne kategorije</div></div></div>
@@ -452,7 +461,7 @@
                   <input type="text" class="form-control" id="opisArtikla" placeholder="Kratki opis artikla (opciono)">
                 </div>
                 <div class="mb-3">
-                  <label for="opisArtikla2"><i class="fas fa-info-circle"></i> Opis 2 <small class="text-muted">(dodatni opis, manji font)</small></label>
+                  <label for="opisArtikla2"><i class="fas fa-info-circle"></i> <span id="lblOpis2">Opis 2</span> <small class="text-muted" id="lblOpis2Hint">(dodatni opis, manji font)</small></label>
                   <input type="text" class="form-control" id="opisArtikla2" placeholder="Drugi opis (opciono)">
                 </div>
                 <div class="form-group">
@@ -518,6 +527,19 @@
               </div>
             </div>
 
+            <!-- NAZIV KAFIĆA -->
+            <div class="form-section">
+              <h4 id="siteNameHeader"><i class="fas fa-signature"></i> Naziv Kafića</h4>
+              <div class="form-group">
+                <label for="pageTitle">Naziv <small class="text-muted" id="siteNameHint">(prikazuje se u Dashboard-u i kao naslov stranice u browseru)</small></label>
+                <input type="text" class="form-control" id="pageTitle" placeholder="npr. Casa Loca Borik">
+              </div>
+              <div class="form-actions">
+                <button type="button" class="btn btn-primary" id="sacuvajNazivBtn"><i class="fas fa-save"></i> Sačuvaj</button>
+                <button type="button" class="btn btn-secondary" id="resetNazivBtn"><i class="fas fa-eraser"></i> Reset</button>
+              </div>
+            </div>
+
             <!-- HERO -->
             <div class="form-section">
               <h4><i class="fas fa-home"></i> Hero Sekcija</h4>
@@ -553,7 +575,7 @@
                   </label>
                   <div>
                     <div style="font-weight:700;font-size:.95rem;color:#333" id="footerToggleLabel">Footer je ISKLJUČEN</div>
-                    <div style="font-size:.78rem;color:#888">Uključi da bi footer bio vidljiv na sajtu</div>
+                    <div style="font-size:.78rem;color:#888" id="footerToggleHint">Uključi da bi footer bio vidljiv na sajtu</div>
                   </div>
                 </div>
               </div>
@@ -618,8 +640,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Include Translation Manager -->
-  <script src="translation-manager.js?v=20260816"></script>
-  <script type="module" src="js/admin-controller.js?v=20260816"></script>
+  <script src="translation-manager.js?v=20260816o"></script>
+  <script type="module" src="js/admin-controller.js?v=20260816o"></script>
 <script>
 // Hamburger meni (fioka sa strane) — samo na mobilnom
 (function () {
@@ -657,11 +679,13 @@
       const on = cb.checked;
       track.style.background = on ? '#4CAF50' : '#ccc';
       thumb.style.transform  = on ? 'translateX(24px)' : 'translateX(0)';
-      lbl.textContent = on ? 'Footer je UKLJUČEN ✓' : 'Footer je ISKLJUČEN';
+      const tm = window.translationManager;
+      lbl.textContent = tm ? tm.t(on ? 'footerOn' : 'footerOff') : (on ? 'Footer je UKLJUČEN ✓' : 'Footer je ISKLJUČEN');
       lbl.style.color = on ? '#2e7d32' : '#333';
     }
 
     cb.addEventListener('change', update);
+    window.refreshFooterToggleLabel = update;
     // Run on load (after AdminController sets checked state)
     const obs = new MutationObserver(update);
     obs.observe(cb, { attributes: true, attributeFilter: ['checked'] });
