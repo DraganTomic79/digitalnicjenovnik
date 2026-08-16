@@ -6,7 +6,7 @@
   <title>Admin Panel - Upravljanje Menijem</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="admin-styles.css?v=20260816b">
+  <link rel="stylesheet" href="admin-styles.css?v=20260816c">
   <style>
     .size-recommendation { background: #e7f3ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #17a2b8; font-size: 0.8rem; line-height: 1.4; margin-top: 8px; }
     .size-recommendation strong { color: #0c5460; }
@@ -140,7 +140,7 @@
     }
     .sidebar-nav { display: flex; flex-direction: column; padding: 6px 10px; gap: 3px; }
     .sidebar-nav .tab-btn, .sidebar-tools a {
-      display: flex !important; align-items: center; gap: 12px; width: 100%;
+      display: flex !important; flex-direction: row !important; align-items: center; gap: 12px; width: 100%;
       background: transparent !important; border: none !important; border-radius: 9px;
       padding: 10px 12px !important; color: #c9c2b3 !important; font-size: .84rem !important;
       font-weight: 600; cursor: pointer; text-align: left; text-decoration: none;
@@ -209,6 +209,12 @@
       }
       .mobile-topbar .mt-brand h1 { font-size: .82rem; font-weight: 800; color: #F2E9D8; margin: 0; }
       .mobile-topbar .mt-brand span { display: block; font-size: .6rem; color: #9E8344; }
+      .mobile-topbar .language-switcher {
+        margin-left: auto !important; position: static !important; display: flex !important;
+        flex-direction: row !important; gap: 5px !important; top: auto !important; right: auto !important;
+        flex-wrap: nowrap !important;
+      }
+      .mobile-topbar .language-btn { min-width: 30px !important; height: 30px !important; font-size: 13px !important; padding: 0 !important; }
 
       .sidebar {
         position: fixed !important; top: 0; left: -280px; width: 260px; height: 100vh; z-index: 300;
@@ -227,13 +233,8 @@
         display: block; position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 290;
       }
 
-      /* Jezički prekidač — vodoravno, uredno, unutar gornje trake glavnog sadržaja */
-      .main-topbar { justify-content: center; padding: 8px 16px; min-height: auto; border-bottom: 1px solid rgba(198,166,100,.15); }
-      .main-topbar .language-switcher {
-        position: static !important; display: flex !important; flex-direction: row !important;
-        gap: 6px !important; top: auto !important; right: auto !important; flex-wrap: nowrap !important;
-      }
-      .main-topbar .language-btn { min-width: 34px !important; height: 34px !important; font-size: 15px !important; padding: 0 !important; }
+      /* Jezički prekidač se sad prikazuje u mobilnoj traci (mt-brand), pa je ova traka na mobilnom suvišna */
+      .main-topbar { display: none; }
     }
 
 
@@ -614,8 +615,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Include Translation Manager -->
-  <script src="translation-manager.js?v=20260816b"></script>
-  <script type="module" src="js/admin-controller.js?v=20260816b"></script>
+  <script src="translation-manager.js?v=20260816c"></script>
+  <script type="module" src="js/admin-controller.js?v=20260816c"></script>
 <script>
 // Hamburger meni (fioka sa strane) — samo na mobilnom
 (function () {

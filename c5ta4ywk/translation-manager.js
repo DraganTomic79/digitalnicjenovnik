@@ -45,7 +45,10 @@ class TranslationManager {
 
   // Kreiraj dugmad za jezike
   createLanguageButtons() {
-    const header = document.querySelector('.main-topbar') || document.querySelector('.header');
+    const isMobile = window.innerWidth <= 900;
+    const header = (isMobile && document.querySelector('.mobile-topbar'))
+      || document.querySelector('.main-topbar')
+      || document.querySelector('.header');
     if (!header) return;
 
     const languageContainer = document.createElement('div');
