@@ -207,7 +207,8 @@ class AdminController {
         'sacuvajHero', 'resetHero', 'footerText', 'instagramUrl',
         'facebookUrl', 'youtubeUrl', 'twitterUrl', 'tiktokUrl',
         'footerEnabled', 'footerPreview', 'sacuvajFooter', 'resetFooter',
-        'currencyCode', 'saveCurrency', 'resetCurrency'
+        'currencyCode', 'saveCurrency', 'resetCurrency',
+        'pageTitle', 'sacuvajNaziv', 'resetNaziv'
       ] 
     };
     
@@ -277,6 +278,9 @@ class AdminController {
         heroSubtitle: 'heroSubtitle', 
         sacuvajHero: 'sacuvajHeroBtn', 
         resetHero: 'resetHeroBtn', 
+        pageTitle: 'pageTitle',
+        sacuvajNaziv: 'sacuvajNazivBtn',
+        resetNaziv: 'resetNazivBtn',
         footerText: 'footerText', 
         instagramUrl: 'instagramUrl', 
         facebookUrl: 'facebookUrl', 
@@ -343,6 +347,8 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     
     this.addHandler(p.sacuvajHero, 'click', () => this.saveHeroSection());
     this.addHandler(p.resetHero, 'click', () => this.resetHeroSection());
+    this.addHandler(p.sacuvajNaziv, 'click', () => this.saveSiteName());
+    this.addHandler(p.resetNaziv, 'click', () => this.resetSiteName());
     this.addHandler(p.sacuvajFooter, 'click', () => this.saveFooterSettings());
     this.addHandler(p.resetFooter, 'click', () => this.resetFooterSettings());
     this.addHandler(p.sacuvajPostavke, 'click', () => this.saveWebSettings());
@@ -1590,7 +1596,11 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
         
       if (this.elements.postavke.heroSubtitle) 
         this.elements.postavke.heroSubtitle.value = postavke.heroSubtitle || ""; 
-        
+
+      if (this.elements.postavke.pageTitle)
+        this.elements.postavke.pageTitle.value = postavke.pageTitle || "";
+      this.updateBrandDisplay(postavke.pageTitle || "");
+
       const footerFields = { 
         footerText: postavke.footerText || "", 
         instagramUrl: postavke.instagramUrl || "", 
@@ -1874,6 +1884,44 @@ async removeLogo() {
     if (heroSubtitle) heroSubtitle.value = ""; 
   }
 
+  /** Čuva naziv kafića (prikazuje se u Dashboard-u i kao naslov stranice) */
+  async saveSiteName() {
+    const { pageTitle, sacuvajNaziv } = this.elements.postavke;
+    if (!pageTitle) {
+      Utils.prikaziPoruku('Polje za naziv nije pronađeno u DOM-u', 'error');
+      return;
+    }
+    try {
+      Utils.setLoadingState(sacuvajNaziv, true);
+      const data = this.collectAllWebSettings();
+      data.pageTitle = pageTitle.value.trim() || "";
+      await FirebaseService.sacuvajWebPostavke(data);
+      this.updateBrandDisplay(data.pageTitle);
+      Utils.prikaziPoruku('Naziv kafića je uspješno sačuvan', 'success');
+    } catch (error) {
+      Utils.debug.error('Greška čuvanja naziva kafića:', error);
+      Utils.prikaziPoruku('Greška čuvanja naziva kafića', 'error');
+    } finally {
+      Utils.setLoadingState(sacuvajNaziv, false);
+    }
+  }
+
+  /** Resetuje polje za naziv kafića (samo u formi, ne briše sačuvano dok se ne klikne Sačuvaj) */
+  resetSiteName() {
+    const { pageTitle } = this.elements.postavke;
+    if (pageTitle) pageTitle.value = "";
+  }
+
+  /** Ažurira prikaz naziva kafića u Dashboard-u i u sidebar/mobilnoj traci */
+  updateBrandDisplay(naziv) {
+    const val = document.getElementById('valNazivKafica');
+    if (val) val.textContent = naziv || '–';
+    document.querySelectorAll('.brand-subtitle').forEach(el => {
+      const code = el.getAttribute('data-code') || '';
+      el.textContent = naziv ? `${naziv} · ${code}` : `Digitalni Cjenovnik · ${code}`;
+    });
+  }
+
   /** Čuva postavke Footer-a */
   async saveFooterSettings() { 
     try { 
@@ -1997,7 +2045,8 @@ async removeLogo() {
       tiktokUrl: el.tiktokUrl?.value.trim() || "",
       footerEnabled: el.footerEnabled?.checked || false,
       heroTitle: el.heroTitle?.value.trim() || "",
-      heroSubtitle: el.heroSubtitle?.value.trim() || ""
+      heroSubtitle: el.heroSubtitle?.value.trim() || "",
+      pageTitle: el.pageTitle?.value.trim() || ""
     };
   }
 }

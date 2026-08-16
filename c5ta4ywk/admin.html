@@ -6,7 +6,7 @@
   <title>Admin Panel - Upravljanje Menijem</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="admin-styles.css?v=20260816e">
+  <link rel="stylesheet" href="admin-styles.css?v=20260816k">
   <style>
     .size-recommendation { background: #e7f3ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #17a2b8; font-size: 0.8rem; line-height: 1.4; margin-top: 8px; }
     .size-recommendation strong { color: #0c5460; }
@@ -235,6 +235,13 @@
 
       /* Jezički prekidač se sad prikazuje u mobilnoj traci (mt-brand), pa je ova traka na mobilnom suvišna */
       .main-topbar { display: none; }
+
+      /* Kartice na Dashboard-u — manje, jer nema puno sadržaja u njima */
+      .dashboard-grid { grid-template-columns: repeat(auto-fit, minmax(122px, 1fr)); gap: 8px; }
+      .dash-card { padding: 10px 12px; gap: 8px; }
+      .dash-card .dc-icon { width: 32px; height: 32px; font-size: .85rem; border-radius: 8px; }
+      .dash-card .dc-num { font-size: 1.15rem; }
+      .dash-card .dc-lbl { font-size: .6rem; margin-top: 1px; }
     }
 
 
@@ -247,7 +254,7 @@
       <button class="hamburger" id="hamburgerBtn" aria-label="Otvori meni"><i class="fas fa-bars"></i></button>
       <div class="mt-brand">
         <h1>Admin Panel</h1>
-        <span>Digitalni Cjenovnik · c5ta4ywk</span>
+        <span class="brand-subtitle" data-code="c5ta4ywk">Digitalni Cjenovnik · c5ta4ywk</span>
       </div>
     </div>
     <div id="sidebarBackdrop"></div>
@@ -258,7 +265,7 @@
         <div class="icon"><i class="fas fa-crown"></i></div>
         <div>
           <h1>Admin Panel</h1>
-          <span>Digitalni Cjenovnik · c5ta4ywk</span>
+          <span class="brand-subtitle" data-code="c5ta4ywk">Digitalni Cjenovnik · c5ta4ywk</span>
         </div>
       </div>
 
@@ -297,6 +304,8 @@
           <h3><i class="fas fa-chart-pie"></i> Dashboard</h3>
           <p style="margin:-6px 0 16px;color:#888;font-size:.82rem;font-weight:600;">
             <i class="fas fa-globe" style="color:#C6A664;margin-right:5px;"></i><span id="lblKodSajta">Kod sajta:</span> <b style="color:#333">c5ta4ywk</b>
+            &nbsp;&nbsp;·&nbsp;&nbsp;
+            <i class="fas fa-signature" style="color:#C6A664;margin-right:5px;"></i><span id="lblNazivKafica">Naziv:</span> <b id="valNazivKafica" style="color:#333">–</b>
           </p>
           <div class="dashboard-grid">
             <div class="dash-card"><div class="dc-icon"><i class="fas fa-layer-group"></i></div><div><div class="dc-num" id="statGlavneKategorije">–</div><div class="dc-lbl" id="lblGlavneKategorije">Glavne kategorije</div></div></div>
@@ -518,6 +527,19 @@
               </div>
             </div>
 
+            <!-- NAZIV KAFIĆA -->
+            <div class="form-section">
+              <h4><i class="fas fa-signature"></i> Naziv Kafića</h4>
+              <div class="form-group">
+                <label for="pageTitle">Naziv <small class="text-muted">(prikazuje se u Dashboard-u i kao naslov stranice u browseru)</small></label>
+                <input type="text" class="form-control" id="pageTitle" placeholder="npr. Casa Loca Borik">
+              </div>
+              <div class="form-actions">
+                <button type="button" class="btn btn-primary" id="sacuvajNazivBtn"><i class="fas fa-save"></i> Sačuvaj</button>
+                <button type="button" class="btn btn-secondary" id="resetNazivBtn"><i class="fas fa-eraser"></i> Reset</button>
+              </div>
+            </div>
+
             <!-- HERO -->
             <div class="form-section">
               <h4><i class="fas fa-home"></i> Hero Sekcija</h4>
@@ -618,8 +640,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Include Translation Manager -->
-  <script src="translation-manager.js?v=20260816e"></script>
-  <script type="module" src="js/admin-controller.js?v=20260816e"></script>
+  <script src="translation-manager.js?v=20260816k"></script>
+  <script type="module" src="js/admin-controller.js?v=20260816k"></script>
 <script>
 // Hamburger meni (fioka sa strane) — samo na mobilnom
 (function () {
