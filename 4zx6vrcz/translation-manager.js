@@ -45,7 +45,10 @@ class TranslationManager {
 
   // Kreiraj dugmad za jezike
   createLanguageButtons() {
-    const header = document.querySelector('.header');
+    const isMobile = window.innerWidth <= 900;
+    const header = (isMobile && document.querySelector('.mobile-topbar'))
+      || document.querySelector('.main-topbar')
+      || document.querySelector('.header');
     if (!header) return;
 
     const languageContainer = document.createElement('div');
@@ -115,9 +118,19 @@ class TranslationManager {
     // Mapiranje elemenata sa prevodima
     const translations = [
       // Header
-      { selector: '.header h1', textKey: 'adminPanel', keepIcon: true },
-      { selector: '.header p', textKey: 'manageMenu' },
-      
+      { selector: '.sidebar-brand h1, .mobile-topbar .mt-brand h1', textKey: 'adminPanel' },
+
+      // Dashboard
+      { selector: '.tab-btn[data-tab="dashboard"] span', textKey: 'dashboard' },
+      { selector: '#dashboard-tab .card h3', textKey: 'dashboard', keepIcon: true },
+      { selector: '#lblKodSajta', textKey: 'siteCode' },
+      { selector: '#lblGlavneKategorije', textKey: 'dashMainCategories' },
+      { selector: '#lblKategorije', textKey: 'dashCategories' },
+      { selector: '#lblPodkategorije', textKey: 'dashSubcategories' },
+      { selector: '#lblArtikliUkupno', textKey: 'dashItemsTotal' },
+      { selector: '#lblArtikliAktivni', textKey: 'dashItemsActive' },
+      { selector: '#lblArtikliSakriveni', textKey: 'dashItemsHidden' },
+
       // Tab dugmad
       { selector: '.tab-btn[data-tab="glavne-kategorije"] span', textKey: 'mainCategories' },
       { selector: '.tab-btn[data-tab="kategorije"] span', textKey: 'categories' },

@@ -366,21 +366,19 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
       btn.addEventListener('click', (e) => { 
         e.preventDefault(); 
         const targetTab = btn.getAttribute('data-tab'); 
-        
-        if (window.innerWidth < 992) { 
-          document.querySelectorAll('.tab-btn, .tab-content').forEach(el => 
-            el.classList.remove('active')
-          ); 
-          
-          btn.classList.add('active'); 
-          
-          const content = document.getElementById(targetTab + '-tab'); 
-          if (content) 
-            content.classList.add('active'); 
-          else 
-            document.getElementById('glavne-kategorije-tab')?.classList.add('active'); 
-        } 
-        
+
+        document.querySelectorAll('.tab-btn, .tab-content').forEach(el => 
+          el.classList.remove('active')
+        ); 
+
+        btn.classList.add('active'); 
+
+        const content = document.getElementById(targetTab + '-tab'); 
+        if (content) 
+          content.classList.add('active'); 
+        else 
+          document.getElementById('dashboard-tab')?.classList.add('active'); 
+
         if (targetTab === 'postavke') 
           this.loadWebSettings(); 
           
@@ -415,10 +413,27 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
       setTimeout(() => this.initializeCurrencySuffix(), 100); 
       setTimeout(() => this.initializeCurrencySuffix(), 500); 
       setTimeout(() => this.initializeCurrencySuffix(), 1000); 
+      this.renderDashboardStats();
     } catch (error) { 
       Utils.debug.error('Greška učitavanja:', error); 
       containers.forEach(c => UIService.showError(c, 'Greška učitavanja')); 
     } 
+  }
+
+  /** Popunjava kartice na Dashboard-u sa trenutnim brojevima */
+  renderDashboardStats() {
+    const d = this.state.data;
+    const artikli = d.artikli || [];
+    const aktivni = artikli.filter(a => a.aktivna !== false).length;
+    const sakriveni = artikli.length - aktivni;
+
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    set('statGlavneKategorije', (d.glavneKategorije || []).length);
+    set('statKategorije', (d.kategorije || []).length);
+    set('statPodkategorije', (d.podkategorije || []).length);
+    set('statArtikliUkupno', artikli.length);
+    set('statArtikliAktivni', aktivni);
+    set('statArtikliSakriveni', sakriveni);
   }
 
   /** Učitavanje pojedinačnog entiteta */
@@ -429,6 +444,7 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
       
       this.state.data[config.stateProp] = await config.services.load(); 
       await this.updateUI(entityType); 
+      this.renderDashboardStats();
     } catch (error) { 
       Utils.debug.error(`Greška učitavanja ${entityType}:`, error); 
       UIService.showError(
