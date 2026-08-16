@@ -6,7 +6,7 @@
   <title>Admin Panel - Upravljanje Menijem</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="admin-styles.css?v=20260816m">
+  <link rel="stylesheet" href="admin-styles.css?v=20260816n">
   <style>
     .size-recommendation { background: #e7f3ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #17a2b8; font-size: 0.8rem; line-height: 1.4; margin-top: 8px; }
     .size-recommendation strong { color: #0c5460; }
@@ -269,7 +269,7 @@
         </div>
       </div>
 
-      <div class="sidebar-section-label">Meni</div>
+      <div class="sidebar-section-label" id="lblMeni">Meni</div>
       <div class="sidebar-nav" id="categoryTabs">
         <button class="tab-btn active" data-tab="dashboard"><i class="fas fa-chart-pie"></i><span>Dashboard</span></button>
         <button class="tab-btn" data-tab="glavne-kategorije"><i class="fas fa-layer-group"></i><span>Glavne kategorije</span></button>
@@ -279,16 +279,16 @@
         <button class="tab-btn" data-tab="postavke"><i class="fas fa-cog"></i><span>Postavke</span></button>
       </div>
 
-      <div class="sidebar-section-label">Alati</div>
+      <div class="sidebar-section-label" id="lblAlati">Alati</div>
       <div class="sidebar-tools">
-        <a href="index.html" target="_blank"><i class="fas fa-external-link-alt"></i><span>Pogledaj sajt</span></a>
-        <a href="firebase-export-tool.html" target="_blank"><i class="fas fa-download"></i><span>Export Artikala</span></a>
-        <a href="#" onclick="otвориKatalogModal();return false;"><i class="fas fa-book-open"></i><span>Katalog Pića</span></a>
-        <a href="#" onclick="otvoriSimpleCjenovnikModal();return false;"><i class="fas fa-receipt"></i><span>Simple Cjenovnik</span></a>
+        <a href="index.html" target="_blank"><i class="fas fa-external-link-alt"></i><span id="toolPogledajSajt">Pogledaj sajt</span></a>
+        <a href="firebase-export-tool.html" target="_blank"><i class="fas fa-download"></i><span id="toolExportArtikala">Export Artikala</span></a>
+        <a href="#" onclick="otвориKatalogModal();return false;"><i class="fas fa-book-open"></i><span id="toolKatalogPica">Katalog Pića</span></a>
+        <a href="#" onclick="otvoriSimpleCjenovnikModal();return false;"><i class="fas fa-receipt"></i><span id="toolSimpleCjenovnik">Simple Cjenovnik</span></a>
       </div>
 
       <div class="sidebar-foot">
-        <a href="login.html"><i class="fas fa-sign-out-alt"></i><span>Odjavi se</span></a>
+        <a href="login.html"><i class="fas fa-sign-out-alt"></i><span id="lblOdjava">Odjavi se</span></a>
       </div>
     </aside>
 
@@ -461,7 +461,7 @@
                   <input type="text" class="form-control" id="opisArtikla" placeholder="Kratki opis artikla (opciono)">
                 </div>
                 <div class="mb-3">
-                  <label for="opisArtikla2"><i class="fas fa-info-circle"></i> Opis 2 <small class="text-muted">(dodatni opis, manji font)</small></label>
+                  <label for="opisArtikla2"><i class="fas fa-info-circle"></i> <span id="lblOpis2">Opis 2</span> <small class="text-muted" id="lblOpis2Hint">(dodatni opis, manji font)</small></label>
                   <input type="text" class="form-control" id="opisArtikla2" placeholder="Drugi opis (opciono)">
                 </div>
                 <div class="form-group">
@@ -640,8 +640,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Include Translation Manager -->
-  <script src="translation-manager.js?v=20260816m"></script>
-  <script type="module" src="js/admin-controller.js?v=20260816m"></script>
+  <script src="translation-manager.js?v=20260816n"></script>
+  <script type="module" src="js/admin-controller.js?v=20260816n"></script>
 <script>
 // Hamburger meni (fioka sa strane) — samo na mobilnom
 (function () {

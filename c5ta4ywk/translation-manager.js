@@ -172,7 +172,17 @@ class TranslationManager {
       { selector: '#sacuvajPodkategorijuBtn', textKey: 'save', keepIcon: true },
       { selector: '#otkaziPodkategorijuBtn', textKey: 'cancel', keepIcon: true },
 
+      { selector: '#lblMeni', textKey: 'sidebarMenu' },
+      { selector: '#lblAlati', textKey: 'sidebarTools' },
+      { selector: '#toolPogledajSajt', textKey: 'viewSite' },
+      { selector: '#toolExportArtikala', textKey: 'toolExportItems' },
+      { selector: '#toolKatalogPica', textKey: 'toolCatalog' },
+      { selector: '#toolSimpleCjenovnik', textKey: 'toolSimplePricelist' },
+      { selector: '#lblOdjava', textKey: 'logout' },
+
       // Artikli
+      { selector: '#lblOpis2', textKey: 'opis2Label' },
+      { selector: '#lblOpis2Hint', textKey: 'opis2Hint' },
       { selector: '#artikli-tab .card h3', textKey: 'itemManagement', keepIcon: true },
       { selector: 'label[for="selectPodkategorija"]', textKey: 'subcategory', keepIcon: true },
       { selector: 'label[for="nazivArtikla"]', textKey: 'name', keepIcon: true },
@@ -232,7 +242,6 @@ class TranslationManager {
     this.updatePlaceholders();
     this.updateDropdownOptions();
     this.updateSpecialElements();
-    this.updateHeaderButtons();
 
     console.log(`Prevodi primenjeni za jezik: ${this.currentLanguage}`);
   }
@@ -372,6 +381,7 @@ class TranslationManager {
       { selector: '#nazivArtikla', textKey: 'placeholderItemName' },
       { selector: '#cijenaArtikla', textKey: 'placeholderPrice' },
       { selector: '#opisArtikla', textKey: 'placeholderDescription' },
+      { selector: '#opisArtikla2', textKey: 'placeholderDescription2' },
       { selector: '#currencyCode', textKey: 'placeholderCurrency' },
       { selector: '#heroTitle', textKey: 'placeholderHeroTitle' },
       { selector: '#heroSubtitle', textKey: 'placeholderHeroSubtitle' },
