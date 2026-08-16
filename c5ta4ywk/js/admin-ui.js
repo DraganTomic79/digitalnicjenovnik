@@ -7,10 +7,13 @@ const isDesktop = () => window.innerWidth >= 992;
 /* TAB SISTEM */
 export function initTabSystem() {
   debug.log('Inicijalizacija tab sistema...');
-  if (isDesktop()) { document.querySelectorAll('.tab-content').forEach(tab => { tab.classList.add('active'); tab.style.display = 'block'; }); document.querySelector('.mobile-tabs').style.display = 'none'; }
-  else { document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active')); const activeButton = document.querySelector('.tab-btn.active'); const activeTabId = activeButton ? activeButton.getAttribute('data-tab') + '-tab' : 'glavne-kategorije-tab'; const targetTab = document.getElementById(activeTabId); if (targetTab) targetTab.classList.add('active'); else document.getElementById('glavne-kategorije-tab')?.classList.add('active'); document.querySelector('.mobile-tabs').style.display = 'flex'; }
+  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+  const activeButton = document.querySelector('.tab-btn.active');
+  const activeTabId = activeButton ? activeButton.getAttribute('data-tab') + '-tab' : 'dashboard-tab';
+  const targetTab = document.getElementById(activeTabId);
+  if (targetTab) targetTab.classList.add('active');
+  else document.getElementById('dashboard-tab')?.classList.add('active');
 }
-let resizeTimeout; window.addEventListener('resize', () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(initTabSystem, 300); });
 
 /* DROPDOWN FUNKCIJE */
 export function osvjeziDropdownKategorija(kategorije, select) { populateDropdown(select, kategorije, { defaultText: 'Odaberite kategoriju', valueField: 'id', textField: 'naziv' }); }

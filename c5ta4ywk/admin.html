@@ -6,7 +6,7 @@
   <title>Admin Panel - Upravljanje Menijem</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="admin-styles.css?v=20260812a">
+  <link rel="stylesheet" href="admin-styles.css?v=20260816">
   <style>
     .size-recommendation { background: #e7f3ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #17a2b8; font-size: 0.8rem; line-height: 1.4; margin-top: 8px; }
     .size-recommendation strong { color: #0c5460; }
@@ -101,36 +101,167 @@
         padding: 2px 4px !important;
       }
     }
+
+    /* ══════════ SIDEBAR RASPORED (dosljedno sa zlatnom paletom brenda) ══════════ */
+    html, body { height: 100%; }
+    body { background: #141414 !important; }
+
+    .admin-shell { display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 260px; flex-shrink: 0; background: linear-gradient(180deg, #181818, #101010);
+      border-right: 2px solid #C6A664; display: flex; flex-direction: column;
+      position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 100;
+    }
+    .sidebar-brand {
+      display: flex; align-items: center; gap: 12px; padding: 20px 18px;
+      border-bottom: 1px solid rgba(198,166,100,.25);
+    }
+    .sidebar-brand .icon {
+      width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0;
+      background: linear-gradient(135deg,#C6A664,#9E8344); color: #1a1a1a;
+      display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+    }
+    .sidebar-brand h1 { font-size: .98rem; font-weight: 800; color: #F2E9D8; margin: 0; }
+    .sidebar-brand span { display: block; font-size: .68rem; color: #9E8344; letter-spacing: .3px; }
+
+    .sidebar-section-label {
+      padding: 16px 18px 6px; font-size: .65rem; font-weight: 700; letter-spacing: .8px;
+      text-transform: uppercase; color: #8f887a;
+    }
+    .sidebar-nav { display: flex; flex-direction: column; padding: 6px 10px; gap: 3px; }
+    .sidebar-nav .tab-btn, .sidebar-tools a {
+      display: flex !important; align-items: center; gap: 12px; width: 100%;
+      background: transparent !important; border: none !important; border-radius: 9px;
+      padding: 10px 12px !important; color: #c9c2b3 !important; font-size: .84rem !important;
+      font-weight: 600; cursor: pointer; text-align: left; text-decoration: none;
+      transition: background .15s, color .15s;
+    }
+    .sidebar-nav .tab-btn i, .sidebar-tools a i { width: 18px; text-align: center; font-size: .9rem; flex-shrink: 0; }
+    .sidebar-nav .tab-btn span, .sidebar-tools a span { flex: 1; }
+    .sidebar-nav .tab-btn:hover, .sidebar-tools a:hover { background: rgba(198,166,100,.1) !important; color: #F2E9D8 !important; }
+    .sidebar-nav .tab-btn.active {
+      background: linear-gradient(135deg,#C6A664,#9E8344) !important; color: #1a1a1a !important;
+      box-shadow: 0 3px 10px rgba(198,166,100,.3);
+    }
+    .sidebar-tools { display: flex; flex-direction: column; padding: 6px 10px; gap: 3px; }
+
+    .sidebar-foot {
+      margin-top: auto; padding: 14px 18px; border-top: 1px solid rgba(198,166,100,.25);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sidebar-foot a {
+      display: flex; align-items: center; gap: 8px; color: #c9c2b3; text-decoration: none;
+      font-size: .78rem; font-weight: 600; padding: 7px 10px; border-radius: 8px; flex: 1;
+    }
+    .sidebar-foot a:hover { background: rgba(248,113,113,.1); color: #f87171; }
+
+    /* ── MAIN AREA ── */
+    .main-area { flex: 1; min-width: 0; background: var(--primary-gradient); }
+    .main-topbar {
+      display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+      padding: 14px 20px; position: relative; min-height: 30px;
+    }
+    .main-topbar .language-switcher { position: static !important; }
+    .main-inner { padding: 0 clamp(10px, 2vw, 24px) 30px; }
+
+    /* ── DASHBOARD ── */
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .dash-card {
+      background: var(--glass-bg); backdrop-filter: blur(10px); border-radius: var(--border-radius-large);
+      padding: 18px 20px; box-shadow: var(--shadow-light); display: flex; align-items: center; gap: 14px;
+    }
+    .dash-card .dc-icon {
+      width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0; display: flex;
+      align-items: center; justify-content: center; font-size: 1.1rem;
+      background: linear-gradient(135deg,#C6A664,#9E8344); color: #1a1a1a;
+    }
+    .dash-card.warn .dc-icon { background: linear-gradient(135deg,#fbbf24,#f59e0b); }
+    .dash-card.bad .dc-icon { background: linear-gradient(135deg,#f87171,#ef4444); }
+    .dash-card .dc-num { font-size: 1.7rem; font-weight: 800; color: #333; line-height: 1; }
+    .dash-card .dc-lbl { font-size: .72rem; color: #888; text-transform: uppercase; letter-spacing: .3px; margin-top: 3px; }
+    .dashboard-quick { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+
+    /* ── RESPONSIVE: sidebar postaje vodoravna traka na vrhu ── */
+    @media (max-width: 900px) {
+      .admin-shell { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; flex-wrap: wrap; align-items: center; }
+      .sidebar-brand { border-bottom: none; border-right: 1px solid rgba(198,166,100,.25); flex-shrink: 0; }
+      .sidebar-section-label { display: none; }
+      .sidebar-nav, .sidebar-tools { flex-direction: row; flex-wrap: wrap; padding: 8px 10px; }
+      .sidebar-nav .tab-btn span, .sidebar-tools a span { display: none; }
+      .sidebar-nav .tab-btn, .sidebar-tools a { width: auto; padding: 9px 11px !important; }
+      .sidebar-foot { margin-top: 0; border-top: none; border-left: 1px solid rgba(198,166,100,.25); }
+      .sidebar-foot a span { display: none; }
+    }
+
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- HEADER -->
-    <div class="header">
-      <h1><i class="fas fa-crown" style="color: #ffd700; margin-right: 8px;"></i> Admin Panel</h1>
-      <p>Upravljanje menijem i postavkama sajta</p>
-      <div style="margin-top: 15px;">
-        <a href="index.html" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-external-link-alt"></i> Pogledaj sajt</a>
-		<a href="firebase-export-tool.html" target="_blank" class="btn btn-export btn-sm"><i class="fas fa-download"></i> Export Artikala</a>
-		<button onclick="otвориKatalogModal()" class="btn btn-sm" style="background:#C6A664;color:#1a1a1a;font-weight:700"><i class="fas fa-book-open"></i> Katalog Pića</button>
-		<button onclick="otvoriSimpleCjenovnikModal()" class="btn btn-sm" style="background:#C6A664;color:#1a1a1a;font-weight:700"><i class="fas fa-receipt"></i> Simple Cjenovnik</button>
+  <div class="admin-shell">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="icon"><i class="fas fa-crown"></i></div>
+        <div>
+          <h1>Admin Panel</h1>
+          <span>Digitalni Cjenovnik</span>
+        </div>
+      </div>
 
+      <div class="sidebar-section-label">Meni</div>
+      <div class="mobile-tabs sidebar-nav" id="categoryTabs">
+        <button class="tab-btn active" data-tab="dashboard"><i class="fas fa-chart-pie"></i><span>Dashboard</span></button>
+        <button class="tab-btn" data-tab="glavne-kategorije"><i class="fas fa-layer-group"></i><span>Glavne kategorije</span></button>
+        <button class="tab-btn" data-tab="kategorije"><i class="fas fa-folder"></i><span>Kategorije</span></button>
+        <button class="tab-btn" data-tab="podkategorije"><i class="fas fa-tags"></i><span>Podkategorije</span></button>
+        <button class="tab-btn" data-tab="artikli"><i class="fas fa-shopping-cart"></i><span>Artikli</span></button>
+        <button class="tab-btn" data-tab="postavke"><i class="fas fa-cog"></i><span>Postavke</span></button>
+      </div>
 
-        <a href="login.html" class="btn btn-secondary btn-sm"><i class="fas fa-sign-out-alt"></i> Odjavi se</a>
+      <div class="sidebar-section-label">Alati</div>
+      <div class="sidebar-tools">
+        <a href="index.html" target="_blank"><i class="fas fa-external-link-alt"></i><span>Pogledaj sajt</span></a>
+        <a href="firebase-export-tool.html" target="_blank"><i class="fas fa-download"></i><span>Export Artikala</span></a>
+        <a href="#" onclick="otвориKatalogModal();return false;"><i class="fas fa-book-open"></i><span>Katalog Pića</span></a>
+        <a href="#" onclick="otvoriSimpleCjenovnikModal();return false;"><i class="fas fa-receipt"></i><span>Simple Cjenovnik</span></a>
+      </div>
+
+      <div class="sidebar-foot">
+        <a href="login.html"><i class="fas fa-sign-out-alt"></i><span>Odjavi se</span></a>
+      </div>
+    </aside>
+
+    <!-- MAIN AREA -->
+    <div class="main-area">
+      <div class="main-topbar"></div>
+      <div class="main-inner">
+
+    <!-- DASHBOARD -->
+    <div id="dashboard-tab" class="tab-content active">
+      <div class="main-content full-width">
+        <div class="card">
+          <h3><i class="fas fa-chart-pie"></i> Pregled</h3>
+          <div class="dashboard-grid">
+            <div class="dash-card"><div class="dc-icon"><i class="fas fa-layer-group"></i></div><div><div class="dc-num" id="statGlavneKategorije">–</div><div class="dc-lbl">Glavne kategorije</div></div></div>
+            <div class="dash-card"><div class="dc-icon"><i class="fas fa-folder"></i></div><div><div class="dc-num" id="statKategorije">–</div><div class="dc-lbl">Kategorije</div></div></div>
+            <div class="dash-card"><div class="dc-icon"><i class="fas fa-tags"></i></div><div><div class="dc-num" id="statPodkategorije">–</div><div class="dc-lbl">Podkategorije</div></div></div>
+            <div class="dash-card"><div class="dc-icon"><i class="fas fa-shopping-cart"></i></div><div><div class="dc-num" id="statArtikliUkupno">–</div><div class="dc-lbl">Artikli ukupno</div></div></div>
+            <div class="dash-card"><div class="dc-icon"><i class="fas fa-eye"></i></div><div><div class="dc-num" id="statArtikliAktivni">–</div><div class="dc-lbl">Aktivni artikli</div></div></div>
+            <div class="dash-card warn"><div class="dc-icon"><i class="fas fa-eye-slash"></i></div><div><div class="dc-num" id="statArtikliSakriveni">–</div><div class="dc-lbl">Sakriveni artikli</div></div></div>
+          </div>
+          <div class="dashboard-quick">
+            <a href="index.html" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-external-link-alt"></i> Pogledaj sajt</a>
+            <button onclick="otвориKatalogModal()" class="btn btn-sm" style="background:#C6A664;color:#1a1a1a;font-weight:700"><i class="fas fa-book-open"></i> Katalog Pića</button>
+            <button onclick="otvoriSimpleCjenovnikModal()" class="btn btn-sm" style="background:#C6A664;color:#1a1a1a;font-weight:700"><i class="fas fa-receipt"></i> Simple Cjenovnik</button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- MOBILE TABS -->
-    <div class="mobile-tabs" id="categoryTabs">
-      <button class="tab-btn active" data-tab="glavne-kategorije"><i class="fas fa-layer-group"></i><span>Glavne</span></button>
-      <button class="tab-btn" data-tab="kategorije"><i class="fas fa-folder"></i><span>Kategorije</span></button>
-      <button class="tab-btn" data-tab="podkategorije"><i class="fas fa-tags"></i><span>Podkategorije</span></button>
-      <button class="tab-btn" data-tab="artikli"><i class="fas fa-shopping-cart"></i><span>Artikli</span></button>
-      <button class="tab-btn" data-tab="postavke"><i class="fas fa-cog"></i><span>Postavke</span></button>
-    </div>
-
     <!-- GLAVNE KATEGORIJE -->
-    <div id="glavne-kategorije-tab" class="tab-content active">
+    <div id="glavne-kategorije-tab" class="tab-content">
       <div class="main-content">
         <div class="card">
           <h3><i class="fas fa-layer-group"></i> Nova Glavna Kategorija</h3>
@@ -421,6 +552,9 @@
         </div>
       </div>
     </div>
+
+      </div>
+    </div>
   </div>
 
   <!-- Toast -->
@@ -434,8 +568,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Include Translation Manager -->
-  <script src="translation-manager.js?v=20260812a"></script>
-  <script type="module" src="js/admin-controller.js?v=20260812a"></script>
+  <script src="translation-manager.js?v=20260816"></script>
+  <script type="module" src="js/admin-controller.js?v=20260816"></script>
 <script>
 // Footer toggle switch visual logic
 (function() {
