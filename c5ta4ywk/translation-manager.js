@@ -1,4 +1,4 @@
-/* ===== TRANSLATION MANAGER ===== */
+/* ==== TRANSLATION MANAGER ==== */
 
 class TranslationManager {
   constructor() {
