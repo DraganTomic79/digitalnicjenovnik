@@ -540,6 +540,9 @@ class MenuApp {
         } else { 
           this.currencyCode = ''; 
         }
+        if (webPostavke.pageTitle && webPostavke.pageTitle.trim() !== '') {
+          document.title = webPostavke.pageTitle.trim();
+        }
         await Promise.all([
           this.loadLogo(webPostavke.logoURL), 
           Promise.resolve(this.loadHeroContent(webPostavke)), 
@@ -685,6 +688,9 @@ class MenuApp {
         if (newCurrencyCode !== this.currencyCode) { 
           this.currencyCode = newCurrencyCode; 
           this.scheduleUpdate(); 
+        }
+        if (postavke.pageTitle && postavke.pageTitle.trim() !== '') {
+          document.title = postavke.pageTitle.trim();
         }
         Promise.all([
           this.loadLogo(postavke.logoURL), 

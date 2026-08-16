@@ -100,6 +100,11 @@ class TranslationManager {
 
     // Primeni novi prevod
     this.applyTranslations();
+
+    // Osvježi tekst na Footer prekidaču (generiše se posebnim skriptom, van applyTranslations mape)
+    if (typeof window.refreshFooterToggleLabel === 'function') {
+      window.refreshFooterToggleLabel();
+    }
     
     // Ažuriraj title stranice
     document.title = this.t('pageTitle');
@@ -167,7 +172,17 @@ class TranslationManager {
       { selector: '#sacuvajPodkategorijuBtn', textKey: 'save', keepIcon: true },
       { selector: '#otkaziPodkategorijuBtn', textKey: 'cancel', keepIcon: true },
 
+      { selector: '#lblMeni', textKey: 'sidebarMenu' },
+      { selector: '#lblAlati', textKey: 'sidebarTools' },
+      { selector: '#toolPogledajSajt', textKey: 'viewSite' },
+      { selector: '#toolExportArtikala', textKey: 'toolExportItems' },
+      { selector: '#toolKatalogPica', textKey: 'toolCatalog' },
+      { selector: '#toolSimpleCjenovnik', textKey: 'toolSimplePricelist' },
+      { selector: '#lblOdjava', textKey: 'logout' },
+
       // Artikli
+      { selector: '#lblOpis2', textKey: 'opis2Label' },
+      { selector: '#lblOpis2Hint', textKey: 'opis2Hint' },
       { selector: '#artikli-tab .card h3', textKey: 'itemManagement', keepIcon: true },
       { selector: 'label[for="selectPodkategorija"]', textKey: 'subcategory', keepIcon: true },
       { selector: 'label[for="nazivArtikla"]', textKey: 'name', keepIcon: true },
@@ -189,6 +204,11 @@ class TranslationManager {
       { selector: 'label[for="heroSubtitle"]', textKey: 'subtitle' },
       { selector: '#sacuvajHeroBtn', textKey: 'save' },
       { selector: '#resetHeroBtn', textKey: 'reset' },
+      { selector: '#siteNameHeader', textKey: 'siteNameHeader', keepIcon: true },
+      { selector: '#siteNameHint', textKey: 'siteNameHint' },
+      { selector: '#sacuvajNazivBtn', textKey: 'save', keepIcon: true },
+      { selector: '#resetNazivBtn', textKey: 'reset', keepIcon: true },
+      { selector: '#footerToggleHint', textKey: 'footerToggleHint' },
       { selector: 'label[for="footerText"]', textKey: 'footerText' },
       { selector: '#sacuvajFooterBtn', textKey: 'saveFooter' },
       { selector: '#resetFooterBtn', textKey: 'reset' },
@@ -222,7 +242,6 @@ class TranslationManager {
     this.updatePlaceholders();
     this.updateDropdownOptions();
     this.updateSpecialElements();
-    this.updateHeaderButtons();
 
     console.log(`Prevodi primenjeni za jezik: ${this.currentLanguage}`);
   }
@@ -362,6 +381,7 @@ class TranslationManager {
       { selector: '#nazivArtikla', textKey: 'placeholderItemName' },
       { selector: '#cijenaArtikla', textKey: 'placeholderPrice' },
       { selector: '#opisArtikla', textKey: 'placeholderDescription' },
+      { selector: '#opisArtikla2', textKey: 'placeholderDescription2' },
       { selector: '#currencyCode', textKey: 'placeholderCurrency' },
       { selector: '#heroTitle', textKey: 'placeholderHeroTitle' },
       { selector: '#heroSubtitle', textKey: 'placeholderHeroSubtitle' },
