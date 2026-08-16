@@ -100,6 +100,11 @@ class TranslationManager {
 
     // Primeni novi prevod
     this.applyTranslations();
+
+    // Osvježi tekst na Footer prekidaču (generiše se posebnim skriptom, van applyTranslations mape)
+    if (typeof window.refreshFooterToggleLabel === 'function') {
+      window.refreshFooterToggleLabel();
+    }
     
     // Ažuriraj title stranice
     document.title = this.t('pageTitle');
@@ -189,6 +194,11 @@ class TranslationManager {
       { selector: 'label[for="heroSubtitle"]', textKey: 'subtitle' },
       { selector: '#sacuvajHeroBtn', textKey: 'save' },
       { selector: '#resetHeroBtn', textKey: 'reset' },
+      { selector: '#siteNameHeader', textKey: 'siteNameHeader', keepIcon: true },
+      { selector: '#siteNameHint', textKey: 'siteNameHint' },
+      { selector: '#sacuvajNazivBtn', textKey: 'save', keepIcon: true },
+      { selector: '#resetNazivBtn', textKey: 'reset', keepIcon: true },
+      { selector: '#footerToggleHint', textKey: 'footerToggleHint' },
       { selector: 'label[for="footerText"]', textKey: 'footerText' },
       { selector: '#sacuvajFooterBtn', textKey: 'saveFooter' },
       { selector: '#resetFooterBtn', textKey: 'reset' },

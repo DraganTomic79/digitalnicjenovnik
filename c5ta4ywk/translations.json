@@ -95,7 +95,12 @@
     "dashItemsTotal": "Artikli ukupno",
     "dashItemsActive": "Aktivni artikli",
     "dashItemsHidden": "Sakriveni artikli",
-    "siteCode": "Kod sajta:"
+    "siteCode": "Kod sajta:",
+    "siteNameHeader": "Naziv Kafića",
+    "siteNameHint": "(prikazuje se u Dashboard-u i kao naslov stranice u browseru)",
+    "footerOn": "Footer je UKLJUČEN ✓",
+    "footerOff": "Footer je ISKLJUČEN",
+    "footerToggleHint": "Uključi da bi footer bio vidljiv na sajtu"
   },
   "en": {
     "pageTitle": "Admin Panel - Menu Management",
@@ -193,7 +198,12 @@
     "dashItemsTotal": "Items total",
     "dashItemsActive": "Active items",
     "dashItemsHidden": "Hidden items",
-    "siteCode": "Site code:"
+    "siteCode": "Site code:",
+    "siteNameHeader": "Venue Name",
+    "siteNameHint": "(shown on the Dashboard and as the browser page title)",
+    "footerOn": "Footer is ON ✓",
+    "footerOff": "Footer is OFF",
+    "footerToggleHint": "Turn on to make the footer visible on the site"
   },
   "de": {
     "pageTitle": "Admin-Panel - Menü-Verwaltung",
@@ -291,6 +301,11 @@
     "dashItemsTotal": "Artikel gesamt",
     "dashItemsActive": "Aktive Artikel",
     "dashItemsHidden": "Versteckte Artikel",
-    "siteCode": "Seitencode:"
+    "siteCode": "Seitencode:",
+    "siteNameHeader": "Name des Lokals",
+    "siteNameHint": "(wird im Dashboard und als Browser-Seitentitel angezeigt)",
+    "footerOn": "Footer ist AKTIV ✓",
+    "footerOff": "Footer ist DEAKTIVIERT",
+    "footerToggleHint": "Aktivieren, damit der Footer auf der Seite sichtbar ist"
   }
 }

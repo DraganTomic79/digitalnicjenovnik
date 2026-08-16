@@ -6,7 +6,7 @@
   <title>Admin Panel - Upravljanje Menijem</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="admin-styles.css?v=20260816k">
+  <link rel="stylesheet" href="admin-styles.css?v=20260816m">
   <style>
     .size-recommendation { background: #e7f3ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #17a2b8; font-size: 0.8rem; line-height: 1.4; margin-top: 8px; }
     .size-recommendation strong { color: #0c5460; }
@@ -529,9 +529,9 @@
 
             <!-- NAZIV KAFIĆA -->
             <div class="form-section">
-              <h4><i class="fas fa-signature"></i> Naziv Kafića</h4>
+              <h4 id="siteNameHeader"><i class="fas fa-signature"></i> Naziv Kafića</h4>
               <div class="form-group">
-                <label for="pageTitle">Naziv <small class="text-muted">(prikazuje se u Dashboard-u i kao naslov stranice u browseru)</small></label>
+                <label for="pageTitle">Naziv <small class="text-muted" id="siteNameHint">(prikazuje se u Dashboard-u i kao naslov stranice u browseru)</small></label>
                 <input type="text" class="form-control" id="pageTitle" placeholder="npr. Casa Loca Borik">
               </div>
               <div class="form-actions">
@@ -575,7 +575,7 @@
                   </label>
                   <div>
                     <div style="font-weight:700;font-size:.95rem;color:#333" id="footerToggleLabel">Footer je ISKLJUČEN</div>
-                    <div style="font-size:.78rem;color:#888">Uključi da bi footer bio vidljiv na sajtu</div>
+                    <div style="font-size:.78rem;color:#888" id="footerToggleHint">Uključi da bi footer bio vidljiv na sajtu</div>
                   </div>
                 </div>
               </div>
@@ -640,8 +640,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Include Translation Manager -->
-  <script src="translation-manager.js?v=20260816k"></script>
-  <script type="module" src="js/admin-controller.js?v=20260816k"></script>
+  <script src="translation-manager.js?v=20260816m"></script>
+  <script type="module" src="js/admin-controller.js?v=20260816m"></script>
 <script>
 // Hamburger meni (fioka sa strane) — samo na mobilnom
 (function () {
@@ -679,11 +679,13 @@
       const on = cb.checked;
       track.style.background = on ? '#4CAF50' : '#ccc';
       thumb.style.transform  = on ? 'translateX(24px)' : 'translateX(0)';
-      lbl.textContent = on ? 'Footer je UKLJUČEN ✓' : 'Footer je ISKLJUČEN';
+      const tm = window.translationManager;
+      lbl.textContent = tm ? tm.t(on ? 'footerOn' : 'footerOff') : (on ? 'Footer je UKLJUČEN ✓' : 'Footer je ISKLJUČEN');
       lbl.style.color = on ? '#2e7d32' : '#333';
     }
 
     cb.addEventListener('change', update);
+    window.refreshFooterToggleLabel = update;
     // Run on load (after AdminController sets checked state)
     const obs = new MutationObserver(update);
     obs.observe(cb, { attributes: true, attributeFilter: ['checked'] });
