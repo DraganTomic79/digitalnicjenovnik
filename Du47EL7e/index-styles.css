@@ -93,7 +93,7 @@ body {
 /* === DUGMAD ZA PREVOĐENJE === */
 /* Kontejner za dugmad za promjenu jezika */
 .language-switcher {
-  position: absolute !important;
+  position: fixed !important;
   top: 15px !important;
   right: 15px !important;
   z-index: 1000 !important;
@@ -101,12 +101,12 @@ body {
 
 /* Dugme koje otvara/zatvara listu jezika */
 .lang-toggle {
-  padding: 8px 10px; border: 2px solid var(--gold-accent); background: var(--beige-white); color: var(--pure-black);
-  border-radius: 8px; cursor: pointer; font-size: 18px; min-width: 45px; height: 45px;
-  display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,.15);
+  border: 2px solid var(--gold-accent); background: var(--primary-gradient); color: #1a1a1a;
+  border-radius: 50%; cursor: pointer; font-size: 19px; width: 45px; height: 45px;
+  display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 10px rgba(198,166,100,.4);
   transition: all .3s ease;
 }
-.lang-toggle:hover { border-color: var(--gold-accent); background: #F2E9D8; transform: translateY(-1px); }
+.lang-toggle:hover { transform: translateY(-1px) scale(1.05); box-shadow: 0 5px 14px rgba(198,166,100,.55); }
 
 /* Lista jezika — sakrivena dok se ne otvori */
 .lang-options {
@@ -119,6 +119,12 @@ body {
 .lang-options.show {
   opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto;
 }
+.lang-options .language-btn {
+  width: auto !important; min-width: 150px !important; height: auto !important;
+  justify-content: flex-start !important; gap: 9px !important; padding: 10px 16px !important;
+  font-size: 1.1rem !important; white-space: nowrap;
+}
+.lang-options .language-btn .lang-name { font-size: .78rem; font-weight: 700; letter-spacing: .2px; }
 
 /* Dugmad za izbor jezika */
 .language-btn {
@@ -153,13 +159,14 @@ body {
   box-shadow: 0 4px 8px rgba(198, 166, 100, 0.3) !important;
 }
 
-/* Blaga pulsirajuća animacija na hamburger dugmetu — skreće pažnju da se meni može otvoriti;
+/* Intenzivnija pulsirajuća animacija na hamburger dugmetu — skreće pažnju da se meni može otvoriti;
    nestaje čim ga neko klikne, ili sama nakon nekog vremena */
 @keyframes hamburgerPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(198, 166, 100, .55); }
-  50% { box-shadow: 0 0 0 10px rgba(198, 166, 100, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(198, 166, 100, .8); transform: scale(1); }
+  50% { box-shadow: 0 0 0 14px rgba(198, 166, 100, 0); transform: scale(1.12); }
+  100% { box-shadow: 0 0 0 0 rgba(198, 166, 100, 0); transform: scale(1); }
 }
-.hamburger.hint { animation: hamburgerPulse 2s ease-out infinite; }
+.hamburger.hint { animation: hamburgerPulse 1.3s ease-in-out infinite; }
 
 /* Hero sekcija na vrhu stranice */
 .hero-section { 
@@ -1679,7 +1686,7 @@ html, body { height: auto; }
 
   .hamburger {
     display: flex; align-items: center; justify-content: center;
-    position: absolute !important; top: 15px !important; left: 15px !important; z-index: 1000 !important;
+    position: fixed !important; top: 15px !important; left: 15px !important; z-index: 1000 !important;
     background: var(--beige-white); border: 2px solid var(--gold-accent); color: var(--pure-black);
     width: 45px; height: 45px; border-radius: 8px; font-size: 1.15rem; cursor: pointer;
     box-shadow: 0 2px 4px rgba(0,0,0,.15);
