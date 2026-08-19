@@ -183,7 +183,7 @@ body {
 
 /* Logo sajta */
 .site-logo { 
-  max-height: clamp(90px, 15vw, 120px); 
+  max-height: clamp(60px, 10vw, 85px); 
   max-width: 100%; 
   height: auto; 
   object-fit: contain; 
@@ -194,7 +194,7 @@ body {
 
 /* Naslov u hero sekciji */
 .hero-content h1 { 
-  font-size: var(--font-size-xl); 
+  font-size: clamp(1.05rem, 2.6vw, 1.45rem); 
   margin: 0; 
   color: var(--text-color); 
   line-height: 1.1; 
@@ -207,7 +207,7 @@ body {
 
 /* Paragraf u hero sekciji */
 .hero-content p { 
-  font-size: var(--font-size-base); 
+  font-size: clamp(0.68rem, 1.4vw, 0.82rem); 
   font-weight: 400; 
   color: var(--text-muted); 
   margin: 0; 
@@ -1681,9 +1681,10 @@ html, body { height: auto; }
 .content-grid { padding: var(--spacing-lg) clamp(14px, 3vw, 34px) 60px; }
 .grid-title {
   font-family: 'Playfair Display', serif; font-weight: 800; color: var(--gold-accent);
-  font-size: clamp(1.2rem, 3vw, 1.6rem); letter-spacing: .3px; margin-bottom: var(--spacing-md);
+  font-size: clamp(1.2rem, 3vw, 1.6rem); letter-spacing: .3px; margin: var(--spacing-xl) 0 var(--spacing-md);
   padding-bottom: 10px; border-bottom: 1px solid var(--glass-border); text-align: center;
 }
+.content-grid > .grid-title:first-child { margin-top: 0; }
 .items-grid {
   display: grid; grid-template-columns: repeat(2, 1fr);
   gap: var(--spacing-md);
