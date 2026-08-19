@@ -130,10 +130,20 @@ body {
   padding: 4px 2px !important; font-size: .82rem !important; font-weight: 600;
   color: var(--text-color) !important; white-space: nowrap;
 }
-.lang-inline .language-btn:hover { color: var(--gold-accent) !important; transform: none !important; }
+.lang-inline .language-btn:hover {
+  color: var(--gold-accent) !important; background: transparent !important;
+  border-color: transparent !important; transform: none !important;
+}
 .lang-inline .language-btn.active {
-  color: var(--gold-accent) !important; font-weight: 800; text-decoration: underline;
+  color: var(--gold-accent) !important; background: transparent !important;
+  border-color: transparent !important; font-weight: 800; text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+@media (max-width: 900px) {
+  .lang-inline .language-btn { font-size: .72rem !important; }
+  .lang-sep { font-size: .7rem; }
+  .lang-inline.show { max-width: 260px; padding: 6px 12px; }
 }
 
 /* Dugmad za izbor jezika (baza — koristi se i unutar .lang-inline) */
@@ -1612,6 +1622,12 @@ html, body { height: auto; }
 .side-item i.fas, .side-item i.fab { width: 18px; text-align: center; color: var(--gold-accent); flex-shrink: 0; }
 .side-icon { width: 20px; height: 20px; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
 .side-item:hover { background: rgba(198,166,100,.08); }
+.side-item .item-count {
+  flex-shrink: 0; font-size: .66rem; padding: 2px 8px; min-width: 22px;
+  background: rgba(198,166,100,.14); color: var(--gold-accent); border: 1px solid rgba(198,166,100,.3);
+  box-shadow: none; margin: 0;
+}
+.side-item.leaf.active .item-count { background: rgba(26,26,26,.18); color: #1a1a1a; border-color: rgba(26,26,26,.25); }
 
 /* Nivo 0 (glavna kategorija / vrh) */
 .sidebar > .side-group > .side-item.parent {

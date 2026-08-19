@@ -149,8 +149,9 @@ class MenuApp {
 
   /* ══════ SIDEBAR — gradi stablo kategorija (isti fallback poredak kao stari tab sistem) ══════ */
   buildSidebarTree() {
+    let tree;
     if (this.state.allMainCategories.length > 0) {
-      return this.state.allMainCategories.map(glavna => {
+      tree = this.state.allMainCategories.map(glavna => {
         const kategorije = this.getSubcategoriesForMain(glavna.id);
         if (kategorije.length === 0) return null;
         return {
@@ -169,19 +170,33 @@ class MenuApp {
           })
         };
       }).filter(Boolean);
+    } else {
+      const podkategorijeSSadrzajem = this.state.allSubcategories.filter(p => this.getItemsForSubcategory(p.naziv).length > 0);
+      if (podkategorijeSSadrzajem.length > 0) {
+        tree = podkategorijeSSadrzajem.map(pod => ({
+          id: pod.id, naziv: pod.naziv, ikona: pod.ikonaKategorije || pod.ikona,
+          alcoholic: this.isAlcoholicSubcategory(pod), leaf: true, itemsOf: pod.naziv
+        }));
+      } else {
+        const kategorijeSSadrzajem = this.state.allCategories.filter(k => this.getItemsForSubcategory(k.naziv).length > 0);
+        tree = kategorijeSSadrzajem.map(kat => ({
+          id: kat.id, naziv: kat.naziv, ikona: kat.ikonaKategorije || kat.ikona,
+          alcoholic: this.isAlcoholicCategory(kat), leaf: true, itemsOf: kat.naziv
+        }));
+      }
     }
-    const podkategorijeSSadrzajem = this.state.allSubcategories.filter(p => this.getItemsForSubcategory(p.naziv).length > 0);
-    if (podkategorijeSSadrzajem.length > 0) {
-      return podkategorijeSSadrzajem.map(pod => ({
-        id: pod.id, naziv: pod.naziv, ikona: pod.ikonaKategorije || pod.ikona,
-        alcoholic: this.isAlcoholicSubcategory(pod), leaf: true, itemsOf: pod.naziv
-      }));
+    tree.forEach(n => this.computeNodeCount(n));
+    return tree;
+  }
+
+  /* Računa broj artikala po čvoru (list = direktan broj, grupa = zbir djece); rekurzivno */
+  computeNodeCount(node) {
+    if (node.leaf) {
+      node.count = this.getItemsForSubcategory(node.itemsOf).length;
+      return node.count;
     }
-    const kategorijeSSadrzajem = this.state.allCategories.filter(k => this.getItemsForSubcategory(k.naziv).length > 0);
-    return kategorijeSSadrzajem.map(kat => ({
-      id: kat.id, naziv: kat.naziv, ikona: kat.ikonaKategorije || kat.ikona,
-      alcoholic: this.isAlcoholicCategory(kat), leaf: true, itemsOf: kat.naziv
-    }));
+    node.count = (node.children || []).reduce((sum, c) => sum + this.computeNodeCount(c), 0);
+    return node.count;
   }
 
   /* Crta cijeli sidebar iz stabla; podrazumijevano prikazuje SVE artikle (bez skrolanja/otvaranja grupa) */
@@ -208,16 +223,19 @@ class MenuApp {
       : `<i class="fas ${(ikonaVal && ikonaVal.startsWith('fa-')) ? ikonaVal : (node.isTop ? 'fa-layer-group' : (node.leaf ? 'fa-tag' : 'fa-folder'))}"></i>`;
     const name = this.translationManager ? this.translationManager.translateCategory(node.naziv) : node.naziv;
     const age = node.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
+    const countBadge = `<span class="item-count">${node.count || 0}</span>`;
 
     if (node.leaf) {
       return `<button class="side-item leaf" data-node-id="${node.id}" onclick="window.menuApp.selectSidebarLeaf('${node.id}', this)">
         <span class="side-left">${icon}<span class="side-label">${name}${age}</span></span>
+        ${countBadge}
       </button>`;
     }
     const childrenHTML = (node.children || []).map(c => this.renderSidebarNode(c)).join('');
     return `<div class="side-group" data-group="${node.id}">
       <button class="side-item parent" onclick="window.menuApp.toggleSidebarGroup('${node.id}', this)">
         <span class="side-left">${icon}<span class="side-label">${name}${age}</span></span>
+        ${countBadge}
         <i class="fas fa-chevron-down side-arrow"></i>
       </button>
       <div class="side-children" id="side-children-${node.id}">${childrenHTML}</div>
