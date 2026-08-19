@@ -1671,6 +1671,9 @@ html, body { height: auto; }
 
   /* Dvije kartice u red na mobilnom */
   .items-grid { grid-template-columns: repeat(2, 1fr) !important; gap: var(--spacing-sm) !important; }
+  .items-grid .item-name { font-size: .72rem !important; }
+  .items-grid .item-description, .items-grid .item-description2 { font-size: .6rem !important; }
+  .items-grid .item-price { font-size: .74rem !important; }
 }
 
 /* ── MREŽA KARTICA (novi izgled artikala) ── */
@@ -1682,9 +1685,11 @@ html, body { height: auto; }
   padding-bottom: 10px; border-bottom: 1px solid var(--glass-border); text-align: center;
 }
 .items-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  display: grid; grid-template-columns: repeat(2, 1fr);
   gap: var(--spacing-md);
 }
+@media (min-width: 620px) { .items-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1000px) { .items-grid { grid-template-columns: repeat(4, 1fr); } }
 .items-grid .item-card {
   display: flex !important; flex-direction: column !important; align-items: stretch !important;
   background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--border-radius-large);

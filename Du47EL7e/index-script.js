@@ -251,14 +251,14 @@ class MenuApp {
     this.activateSidebarButton(btnEl);
   }
 
-  /* Zajednička logika nakon izbora stavke u sidebar-u (ručni klik, ne podrazumijevani prikaz) */
+  /* Zajednička logika nakon izbora stavke u sidebar-u (ručni klik) — NE skroluje stranicu,
+     header ostaje uvijek vidljiv, mijenja se samo sadržaj desno */
   activateSidebarButton(btnEl) {
     if (this.elements.categoryTabs) {
       this.elements.categoryTabs.querySelectorAll('.side-item.leaf').forEach(b => b.classList.remove('active'));
     }
     btnEl.classList.add('active');
     if (typeof window._closeMobileDrawer === 'function') window._closeMobileDrawer();
-    if (this.elements.tabContent) this.elements.tabContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   /* Prikazuje SVE artikle iz cijelog stabla, grupisano po nazivu kategorije/podkategorije */
