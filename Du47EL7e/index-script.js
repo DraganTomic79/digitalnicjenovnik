@@ -695,8 +695,6 @@ class MenuApp {
   /* Učitava logo web stranice */
   async loadLogo(logoURL) {
     if (!logoURL || !this.elements.logoContainer || !this.elements.siteLogo) return;
-    const mtLogo = document.getElementById('mtLogo');
-    if (mtLogo) { mtLogo.src = logoURL; mtLogo.style.display = 'block'; }
     return new Promise((resolve) => {
       this.elements.siteLogo.onload = () => { 
         this.elements.logoContainer.style.display = 'block'; 
@@ -730,8 +728,6 @@ class MenuApp {
         titleEl.textContent = this.heroTitleDB;
         titleEl.style.display = 'block';
       }
-      const mtName = document.getElementById('mtName');
-      if (mtName && this.heroTitleDB) mtName.textContent = this.heroTitleDB;
       if (subtitleEl && this.heroSubtitleDB) {
         subtitleEl.textContent = this.heroSubtitleDB;
         subtitleEl.style.display = 'block';

@@ -16,17 +16,9 @@
   
   <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="index-styles.css?v=20260819" />
+  <link rel="stylesheet" href="index-styles.css?v=20260819a" />
 </head>
 <body>
-  <!-- MOBILNA TRAKA (hamburger) — vidljivo samo na uskim ekranima -->
-  <div class="mobile-topbar">
-    <button class="hamburger" id="hamburgerBtn" aria-label="Otvori meni"><i class="fas fa-bars"></i></button>
-    <div class="mt-brand">
-      <img id="mtLogo" class="mt-logo" style="display:none" alt="Logo"/>
-      <span id="mtName">Meni</span>
-    </div>
-  </div>
   <div id="sidebarBackdrop"></div>
 
   <div class="app-shell">
@@ -42,6 +34,9 @@
     <div class="main-area">
       <!-- HERO SECTION -->
       <div class="hero-section">
+        <!-- Hamburger dugme (samo mobilni) — pozicionirano u istom hederu, bez duplikata -->
+        <button class="hamburger" id="hamburgerBtn" aria-label="Otvori meni"><i class="fas fa-bars"></i></button>
+
         <!-- DUGMAD ZA JEZIKE -->
         <div class="language-switcher">
           <button class="language-btn active" data-lang="sr" title="Srpski">🇷🇸</button>
@@ -132,7 +127,7 @@
   </script>
 
   <!-- Translation Manager MORA biti prije index-script.js -->
-  <script src="index-translation-manager.js?v=20260819"></script>
-  <script type="module" src="index-script.js?v=20260819"></script>
+  <script src="index-translation-manager.js?v=20260819a"></script>
+  <script type="module" src="index-script.js?v=20260819a"></script>
 </body>
 </html>
