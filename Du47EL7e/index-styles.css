@@ -108,9 +108,11 @@ body {
 }
 .lang-toggle:hover { transform: translateY(-1px) scale(1.05); box-shadow: 0 5px 14px rgba(198,166,100,.55); }
 
-/* Lista jezika — sakrivena dok se ne otvori */
+/* Lista jezika — sakrivena dok se ne otvori; potpuno nezavisno fiksirana za ekran
+   (ne oslanja se na poziciju roditelja) — najpouzdaniji način da se nikad ne
+   "podvuče" pod sadržaj, ni na jednom uređaju. */
 .lang-options {
-  position: absolute; top: calc(100% + 8px); right: 0; z-index: 99999;
+  position: fixed !important; top: 68px !important; right: 15px !important; z-index: 99999 !important;
   display: flex; flex-direction: column; gap: 6px;
   opacity: 0; visibility: hidden; transform: translateY(-6px);
   transition: opacity .2s ease, transform .2s ease, visibility .2s;
