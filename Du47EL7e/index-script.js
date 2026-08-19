@@ -142,13 +142,135 @@ class MenuApp {
     if (this.state.isUpdating) return;
     this.state.isUpdating = true; 
     this.clearContainers();
-    const useHierarchical = this.state.allMainCategories.length > 0;
-    if (useHierarchical) this.createHierarchicalTabs(); 
-    else this.createFlatTabs();
+    this.state.sidebarTree = this.buildSidebarTree();
+    this.renderSidebar();
     this.state.isUpdating = false;
   }
 
-  /* Kreira hijerarhijski prikaz kada postoje glavne kategorije */
+  /* ══════ SIDEBAR — gradi stablo kategorija (isti fallback poredak kao stari tab sistem) ══════ */
+  buildSidebarTree() {
+    if (this.state.allMainCategories.length > 0) {
+      return this.state.allMainCategories.map(glavna => {
+        const kategorije = this.getSubcategoriesForMain(glavna.id);
+        if (kategorije.length === 0) return null;
+        return {
+          id: glavna.id, naziv: glavna.naziv, ikona: glavna.ikona, isTop: true,
+          children: kategorije.map(kat => {
+            const podkategorije = this.getSubcategoriesForCategory(kat.id);
+            return {
+              id: kat.id, naziv: kat.naziv, ikona: kat.ikonaKategorije || kat.ikona,
+              alcoholic: this.isAlcoholicCategory(kat),
+              children: podkategorije.map(pod => ({
+                id: pod.id, naziv: pod.naziv, ikona: pod.ikonaKategorije || pod.ikona,
+                alcoholic: this.isAlcoholicSubcategory(pod) && !this.isAlcoholicCategory(kat),
+                leaf: true, itemsOf: pod.naziv
+              }))
+            };
+          })
+        };
+      }).filter(Boolean);
+    }
+    const podkategorijeSSadrzajem = this.state.allSubcategories.filter(p => this.getItemsForSubcategory(p.naziv).length > 0);
+    if (podkategorijeSSadrzajem.length > 0) {
+      return podkategorijeSSadrzajem.map(pod => ({
+        id: pod.id, naziv: pod.naziv, ikona: pod.ikonaKategorije || pod.ikona,
+        alcoholic: this.isAlcoholicSubcategory(pod), leaf: true, itemsOf: pod.naziv
+      }));
+    }
+    const kategorijeSSadrzajem = this.state.allCategories.filter(k => this.getItemsForSubcategory(k.naziv).length > 0);
+    return kategorijeSSadrzajem.map(kat => ({
+      id: kat.id, naziv: kat.naziv, ikona: kat.ikonaKategorije || kat.ikona,
+      alcoholic: this.isAlcoholicCategory(kat), leaf: true, itemsOf: kat.naziv
+    }));
+  }
+
+  /* Crta cijeli sidebar iz stabla; automatski otvara prvu grupu i selektuje prvi list */
+  renderSidebar() {
+    const sidebarEl = this.elements.categoryTabs;
+    if (!sidebarEl) return;
+    if (!this.state.sidebarTree || this.state.sidebarTree.length === 0) {
+      this.showEmptyState();
+      return;
+    }
+    sidebarEl.innerHTML = this.state.sidebarTree.map(n => this.renderSidebarNode(n)).join('');
+    const firstGroup = sidebarEl.querySelector('.side-group');
+    if (firstGroup) firstGroup.classList.add('open');
+    const firstLeaf = sidebarEl.querySelector('.side-item.leaf');
+    if (firstLeaf) firstLeaf.click();
+  }
+
+  /* Rekurzivno crta jedan čvor (grupu ili list) sidebar stabla */
+  renderSidebarNode(node) {
+    const ikonaVal = node.ikona;
+    const icon = ikonaVal && ikonaVal.startsWith('http')
+      ? `<img src="${ikonaVal}" class="side-icon" alt="">`
+      : `<i class="fas ${(ikonaVal && ikonaVal.startsWith('fa-')) ? ikonaVal : (node.isTop ? 'fa-layer-group' : (node.leaf ? 'fa-tag' : 'fa-folder'))}"></i>`;
+    const name = this.translationManager ? this.translationManager.translateCategory(node.naziv) : node.naziv;
+    const age = node.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
+
+    if (node.leaf) {
+      return `<button class="side-item leaf" data-node-id="${node.id}" onclick="window.menuApp.selectSidebarLeaf('${node.id}', this)">
+        <span class="side-left">${icon}<span class="side-label">${name}${age}</span></span>
+      </button>`;
+    }
+    const childrenHTML = (node.children || []).map(c => this.renderSidebarNode(c)).join('');
+    return `<div class="side-group" data-group="${node.id}">
+      <button class="side-item parent" onclick="window.menuApp.toggleSidebarGroup('${node.id}', this)">
+        <span class="side-left">${icon}<span class="side-label">${name}${age}</span></span>
+        <i class="fas fa-chevron-down side-arrow"></i>
+      </button>
+      <div class="side-children" id="side-children-${node.id}">${childrenHTML}</div>
+    </div>`;
+  }
+
+  /* Otvara/zatvara grupu u sidebar-u (accordion ponašanje unutar istog roditelja) */
+  toggleSidebarGroup(nodeId, btnEl) {
+    const groupEl = btnEl.closest('.side-group');
+    if (!groupEl) return;
+    const isOpen = groupEl.classList.contains('open');
+    const parent = groupEl.parentElement;
+    if (parent) {
+      parent.querySelectorAll(':scope > .side-group.open').forEach(g => { if (g !== groupEl) g.classList.remove('open'); });
+    }
+    groupEl.classList.toggle('open', !isOpen);
+  }
+
+  /* Klik na konkretnu (list) kategoriju — prikazuje njene artikle desno */
+  selectSidebarLeaf(nodeId, btnEl) {
+    const node = this.findSidebarNode(this.state.sidebarTree, nodeId);
+    if (!node) return;
+    const items = this.getItemsForSubcategory(node.itemsOf);
+    this.renderContentGrid(node, items);
+    if (this.elements.categoryTabs) {
+      this.elements.categoryTabs.querySelectorAll('.side-item.leaf').forEach(b => b.classList.remove('active'));
+    }
+    btnEl.classList.add('active');
+    if (typeof window._closeMobileDrawer === 'function') window._closeMobileDrawer();
+    if (this.elements.tabContent) this.elements.tabContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* Traži čvor po ID-u u cijelom stablu (rekurzivno) */
+  findSidebarNode(nodes, id) {
+    for (const n of (nodes || [])) {
+      if (n.id === id) return n;
+      if (n.children) { const found = this.findSidebarNode(n.children, id); if (found) return found; }
+    }
+    return null;
+  }
+
+  /* Popunjava desni dio (mrežu kartica) za izabranu kategoriju */
+  renderContentGrid(node, items) {
+    const container = this.elements.tabContent;
+    if (!container) return;
+    const name = this.translationManager ? this.translationManager.translateCategory(node.naziv) : node.naziv;
+    if (!items || items.length === 0) {
+      container.innerHTML = this.createEmptyState('No items in this category');
+      return;
+    }
+    container.innerHTML = `<h2 class="grid-title">${this.sanitizeHtml(name)}</h2><div class="items-grid">${this.createItemsHTML(items)}</div>`;
+  }
+
+  /* Kreira hijerarhijski prikaz kada postoje glavne kategorije (STARO — više se ne poziva iz createMainTabs, ostavljeno kao rezerva) */
   createHierarchicalTabs() {
     let tabsCreated = 0;
     this.state.allMainCategories.forEach((glavnaKategorija, index) => {
@@ -573,6 +695,8 @@ class MenuApp {
   /* Učitava logo web stranice */
   async loadLogo(logoURL) {
     if (!logoURL || !this.elements.logoContainer || !this.elements.siteLogo) return;
+    const mtLogo = document.getElementById('mtLogo');
+    if (mtLogo) { mtLogo.src = logoURL; mtLogo.style.display = 'block'; }
     return new Promise((resolve) => {
       this.elements.siteLogo.onload = () => { 
         this.elements.logoContainer.style.display = 'block'; 
@@ -606,6 +730,8 @@ class MenuApp {
         titleEl.textContent = this.heroTitleDB;
         titleEl.style.display = 'block';
       }
+      const mtName = document.getElementById('mtName');
+      if (mtName && this.heroTitleDB) mtName.textContent = this.heroTitleDB;
       if (subtitleEl && this.heroSubtitleDB) {
         subtitleEl.textContent = this.heroSubtitleDB;
         subtitleEl.style.display = 'block';

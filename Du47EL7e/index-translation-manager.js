@@ -185,6 +185,8 @@ class IndexTranslationManager {
         const t = this.t('heroTitle');
         if (t && t !== 'heroTitle') { heroTitle.textContent = t; heroTitle.style.display = 'block'; }
       }
+      const mtNameEl = document.getElementById('mtName');
+      if (mtNameEl && heroTitle && heroTitle.textContent) mtNameEl.textContent = heroTitle.textContent;
       if (heroSubtitle && window.menuApp.heroSubtitleDB) {
         heroSubtitle.textContent = window.menuApp.heroSubtitleDB;
         heroSubtitle.style.display = 'block';
@@ -200,6 +202,8 @@ class IndexTranslationManager {
           heroTitle.style.display = 'block';
         }
       }
+      const mtNameEl2 = document.getElementById('mtName');
+      if (mtNameEl2 && heroTitle && heroTitle.textContent) mtNameEl2.textContent = heroTitle.textContent;
       if (heroSubtitle) {
         const translatedSubtitle = this.t('heroSubtitle');
         if (translatedSubtitle && translatedSubtitle !== 'heroSubtitle') {

@@ -16,49 +16,62 @@
   
   <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="index-styles.css?v=20260818" />
+  <link rel="stylesheet" href="index-styles.css?v=20260819" />
 </head>
 <body>
-  <div class="container">
-    <!-- HERO SECTION -->
-    <div class="hero-section">
-      <!-- DUGMAD ZA JEZIKE -->
-      <div class="language-switcher">
-        <button class="language-btn active" data-lang="sr" title="Srpski">🇷🇸</button>
-        <button class="language-btn" data-lang="en" title="English">🇬🇧</button>
-        <button class="language-btn" data-lang="de" title="Deutsch">🇩🇪</button>
-      </div>
-
-      <div class="hero-content">
-        <!-- LOGO SECTION -->
-        <div class="logo-container" id="logoContainer" style="display: none;">
-          <img id="siteLogo" alt="Logo" class="site-logo" />
-        </div>
-        
-        <!-- DYNAMIC TITLE AND SUBTITLE - WITH LOADING STATE -->
-        <div class="hero-loading">
-          <i class="fas fa-spinner fa-spin"></i>
-          <span>Loading...</span>
-        </div>
-        <h1 id="heroTitle" style="display: none;"></h1>
-        <p id="heroSubtitle" style="display: none;"></p>
-      </div>
+  <!-- MOBILNA TRAKA (hamburger) — vidljivo samo na uskim ekranima -->
+  <div class="mobile-topbar">
+    <button class="hamburger" id="hamburgerBtn" aria-label="Otvori meni"><i class="fas fa-bars"></i></button>
+    <div class="mt-brand">
+      <img id="mtLogo" class="mt-logo" style="display:none" alt="Logo"/>
+      <span id="mtName">Meni</span>
     </div>
-    
-    <!-- CATEGORY TABS -->
-    <div class="mobile-tabs" id="categoryTabs">
+  </div>
+  <div id="sidebarBackdrop"></div>
+
+  <div class="app-shell">
+    <!-- SIDEBAR — kategorije/podkategorije -->
+    <aside class="sidebar" id="categoryTabs">
       <div class="loading">
         <i class="fas fa-spinner fa-spin"></i>
         <span>Loading categories...</span>
       </div>
-    </div>
-    
-    <!-- TAB CONTENT -->
-    <div class="tab-content" id="tabContent">
-      <div class="loading">
-        <i class="fas fa-spinner fa-spin"></i>
-        <h3>Loading menu...</h3>
-        <p>Please wait a moment</p>
+    </aside>
+
+    <!-- GLAVNI DIO -->
+    <div class="main-area">
+      <!-- HERO SECTION -->
+      <div class="hero-section">
+        <!-- DUGMAD ZA JEZIKE -->
+        <div class="language-switcher">
+          <button class="language-btn active" data-lang="sr" title="Srpski">🇷🇸</button>
+          <button class="language-btn" data-lang="en" title="English">🇬🇧</button>
+          <button class="language-btn" data-lang="de" title="Deutsch">🇩🇪</button>
+        </div>
+
+        <div class="hero-content">
+          <!-- LOGO SECTION -->
+          <div class="logo-container" id="logoContainer" style="display: none;">
+            <img id="siteLogo" alt="Logo" class="site-logo" />
+          </div>
+          
+          <!-- DYNAMIC TITLE AND SUBTITLE - WITH LOADING STATE -->
+          <div class="hero-loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Loading...</span>
+          </div>
+          <h1 id="heroTitle" style="display: none;"></h1>
+          <p id="heroSubtitle" style="display: none;"></p>
+        </div>
+      </div>
+
+      <!-- SADRŽAJ IZABRANE KATEGORIJE -->
+      <div class="content-grid" id="tabContent">
+        <div class="loading">
+          <i class="fas fa-spinner fa-spin"></i>
+          <h3>Loading menu...</h3>
+          <p>Please wait a moment</p>
+        </div>
       </div>
     </div>
   </div>
@@ -97,8 +110,29 @@
     </div>
   </footer>
 
+  <script>
+  // Hamburger meni (fioka sa strane) — samo na mobilnom
+  (function () {
+    function init() {
+      const btn = document.getElementById('hamburgerBtn');
+      const sidebar = document.getElementById('categoryTabs');
+      const backdrop = document.getElementById('sidebarBackdrop');
+      if (!btn || !sidebar || !backdrop) return;
+
+      const closeDrawer = () => { sidebar.classList.remove('open'); backdrop.classList.remove('show'); };
+      const openDrawer  = () => { sidebar.classList.add('open'); backdrop.classList.add('show'); };
+
+      btn.addEventListener('click', () => sidebar.classList.contains('open') ? closeDrawer() : openDrawer());
+      backdrop.addEventListener('click', closeDrawer);
+      window._closeMobileDrawer = closeDrawer;
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+  })();
+  </script>
+
   <!-- Translation Manager MORA biti prije index-script.js -->
-  <script src="index-translation-manager.js?v=20260818"></script>
-  <script type="module" src="index-script.js?v=20260818"></script>
+  <script src="index-translation-manager.js?v=20260819"></script>
+  <script type="module" src="index-script.js?v=20260819"></script>
 </body>
 </html>
