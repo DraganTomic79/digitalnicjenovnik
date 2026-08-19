@@ -16,7 +16,7 @@
   
   <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="index-styles.css?v=20260819d" />
+  <link rel="stylesheet" href="index-styles.css?v=20260819e" />
 </head>
 <body>
   <div id="sidebarBackdrop"></div>
@@ -35,13 +35,16 @@
       <!-- HERO SECTION -->
       <div class="hero-section">
         <!-- Hamburger dugme (samo mobilni) — pozicionirano u istom hederu, bez duplikata -->
-        <button class="hamburger" id="hamburgerBtn" aria-label="Otvori meni"><i class="fas fa-bars"></i></button>
+        <button class="hamburger hint" id="hamburgerBtn" aria-label="Otvori meni"><i class="fas fa-bars"></i></button>
 
         <!-- DUGMAD ZA JEZIKE -->
         <div class="language-switcher">
-          <button class="language-btn active" data-lang="sr" title="Srpski">🇷🇸</button>
-          <button class="language-btn" data-lang="en" title="English">🇬🇧</button>
-          <button class="language-btn" data-lang="de" title="Deutsch">🇩🇪</button>
+          <button class="lang-toggle" id="langToggle" aria-label="Izaberi jezik"><i class="fas fa-globe"></i></button>
+          <div class="lang-options" id="langOptions">
+            <button class="language-btn active" data-lang="sr" title="Srpski">🇷🇸</button>
+            <button class="language-btn" data-lang="en" title="English">🇬🇧</button>
+            <button class="language-btn" data-lang="de" title="Deutsch">🇩🇪</button>
+          </div>
         </div>
 
         <div class="hero-content">
@@ -116,10 +119,41 @@
 
       const closeDrawer = () => { sidebar.classList.remove('open'); backdrop.classList.remove('show'); };
       const openDrawer  = () => { sidebar.classList.add('open'); backdrop.classList.add('show'); };
+      const stopHint    = () => btn.classList.remove('hint');
 
-      btn.addEventListener('click', () => sidebar.classList.contains('open') ? closeDrawer() : openDrawer());
+      btn.addEventListener('click', () => {
+        stopHint();
+        sidebar.classList.contains('open') ? closeDrawer() : openDrawer();
+      });
       backdrop.addEventListener('click', closeDrawer);
       window._closeMobileDrawer = closeDrawer;
+
+      // Animacija se sama ugasi nakon nekog vremena ako je niko ne primijeti/klikne
+      setTimeout(stopHint, 9000);
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+  })();
+
+  // Jezici — sakriveni iza ikone, klik otvara/zatvara listu
+  (function () {
+    function init() {
+      const toggle = document.getElementById('langToggle');
+      const options = document.getElementById('langOptions');
+      if (!toggle || !options) return;
+
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        options.classList.toggle('show');
+      });
+      // Zatvori listu klikom van nje
+      document.addEventListener('click', (e) => {
+        if (!options.contains(e.target) && e.target !== toggle) options.classList.remove('show');
+      });
+      // Zatvori listu nakon izbora jezika
+      options.querySelectorAll('.language-btn').forEach(b => {
+        b.addEventListener('click', () => options.classList.remove('show'));
+      });
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
     else init();
@@ -127,7 +161,7 @@
   </script>
 
   <!-- Translation Manager MORA biti prije index-script.js -->
-  <script src="index-translation-manager.js?v=20260819d"></script>
-  <script type="module" src="index-script.js?v=20260819d"></script>
+  <script src="index-translation-manager.js?v=20260819e"></script>
+  <script type="module" src="index-script.js?v=20260819e"></script>
 </body>
 </html>
