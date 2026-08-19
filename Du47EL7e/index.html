@@ -16,7 +16,7 @@
   
   <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="index-styles.css?v=20260819k" />
+  <link rel="stylesheet" href="index-styles.css?v=20260819m" />
 </head>
 <body>
   <div id="sidebarBackdrop"></div>
@@ -39,14 +39,14 @@
 
         <!-- DUGMAD ZA JEZIKE -->
         <div class="language-switcher">
+          <div class="lang-inline" id="langOptions">
+            <button class="language-btn active" data-lang="sr" title="Srpski">Srpski</button>
+            <span class="lang-sep">|</span>
+            <button class="language-btn" data-lang="en" title="English">English</button>
+            <span class="lang-sep">|</span>
+            <button class="language-btn" data-lang="de" title="Deutsch">Deutsch</button>
+          </div>
           <button class="lang-toggle" id="langToggle" aria-label="Izaberi jezik"><i class="fas fa-globe"></i></button>
-        </div>
-        <div id="langBackdrop"></div>
-        <div class="lang-modal" id="langOptions">
-          <div class="lang-modal-title">Izaberi jezik</div>
-          <button class="language-btn active" data-lang="sr" title="Srpski"><span class="lang-name">RS · Srpski</span></button>
-          <button class="language-btn" data-lang="en" title="English"><span class="lang-name">GB · English</span></button>
-          <button class="language-btn" data-lang="de" title="Deutsch"><span class="lang-name">DE · Deutsch</span></button>
         </div>
 
         <div class="hero-content">
@@ -137,25 +137,26 @@
     else init();
   })();
 
-  // Jezici — centriran prozorčić (modal), otvara/zatvara se klikom na ikonu ili pozadinu
+  // Jezici — traka se otvara ulijevo od ikone, klikom na ikonu ili van trake se zatvara
   (function () {
     function init() {
       const toggle = document.getElementById('langToggle');
-      const modal = document.getElementById('langOptions');
-      const backdrop = document.getElementById('langBackdrop');
-      if (!toggle || !modal || !backdrop) return;
+      const bar = document.getElementById('langOptions');
+      if (!toggle || !bar) return;
 
-      const closeModal = () => { modal.classList.remove('show'); backdrop.classList.remove('show'); };
-      const openModal  = () => { modal.classList.add('show'); backdrop.classList.add('show'); };
+      const closeBar = () => bar.classList.remove('show');
+      const openBar  = () => bar.classList.add('show');
 
       toggle.addEventListener('click', (e) => {
         e.stopPropagation();
-        modal.classList.contains('show') ? closeModal() : openModal();
+        bar.classList.contains('show') ? closeBar() : openBar();
       });
-      backdrop.addEventListener('click', closeModal);
+      document.addEventListener('click', (e) => {
+        if (!bar.contains(e.target) && e.target !== toggle) closeBar();
+      });
       // Zatvori nakon izbora jezika
-      modal.querySelectorAll('.language-btn').forEach(b => {
-        b.addEventListener('click', closeModal);
+      bar.querySelectorAll('.language-btn').forEach(b => {
+        b.addEventListener('click', closeBar);
       });
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
@@ -164,7 +165,7 @@
   </script>
 
   <!-- Translation Manager MORA biti prije index-script.js -->
-  <script src="index-translation-manager.js?v=20260819k"></script>
-  <script type="module" src="index-script.js?v=20260819k"></script>
+  <script src="index-translation-manager.js?v=20260819m"></script>
+  <script type="module" src="index-script.js?v=20260819m"></script>
 </body>
 </html>
