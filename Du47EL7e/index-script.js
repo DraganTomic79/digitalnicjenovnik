@@ -184,7 +184,7 @@ class MenuApp {
     }));
   }
 
-  /* Crta cijeli sidebar iz stabla; automatski otvara prvu grupu i selektuje prvi list */
+  /* Crta cijeli sidebar iz stabla; podrazumijevano prikazuje SVE artikle (bez skrolanja/otvaranja grupa) */
   renderSidebar() {
     const sidebarEl = this.elements.categoryTabs;
     if (!sidebarEl) return;
@@ -192,14 +192,15 @@ class MenuApp {
       this.showEmptyState();
       return;
     }
-    sidebarEl.innerHTML = this.state.sidebarTree.map(n => this.renderSidebarNode(n)).join('');
-    const firstGroup = sidebarEl.querySelector('.side-group');
-    if (firstGroup) firstGroup.classList.add('open');
-    const firstLeaf = sidebarEl.querySelector('.side-item.leaf');
-    if (firstLeaf) firstLeaf.click();
+    const allLabel = this.translationManager ? this.translationManager.t('allItems', 'Svi artikli') : 'Svi artikli';
+    const allBtn = `<button class="side-item leaf all-items active" data-node-id="__ALL__" onclick="window.menuApp.selectAllItems(this)">
+      <span class="side-left"><i class="fas fa-border-all"></i><span class="side-label">${this.sanitizeHtml(allLabel)}</span></span>
+    </button>`;
+    sidebarEl.innerHTML = allBtn + this.state.sidebarTree.map(n => this.renderSidebarNode(n)).join('');
+    this.renderAllItemsGrid(); // podrazumijevani prikaz — bez skrolanja, ostaje na vrhu ispod hedera
   }
 
-  /* Rekurzivno crta jedan čvor (grupu ili list) sidebar stabla */
+  /* Rekurzivno drta jedan čvor (grupu ili list) sidebar stabla */
   renderSidebarNode(node) {
     const ikonaVal = node.ikona;
     const icon = ikonaVal && ikonaVal.startsWith('http')
@@ -235,18 +236,55 @@ class MenuApp {
     groupEl.classList.toggle('open', !isOpen);
   }
 
-  /* Klik na konkretnu (list) kategoriju — prikazuje njene artikle desno */
+  /* Klik na "Svi artikli" — prikazuje sve kategorije/artikle odjednom, grupisano po nazivu */
+  selectAllItems(btnEl) {
+    this.renderAllItemsGrid();
+    this.activateSidebarButton(btnEl);
+  }
+
+  /* Klik na konkretnu (list) kategoriju — prikazuje samo njene artikle desno */
   selectSidebarLeaf(nodeId, btnEl) {
     const node = this.findSidebarNode(this.state.sidebarTree, nodeId);
     if (!node) return;
     const items = this.getItemsForSubcategory(node.itemsOf);
     this.renderContentGrid(node, items);
+    this.activateSidebarButton(btnEl);
+  }
+
+  /* Zajednička logika nakon izbora stavke u sidebar-u (ručni klik, ne podrazumijevani prikaz) */
+  activateSidebarButton(btnEl) {
     if (this.elements.categoryTabs) {
       this.elements.categoryTabs.querySelectorAll('.side-item.leaf').forEach(b => b.classList.remove('active'));
     }
     btnEl.classList.add('active');
     if (typeof window._closeMobileDrawer === 'function') window._closeMobileDrawer();
     if (this.elements.tabContent) this.elements.tabContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* Prikazuje SVE artikle iz cijelog stabla, grupisano po nazivu kategorije/podkategorije */
+  renderAllItemsGrid() {
+    const container = this.elements.tabContent;
+    if (!container) return;
+    const sections = [];
+    const collect = (nodes) => {
+      (nodes || []).forEach(n => {
+        if (n.leaf) {
+          const items = this.getItemsForSubcategory(n.itemsOf);
+          if (items.length > 0) sections.push({ naziv: n.naziv, items });
+        } else if (n.children) {
+          collect(n.children);
+        }
+      });
+    };
+    collect(this.state.sidebarTree);
+    if (sections.length === 0) {
+      container.innerHTML = this.createEmptyState('No items in this category');
+      return;
+    }
+    container.innerHTML = sections.map(s => {
+      const name = this.translationManager ? this.translationManager.translateCategory(s.naziv) : s.naziv;
+      return `<h2 class="grid-title">${this.sanitizeHtml(name)}</h2><div class="items-grid">${this.createItemsHTML(s.items)}</div>`;
+    }).join('');
   }
 
   /* Traži čvor po ID-u u cijelom stablu (rekurzivno) */

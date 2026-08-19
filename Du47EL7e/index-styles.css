@@ -1638,6 +1638,12 @@ html, body { height: auto; }
 }
 .side-item.leaf.active i { color: #1a1a1a; }
 
+/* "Svi artikli" — izdvojeno na vrhu menija */
+.side-item.all-items {
+  font-family: 'Playfair Display', serif; font-weight: 800; font-size: .92rem;
+  border-bottom: 1px solid var(--glass-border); margin-bottom: 8px; padding-bottom: 14px;
+}
+
 /* ── HAMBURGER DUGME — unutar hero sekcije (kao jezici, samo lijevo), bez duple trake ── */
 .hamburger { display: none; }
 #sidebarBackdrop { display: none; }
@@ -1664,7 +1670,7 @@ html, body { height: auto; }
   }
 
   /* Dvije kartice u red na mobilnom */
-  .items-grid { grid-template-columns: repeat(2, 1fr); gap: var(--spacing-sm); }
+  .items-grid { grid-template-columns: repeat(2, 1fr) !important; gap: var(--spacing-sm) !important; }
 }
 
 /* ── MREŽA KARTICA (novi izgled artikala) ── */
@@ -1676,7 +1682,7 @@ html, body { height: auto; }
   padding-bottom: 10px; border-bottom: 1px solid var(--glass-border); text-align: center;
 }
 .items-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--spacing-md);
 }
 .items-grid .item-card {
