@@ -96,10 +96,10 @@ body {
   position: fixed !important;
   top: 15px !important;
   right: 15px !important;
-  z-index: 99999 !important;
+  z-index: 1000 !important;
 }
 
-/* Dugme koje otvara/zatvara listu jezika */
+/* Dugme koje otvara/zatvara izbor jezika */
 .lang-toggle {
   border: 2px solid var(--gold-accent); background: var(--primary-gradient); color: #1a1a1a;
   border-radius: 50%; cursor: pointer; font-size: 19px; width: 45px; height: 45px;
@@ -108,25 +108,36 @@ body {
 }
 .lang-toggle:hover { transform: translateY(-1px) scale(1.05); box-shadow: 0 5px 14px rgba(198,166,100,.55); }
 
-/* Lista jezika — sakrivena dok se ne otvori; potpuno nezavisno fiksirana za ekran
-   (ne oslanja se na poziciju roditelja) — najpouzdaniji način da se nikad ne
-   "podvuče" pod sadržaj, ni na jednom uređaju. */
-.lang-options {
-  position: fixed !important; top: 68px !important; right: 15px !important; z-index: 99999 !important;
-  display: flex; flex-direction: column; gap: 6px;
-  opacity: 0; visibility: hidden; transform: translateY(-6px);
+/* Zatamnjena pozadina iza modala (isti princip kao kod hamburger fioke) */
+#langBackdrop { display: none; }
+#langBackdrop.show {
+  display: block; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 99998;
+}
+
+/* Centriran modal — uvijek tačno na sredini ekrana, nikad se ne može "podvući"
+   pod sadržaj bez obzira na skrol poziciju ili raspored stranice */
+.lang-modal {
+  position: fixed; top: 50%; left: 50%; z-index: 99999;
+  transform: translate(-50%, -50%) scale(.95);
+  background: #1c1c1c; border: 2px solid var(--gold-accent); border-radius: 16px;
+  padding: 22px 24px; display: flex; flex-direction: column; gap: 10px; min-width: 220px;
+  opacity: 0; visibility: hidden; pointer-events: none;
   transition: opacity .2s ease, transform .2s ease, visibility .2s;
-  pointer-events: none;
+  box-shadow: 0 20px 60px rgba(0,0,0,.6);
 }
-.lang-options.show {
-  opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto;
+.lang-modal.show {
+  opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); pointer-events: auto;
 }
-.lang-options .language-btn {
-  width: auto !important; min-width: 110px !important; height: auto !important;
-  justify-content: center !important; padding: 8px 12px !important;
-  font-size: .82rem !important; white-space: nowrap;
+.lang-modal-title {
+  text-align: center; font-family: 'Playfair Display', serif; color: var(--gold-accent);
+  font-weight: 800; font-size: 1rem; margin-bottom: 4px;
 }
-.lang-options .language-btn .lang-name { font-size: .74rem; font-weight: 700; letter-spacing: .2px; }
+.lang-modal .language-btn {
+  width: 100% !important; min-width: 0 !important; height: auto !important;
+  justify-content: center !important; padding: 11px 16px !important;
+  font-size: .85rem !important; white-space: nowrap;
+}
+.lang-modal .language-btn .lang-name { font-size: .8rem; font-weight: 700; letter-spacing: .2px; }
 
 /* Dugmad za izbor jezika */
 .language-btn {
