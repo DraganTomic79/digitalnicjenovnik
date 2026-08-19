@@ -96,7 +96,7 @@ body {
   position: fixed !important;
   top: 15px !important;
   right: 15px !important;
-  z-index: 1000 !important;
+  z-index: 99999 !important;
 }
 
 /* Dugme koje otvara/zatvara listu jezika */
@@ -110,8 +110,8 @@ body {
 
 /* Lista jezika — sakrivena dok se ne otvori */
 .lang-options {
-  position: absolute; top: calc(100% + 8px); right: 0;
-  display: flex; flex-direction: column; gap: 8px;
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 99999;
+  display: flex; flex-direction: column; gap: 6px;
   opacity: 0; visibility: hidden; transform: translateY(-6px);
   transition: opacity .2s ease, transform .2s ease, visibility .2s;
   pointer-events: none;
@@ -120,11 +120,11 @@ body {
   opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto;
 }
 .lang-options .language-btn {
-  width: auto !important; min-width: 140px !important; height: auto !important;
-  justify-content: center !important; padding: 12px 18px !important;
-  font-size: 1rem !important; white-space: nowrap;
+  width: auto !important; min-width: 110px !important; height: auto !important;
+  justify-content: center !important; padding: 8px 12px !important;
+  font-size: .82rem !important; white-space: nowrap;
 }
-.lang-options .language-btn .lang-name { font-size: .82rem; font-weight: 700; letter-spacing: .2px; }
+.lang-options .language-btn .lang-name { font-size: .74rem; font-weight: 700; letter-spacing: .2px; }
 
 /* Dugmad za izbor jezika */
 .language-btn {
@@ -1239,57 +1239,10 @@ body {
   margin-top: 3px !important;
 }
 
-/* === RESPONSIVE ZA JEZIČKA DUGMAD === */
-/* Prilagođeni stilovi za mobilne uređaje (ispod 768px) */
-@media (max-width: 768px) {
-  .language-switcher {
-    top: 8px !important;
-    right: 8px !important;
-    flex-direction: column !important;
-    gap: 3px !important;
-  }
-  
-  .language-btn {
-    min-width: 32px !important;
-    height: 32px !important;
-    font-size: 13px !important;
-    padding: 4px 6px !important;
-  }
-}
-
-/* Prilagođeni stilovi za vrlo male mobilne uređaje (ispod 480px) */
-@media (max-width: 480px) {
-  .language-switcher {
-    top: 5px !important;
-    right: 5px !important;
-    flex-direction: column !important;
-    gap: 2px !important;
-  }
-  
-  .language-btn {
-    min-width: 28px !important;
-    height: 28px !important;
-    font-size: 12px !important;
-    padding: 3px 5px !important;
-  }
-}
-
-/* Prilagođeni stilovi za najmanje mobilne uređaje (ispod 360px) */
-@media (max-width: 360px) {
-  .language-switcher {
-    flex-direction: column !important;
-    gap: 2px !important;
-    top: 3px !important;
-    right: 3px !important;
-  }
-  
-  .language-btn {
-    min-width: 25px !important;
-    height: 25px !important;
-    font-size: 11px !important;
-    padding: 2px 4px !important;
-  }
-}
+/* === RESPONSIVE ZA JEZIČKA DUGMAD ===
+   (Stare posebne mobilne pozicije uklonjene — jezička ikona i hamburger sad
+   uvijek koriste istu top/right poziciju, na svim veličinama ekrana, čime su
+   uvijek poravnati.) */
 
 /* Responzivni stilovi za tablete i male desktop uređaje */
 @media (min-width: 768px) { 
@@ -1714,8 +1667,8 @@ html, body { height: auto; }
 .content-grid { padding: var(--spacing-lg) clamp(14px, 3vw, 34px) 60px; }
 .grid-title {
   font-family: 'Playfair Display', serif; font-weight: 800; color: var(--gold-accent);
-  font-size: clamp(1.2rem, 3vw, 1.6rem); letter-spacing: .3px; margin: var(--spacing-xl) 0 var(--spacing-md);
-  padding-bottom: 10px; border-bottom: 1px solid var(--glass-border); text-align: center;
+  font-size: clamp(1.2rem, 3vw, 1.6rem); letter-spacing: .3px; margin: var(--spacing-md) 0 var(--spacing-sm);
+  padding-bottom: 6px; border-bottom: 1px solid var(--glass-border); text-align: center;
 }
 .content-grid > .grid-title:first-child { margin-top: 0; }
 .items-grid {
@@ -1727,14 +1680,14 @@ html, body { height: auto; }
 .items-grid .item-card {
   display: flex !important; flex-direction: column !important; align-items: stretch !important;
   background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--border-radius-large);
-  padding: 0 0 14px; overflow: hidden; box-shadow: var(--shadow-light); transition: transform .18s, box-shadow .18s;
+  padding: 0 0 10px; overflow: hidden; box-shadow: var(--shadow-light); transition: transform .18s, box-shadow .18s;
 }
 .items-grid .item-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-medium); }
 .items-grid .item-image-wrapper, .items-grid .item-image, .items-grid .item-placeholder {
-  width: 100% !important; height: clamp(120px, 26vw, 170px) !important; border-radius: 0 !important;
+  width: 100% !important; height: clamp(95px, 15vw, 130px) !important; border-radius: 0 !important;
 }
 .items-grid .item-image { object-fit: cover; }
-.items-grid .item-info { padding: 12px 14px 4px; flex: 1; text-align: center; }
-.items-grid .item-name { font-size: .92rem; white-space: normal; }
+.items-grid .item-info { padding: 8px 12px 2px; flex: 1; text-align: center; }
+.items-grid .item-name { font-size: .86rem; white-space: normal; }
 .items-grid .item-description, .items-grid .item-description2 { white-space: normal; }
 .items-grid .item-price { align-self: center; margin: 4px 0 0; text-align: center; }
