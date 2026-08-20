@@ -118,40 +118,32 @@ body {
   white-space: nowrap; padding: 0;
 }
 .lang-inline.show {
-  max-width: 320px; opacity: 1; padding: 8px 16px; border-color: var(--gold-accent);
+  max-width: 160px; opacity: 1; padding: 8px 16px; border-color: var(--gold-accent);
   box-shadow: 0 8px 24px rgba(0,0,0,.4);
 }
 .lang-sep { color: var(--gold-accent); opacity: .5; font-size: .8rem; }
 
-/* Dugmad za izbor jezika */
+/* Dugmad za izbor jezika (zastavice) */
 .lang-inline .language-btn {
   width: auto !important; min-width: 0 !important; height: auto !important;
   background: transparent !important; border: none !important; box-shadow: none !important;
-  padding: 4px 2px !important; font-size: .82rem !important; font-weight: 600;
-  color: var(--text-color) !important; white-space: nowrap;
+  padding: 2px 4px !important; font-size: 1.35rem !important; line-height: 1;
+  opacity: .55; transition: opacity .2s ease, transform .2s ease;
 }
-.lang-inline .language-btn:hover {
-  color: var(--gold-accent) !important; background: transparent !important;
-  border-color: transparent !important; transform: none !important;
-}
+.lang-inline .language-btn:hover { opacity: .85; transform: scale(1.08); }
 .lang-inline .language-btn.active {
-  color: var(--gold-accent) !important; background: transparent !important;
-  border-color: transparent !important; font-weight: 800; text-decoration: underline;
-  text-underline-offset: 3px;
+  opacity: 1; transform: scale(1.12);
+  filter: drop-shadow(0 0 5px rgba(198,166,100,.7));
 }
 
 @media (max-width: 900px) {
   .lang-inline {
-    flex-direction: column; align-items: stretch; gap: 3px;
+    flex-direction: column; align-items: center; gap: 8px;
     max-width: 0; max-height: none;
   }
   .lang-sep { display: none; }
-  .lang-inline.show { max-width: 105px; padding: 8px 10px; }
-  .lang-inline .language-btn {
-    font-size: .66rem !important; padding: 6px 4px !important; text-align: center;
-    border-bottom: 1px solid rgba(198,166,100,.15) !important;
-  }
-  .lang-inline .language-btn:last-child { border-bottom: none !important; }
+  .lang-inline.show { max-width: 70px; padding: 10px 8px; }
+  .lang-inline .language-btn { font-size: 1.4rem !important; padding: 3px !important; }
 }
 
 /* Dugmad za izbor jezika (baza — koristi se i unutar .lang-inline) */
@@ -1612,7 +1604,8 @@ html, body { height: auto; }
 
 /* ── DESKTOP SIDEBAR ── */
 .sidebar {
-  width: 280px; flex-shrink: 0; background: linear-gradient(180deg, #1f1f1f, #141414);
+  width: 280px; flex-shrink: 0; background: linear-gradient(180deg, rgba(31,31,31,.88), rgba(20,20,20,.88));
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   border-right: 2px solid var(--gold-accent); position: sticky; top: 0;
   height: 100vh; height: 100dvh; overflow-y: auto; z-index: 100; padding: 18px 0 24px;
 }
