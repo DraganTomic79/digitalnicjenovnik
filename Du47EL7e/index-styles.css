@@ -111,39 +111,37 @@ body {
 
 /* Traka sa jezicima — sakrivena (širine 0) dok se ne otvori, tad se širi ulijevo od ikone */
 .lang-inline {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 6px;
   max-width: 0; overflow: hidden; opacity: 0;
   background: #1c1c1c; border: 2px solid transparent; border-radius: 24px;
   transition: max-width .25s ease, opacity .2s ease, padding .25s ease, border-color .25s ease;
   white-space: nowrap; padding: 0;
 }
 .lang-inline.show {
-  max-width: 160px; opacity: 1; padding: 8px 16px; border-color: var(--gold-accent);
+  max-width: 220px; opacity: 1; padding: 6px 10px; border-color: var(--gold-accent);
   box-shadow: 0 8px 24px rgba(0,0,0,.4);
 }
-.lang-sep { color: var(--gold-accent); opacity: .5; font-size: .8rem; }
+.lang-sep { display: none; }
 
-/* Dugmad za izbor jezika (zastavice) */
+/* Dugmad za izbor jezika — čitljive značke (zastavice se na dijelu uređaja/browsera
+   prikazuju kao tekst koda umjesto slike, pa su stilizovane tako da uvijek budu
+   jasno vidljive, bez obzira šta se tačno prikaže) */
 .lang-inline .language-btn {
-  width: auto !important; min-width: 0 !important; height: auto !important;
-  background: transparent !important; border: none !important; box-shadow: none !important;
-  padding: 2px 4px !important; font-size: 1.35rem !important; line-height: 1;
-  opacity: .55; transition: opacity .2s ease, transform .2s ease;
+  width: auto !important; min-width: 32px !important; height: auto !important;
+  background: transparent !important; border: 1.5px solid rgba(198,166,100,.4) !important; box-shadow: none !important;
+  border-radius: 8px !important; padding: 5px 9px !important; font-size: .78rem !important;
+  font-weight: 700; line-height: 1; color: var(--beige-white) !important;
+  transition: all .2s ease;
 }
-.lang-inline .language-btn:hover { opacity: .85; transform: scale(1.08); }
+.lang-inline .language-btn:hover { border-color: var(--gold-accent) !important; color: var(--gold-accent) !important; }
 .lang-inline .language-btn.active {
-  opacity: 1; transform: scale(1.12);
-  filter: drop-shadow(0 0 5px rgba(198,166,100,.7));
+  background: var(--primary-gradient) !important; border-color: var(--gold-accent) !important;
+  color: #1a1a1a !important;
 }
 
 @media (max-width: 900px) {
-  .lang-inline {
-    flex-direction: column; align-items: center; gap: 8px;
-    max-width: 0; max-height: none;
-  }
-  .lang-sep { display: none; }
-  .lang-inline.show { max-width: 70px; padding: 10px 8px; }
-  .lang-inline .language-btn { font-size: 1.4rem !important; padding: 3px !important; }
+  .lang-inline.show { max-width: 170px; padding: 5px 8px; gap: 4px; }
+  .lang-inline .language-btn { font-size: .68rem !important; padding: 4px 6px !important; min-width: 26px !important; }
 }
 
 /* Dugmad za izbor jezika (baza — koristi se i unutar .lang-inline) */
