@@ -1702,6 +1702,14 @@ html, body { height: auto; }
 }
 @media (min-width: 620px) { .items-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (min-width: 1000px) { .items-grid { grid-template-columns: repeat(4, 1fr); } }
+
+/* Kad je samo JEDAN artikal u kategoriji — neka zauzme cijeli red umjesto da
+   ostane sam u prvoj koloni sa praznim prostorom pored sebe */
+.items-grid:has(> .item-card:only-child) {
+  grid-template-columns: minmax(0, 340px) !important;
+  justify-content: center;
+}
+
 .items-grid .item-card {
   display: flex !important; flex-direction: column !important; align-items: stretch !important;
   background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--border-radius-large);
