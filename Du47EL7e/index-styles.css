@@ -141,9 +141,17 @@ body {
 }
 
 @media (max-width: 900px) {
-  .lang-inline .language-btn { font-size: .72rem !important; }
-  .lang-sep { font-size: .7rem; }
-  .lang-inline.show { max-width: 260px; padding: 6px 12px; }
+  .lang-inline {
+    flex-direction: column; align-items: stretch; gap: 3px;
+    max-width: 0; max-height: none;
+  }
+  .lang-sep { display: none; }
+  .lang-inline.show { max-width: 105px; padding: 8px 10px; }
+  .lang-inline .language-btn {
+    font-size: .66rem !important; padding: 6px 4px !important; text-align: center;
+    border-bottom: 1px solid rgba(198,166,100,.15) !important;
+  }
+  .lang-inline .language-btn:last-child { border-bottom: none !important; }
 }
 
 /* Dugmad za izbor jezika (baza — koristi se i unutar .lang-inline) */
@@ -1717,3 +1725,27 @@ html, body { height: auto; }
 .items-grid .item-name { font-size: .86rem; white-space: normal; }
 .items-grid .item-description, .items-grid .item-description2 { white-space: normal; }
 .items-grid .item-price { align-self: center; margin: 4px 0 0; text-align: center; }
+
+/* ══════════════════════════════════════════════════════════════
+   MOBILNI TELEFON — LANDSCAPE (položeno) — kratka visina ekrana,
+   heder mora biti mnogo kompaktniji da ne pojede skoro cijeli ekran
+   ══════════════════════════════════════════════════════════════ */
+@media (max-width: 900px) and (orientation: landscape) {
+  .hero-section { padding: 6px 10px !important; margin-bottom: 6px !important; }
+  .hero-content { gap: 4px !important; }
+  .site-logo { max-height: 38px !important; }
+  .hero-content h1 { font-size: .8rem !important; }
+  .hero-content p { font-size: .58rem !important; }
+
+  .hamburger, .lang-toggle { width: 36px !important; height: 36px !important; top: 8px !important; font-size: .95rem !important; }
+  .language-switcher { top: 8px !important; }
+
+  .grid-title { margin: 6px 0 6px !important; padding-bottom: 4px !important; font-size: 1rem !important; }
+  .content-grid { padding-top: 8px !important; }
+
+  /* Na položenom telefonu ima dovoljno širine za 3 kartice u red umjesto 2 */
+  .items-grid { grid-template-columns: repeat(3, 1fr) !important; }
+  .items-grid .item-image-wrapper, .items-grid .item-image, .items-grid .item-placeholder {
+    height: 80px !important;
+  }
+}
