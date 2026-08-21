@@ -295,7 +295,11 @@ function bodyHTML(blocks){
       const frameClass = b.promo ? ' promo-frame' : (b.alcoholic ? ' alcohol-frame' : '');
       const age = b.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
       const star = b.promo ? '<span class="promo-star">⭐</span>' : '';
-      out+=`<div class="cat-block${frameClass}"><div class="lbl-sub">${star}${esc(b.label)}${age}</div>${b.items.map(rowHTML).join('')}</div>`;
+      const dashIdx = b.label.indexOf(' – ');
+      const labelHtml = dashIdx>-1
+        ? `${esc(b.label.slice(0,dashIdx))}${star}${age} – ${esc(b.label.slice(dashIdx+3))}`
+        : `${star}${esc(b.label)}${age}`;
+      out+=`<div class="cat-block${frameClass}"><div class="lbl-sub">${labelHtml}</div>${b.items.map(rowHTML).join('')}</div>`;
     }
   }
   if(open)out+='</div>';
@@ -366,7 +370,11 @@ function pdfPlaceSubBlock(label,items,alcoholic,promo){
   while(idx<items.length){
     const headerText=first?label:`${label} (nastavak)`;
     const block=document.createElement('div');block.className='cat-block'+frameClass;
-    const hdr=elFromHTML(`<div class="lbl-sub">${star}${esc(headerText)}${age}</div>`);
+    const dashIdx = headerText.indexOf(' – ');
+    const labelHtml = dashIdx>-1
+      ? `${esc(headerText.slice(0,dashIdx))}${star}${age} – ${esc(headerText.slice(dashIdx+3))}`
+      : `${star}${esc(headerText)}${age}`;
+    const hdr=elFromHTML(`<div class="lbl-sub">${labelHtml}</div>`);
     block.appendChild(hdr);
     pdfActive.appendChild(block);
     if(!pdfFits()){

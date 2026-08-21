@@ -425,7 +425,11 @@ function renderPage(data){
     const lblClass = sb.promo ? ' promo-lbl' : (sb.alcoholic ? ' alcohol-lbl' : '');
     const age = sb.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
     const star = sb.promo ? '<span class="promo-star">⭐</span>' : '';
-    blk.innerHTML=`<div class="lbl-sub${lblClass}">${star}${esc(sb.label)}${age}</div><div class="grid">${sb.items.map(cardHTML).join('')}</div>`;
+    const dashIdx = sb.label.indexOf(' – ');
+    const labelHtml = dashIdx>-1
+      ? `${esc(sb.label.slice(0,dashIdx))}${star}${age} – ${esc(sb.label.slice(dashIdx+3))}`
+      : `${star}${esc(sb.label)}${age}`;
+    blk.innerHTML=`<div class="lbl-sub${lblClass}">${labelHtml}</div><div class="grid">${sb.items.map(cardHTML).join('')}</div>`;
     bd.appendChild(blk);
   }
   el.appendChild(bd);

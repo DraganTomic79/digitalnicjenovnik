@@ -330,11 +330,11 @@ class MenuApp {
       if (s.promo && s.promoKey) seenPromo.add(s.promoKey);
     });
     container.innerHTML = sections.map(s => {
-      const name = this.buildSectionTitle(s.naziv, s.parentNaziv);
       const age = s.showAge ? '<span class="age-restrictor">18+</span>' : '';
       const star = s.showStar ? '<span class="promo-star">⭐</span>' : '';
+      const name = this.buildSectionTitle(s.naziv, s.parentNaziv, age, star);
       const wrapClass = s.promo ? ' promo-frame' : (s.alcoholic ? ' alcohol-frame' : '');
-      return `<div class="grid-section${wrapClass}"><h2 class="grid-title">${star}${name}${age}</h2><div class="items-grid">${this.createItemsHTML(s.items)}</div></div>`;
+      return `<div class="grid-section${wrapClass}"><h2 class="grid-title">${name}</h2><div class="items-grid">${this.createItemsHTML(s.items)}</div></div>`;
     }).join('');
   }
 
@@ -347,28 +347,30 @@ class MenuApp {
     return null;
   }
 
-  /* Gradi naziv sekcije u formatu "Kategorija – Podkategorija" (kao u katalogu),
-     ako postoji roditeljska kategorija; inače samo sopstveni naziv */
-  buildSectionTitle(naziv, parentNaziv) {
+  /* Gradi naziv sekcije u formatu "Kategorija [18+/⭐] – Podkategorija" (oznaka ide
+     odmah poslije Kategorije, tamo gdje se stvarno odnosi, ne na kraju cijelog naziva) */
+  buildSectionTitle(naziv, parentNaziv, age, star) {
     const ownName = this.translationManager ? this.translationManager.translateCategory(naziv) : naziv;
-    if (!parentNaziv || parentNaziv === naziv) return this.sanitizeHtml(ownName);
+    if (!parentNaziv || parentNaziv === naziv) {
+      return `${star || ''}${this.sanitizeHtml(ownName)}${age || ''}`;
+    }
     const parentName = this.translationManager ? this.translationManager.translateCategory(parentNaziv) : parentNaziv;
-    return `${this.sanitizeHtml(parentName)} – ${this.sanitizeHtml(ownName)}`;
+    return `${this.sanitizeHtml(parentName)}${star || ''}${age || ''} – ${this.sanitizeHtml(ownName)}`;
   }
 
   /* Popunjava desni dio (mrežu kartica) za izabranu kategoriju */
   renderContentGrid(node, items) {
     const container = this.elements.tabContent;
     if (!container) return;
-    const name = this.buildSectionTitle(node.naziv, node.parentNaziv);
     if (!items || items.length === 0) {
       container.innerHTML = this.createEmptyState('No items in this category');
       return;
     }
     const age = node.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
     const star = node.promo ? '<span class="promo-star">⭐</span>' : '';
+    const name = this.buildSectionTitle(node.naziv, node.parentNaziv, age, star);
     const wrapClass = node.promo ? ' promo-frame' : (node.alcoholic ? ' alcohol-frame' : '');
-    container.innerHTML = `<div class="grid-section${wrapClass}"><h2 class="grid-title">${star}${name}${age}</h2><div class="items-grid">${this.createItemsHTML(items)}</div></div>`;
+    container.innerHTML = `<div class="grid-section${wrapClass}"><h2 class="grid-title">${name}</h2><div class="items-grid">${this.createItemsHTML(items)}</div></div>`;
   }
 
   /* Kreira hijerarhijski prikaz kada postoje glavne kategorije (STARO — više se ne poziva iz createMainTabs, ostavljeno kao rezerva) */
