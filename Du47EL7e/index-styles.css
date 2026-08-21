@@ -1616,11 +1616,23 @@ html, body { height: auto; }
   color: var(--text-color); font-family: inherit; font-size: .88rem; font-weight: 600;
   padding: 12px 18px; transition: background .15s, color .15s;
 }
-.side-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.side-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .side-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .side-item i.fas, .side-item i.fab { width: 18px; text-align: center; color: var(--gold-accent); flex-shrink: 0; }
 .side-icon { width: 20px; height: 20px; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
 .side-item:hover { background: rgba(198,166,100,.08); }
+
+/* Oznaka 18+ i zvjezdica promocije — smanjene za red u sidebar-u (bile su
+   dimenzionisane za stariju, širu harmoniku) */
+.side-item .age-restrictor {
+  width: 22px !important; height: 22px !important; font-size: .55rem !important;
+  margin-left: 0 !important; flex-shrink: 0; border-width: 1.5px !important;
+}
+.side-item .promo-star {
+  flex-shrink: 0; font-size: .8rem; line-height: 1;
+  filter: drop-shadow(0 0 3px rgba(198,166,100,.6));
+}
+
 .side-item .item-count {
   flex-shrink: 0; font-size: .66rem; padding: 2px 8px; min-width: 22px;
   background: rgba(198,166,100,.14); color: var(--gold-accent); border: 1px solid rgba(198,166,100,.3);

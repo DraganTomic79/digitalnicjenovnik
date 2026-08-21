@@ -154,16 +154,19 @@ class MenuApp {
       tree = this.state.allMainCategories.map(glavna => {
         const kategorije = this.getSubcategoriesForMain(glavna.id);
         if (kategorije.length === 0) return null;
+        const glavnaPromo = this.isPromotion(glavna);
         return {
           id: glavna.id, naziv: glavna.naziv, ikona: glavna.ikona, isTop: true,
           children: kategorije.map(kat => {
             const podkategorije = this.getSubcategoriesForCategory(kat.id);
+            const katPromo = glavnaPromo || this.isPromotion(kat);
             return {
               id: kat.id, naziv: kat.naziv, ikona: kat.ikonaKategorije || kat.ikona,
-              alcoholic: this.isAlcoholicCategory(kat),
+              alcoholic: this.isAlcoholicCategory(kat), promo: katPromo,
               children: podkategorije.map(pod => ({
                 id: pod.id, naziv: pod.naziv, ikona: pod.ikonaKategorije || pod.ikona,
                 alcoholic: this.isAlcoholicSubcategory(pod) && !this.isAlcoholicCategory(kat),
+                promo: katPromo || this.isPromotion(pod),
                 leaf: true, itemsOf: pod.naziv
               }))
             };
@@ -175,13 +178,13 @@ class MenuApp {
       if (podkategorijeSSadrzajem.length > 0) {
         tree = podkategorijeSSadrzajem.map(pod => ({
           id: pod.id, naziv: pod.naziv, ikona: pod.ikonaKategorije || pod.ikona,
-          alcoholic: this.isAlcoholicSubcategory(pod), leaf: true, itemsOf: pod.naziv
+          alcoholic: this.isAlcoholicSubcategory(pod), promo: this.isPromotion(pod), leaf: true, itemsOf: pod.naziv
         }));
       } else {
         const kategorijeSSadrzajem = this.state.allCategories.filter(k => this.getItemsForSubcategory(k.naziv).length > 0);
         tree = kategorijeSSadrzajem.map(kat => ({
           id: kat.id, naziv: kat.naziv, ikona: kat.ikonaKategorije || kat.ikona,
-          alcoholic: this.isAlcoholicCategory(kat), leaf: true, itemsOf: kat.naziv
+          alcoholic: this.isAlcoholicCategory(kat), promo: this.isPromotion(kat), leaf: true, itemsOf: kat.naziv
         }));
       }
     }
@@ -223,18 +226,19 @@ class MenuApp {
       : `<i class="fas ${(ikonaVal && ikonaVal.startsWith('fa-')) ? ikonaVal : (node.isTop ? 'fa-layer-group' : (node.leaf ? 'fa-tag' : 'fa-folder'))}"></i>`;
     const name = this.translationManager ? this.translationManager.translateCategory(node.naziv) : node.naziv;
     const age = node.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
+    const star = node.promo ? '<span class="promo-star">⭐</span>' : '';
     const countBadge = `<span class="item-count">${node.count || 0}</span>`;
 
     if (node.leaf) {
       return `<button class="side-item leaf" data-node-id="${node.id}" onclick="window.menuApp.selectSidebarLeaf('${node.id}', this)">
-        <span class="side-left">${icon}<span class="side-label">${name}${age}</span></span>
+        <span class="side-left">${icon}<span class="side-label">${name}</span>${star}${age}</span>
         ${countBadge}
       </button>`;
     }
     const childrenHTML = (node.children || []).map(c => this.renderSidebarNode(c)).join('');
     return `<div class="side-group" data-group="${node.id}">
       <button class="side-item parent" onclick="window.menuApp.toggleSidebarGroup('${node.id}', this)">
-        <span class="side-left">${icon}<span class="side-label">${name}${age}</span></span>
+        <span class="side-left">${icon}<span class="side-label">${name}</span>${star}${age}</span>
         ${countBadge}
         <i class="fas fa-chevron-down side-arrow"></i>
       </button>
