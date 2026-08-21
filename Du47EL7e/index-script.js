@@ -160,14 +160,15 @@ class MenuApp {
           children: kategorije.map(kat => {
             const podkategorije = this.getSubcategoriesForCategory(kat.id);
             const katPromo = glavnaPromo || this.isPromotion(kat);
+            const katAlcoholic = this.isAlcoholicCategory(kat);
             return {
               id: kat.id, naziv: kat.naziv, ikona: kat.ikonaKategorije || kat.ikona,
-              alcoholic: this.isAlcoholicCategory(kat), promo: katPromo,
+              alcoholic: katAlcoholic, promo: katPromo,
               children: podkategorije.map(pod => ({
                 id: pod.id, naziv: pod.naziv, ikona: pod.ikonaKategorije || pod.ikona,
-                alcoholic: this.isAlcoholicSubcategory(pod) && !this.isAlcoholicCategory(kat),
+                alcoholic: katAlcoholic || this.isAlcoholicSubcategory(pod),
                 promo: katPromo || this.isPromotion(pod),
-                leaf: true, itemsOf: pod.naziv
+                leaf: true, itemsOf: pod.naziv, parentNaziv: kat.naziv
               }))
             };
           })
@@ -176,10 +177,15 @@ class MenuApp {
     } else {
       const podkategorijeSSadrzajem = this.state.allSubcategories.filter(p => this.getItemsForSubcategory(p.naziv).length > 0);
       if (podkategorijeSSadrzajem.length > 0) {
-        tree = podkategorijeSSadrzajem.map(pod => ({
-          id: pod.id, naziv: pod.naziv, ikona: pod.ikonaKategorije || pod.ikona,
-          alcoholic: this.isAlcoholicSubcategory(pod), promo: this.isPromotion(pod), leaf: true, itemsOf: pod.naziv
-        }));
+        tree = podkategorijeSSadrzajem.map(pod => {
+          const roditelj = this.state.allCategories.find(k => k.id === pod.kategorijaId || k.naziv === pod.kategorija);
+          return {
+            id: pod.id, naziv: pod.naziv, ikona: pod.ikonaKategorije || pod.ikona,
+            alcoholic: this.isAlcoholicSubcategory(pod) || (roditelj && this.isAlcoholicCategory(roditelj)),
+            promo: this.isPromotion(pod) || (roditelj && this.isPromotion(roditelj)),
+            leaf: true, itemsOf: pod.naziv, parentNaziv: roditelj ? roditelj.naziv : null
+          };
+        });
       } else {
         const kategorijeSSadrzajem = this.state.allCategories.filter(k => this.getItemsForSubcategory(k.naziv).length > 0);
         tree = kategorijeSSadrzajem.map(kat => ({
@@ -295,7 +301,7 @@ class MenuApp {
       (nodes || []).forEach(n => {
         if (n.leaf) {
           const items = this.getItemsForSubcategory(n.itemsOf);
-          if (items.length > 0) sections.push({ naziv: n.naziv, items, alcoholic: n.alcoholic, promo: n.promo });
+          if (items.length > 0) sections.push({ naziv: n.naziv, parentNaziv: n.parentNaziv, items, alcoholic: n.alcoholic, promo: n.promo });
         } else if (n.children) {
           collect(n.children);
         }
@@ -307,11 +313,11 @@ class MenuApp {
       return;
     }
     container.innerHTML = sections.map(s => {
-      const name = this.translationManager ? this.translationManager.translateCategory(s.naziv) : s.naziv;
+      const name = this.buildSectionTitle(s.naziv, s.parentNaziv);
       const age = s.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
       const star = s.promo ? '<span class="promo-star">⭐</span>' : '';
       const wrapClass = s.promo ? ' promo-frame' : (s.alcoholic ? ' alcohol-frame' : '');
-      return `<div class="grid-section${wrapClass}"><h2 class="grid-title">${star}${this.sanitizeHtml(name)}${age}</h2><div class="items-grid">${this.createItemsHTML(s.items)}</div></div>`;
+      return `<div class="grid-section${wrapClass}"><h2 class="grid-title">${star}${name}${age}</h2><div class="items-grid">${this.createItemsHTML(s.items)}</div></div>`;
     }).join('');
   }
 
@@ -324,11 +330,20 @@ class MenuApp {
     return null;
   }
 
+  /* Gradi naziv sekcije u formatu "Kategorija – Podkategorija" (kao u katalogu),
+     ako postoji roditeljska kategorija; inače samo sopstveni naziv */
+  buildSectionTitle(naziv, parentNaziv) {
+    const ownName = this.translationManager ? this.translationManager.translateCategory(naziv) : naziv;
+    if (!parentNaziv || parentNaziv === naziv) return this.sanitizeHtml(ownName);
+    const parentName = this.translationManager ? this.translationManager.translateCategory(parentNaziv) : parentNaziv;
+    return `${this.sanitizeHtml(parentName)} – ${this.sanitizeHtml(ownName)}`;
+  }
+
   /* Popunjava desni dio (mrežu kartica) za izabranu kategoriju */
   renderContentGrid(node, items) {
     const container = this.elements.tabContent;
     if (!container) return;
-    const name = this.translationManager ? this.translationManager.translateCategory(node.naziv) : node.naziv;
+    const name = this.buildSectionTitle(node.naziv, node.parentNaziv);
     if (!items || items.length === 0) {
       container.innerHTML = this.createEmptyState('No items in this category');
       return;
@@ -336,7 +351,7 @@ class MenuApp {
     const age = node.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
     const star = node.promo ? '<span class="promo-star">⭐</span>' : '';
     const wrapClass = node.promo ? ' promo-frame' : (node.alcoholic ? ' alcohol-frame' : '');
-    container.innerHTML = `<div class="grid-section${wrapClass}"><h2 class="grid-title">${star}${this.sanitizeHtml(name)}${age}</h2><div class="items-grid">${this.createItemsHTML(items)}</div></div>`;
+    container.innerHTML = `<div class="grid-section${wrapClass}"><h2 class="grid-title">${star}${name}${age}</h2><div class="items-grid">${this.createItemsHTML(items)}</div></div>`;
   }
 
   /* Kreira hijerarhijski prikaz kada postoje glavne kategorije (STARO — više se ne poziva iz createMainTabs, ostavljeno kao rezerva) */
