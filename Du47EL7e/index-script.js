@@ -235,10 +235,13 @@ class MenuApp {
         ${countBadge}
       </button>`;
     }
+    // Grupe (glavna/kategorija) koje su promocija dobijaju puno zlatno isticanje —
+    // zvjezdica u traci iznad, cijelo dugme zlatno (kao stara harmonika)
+    const groupPromoClass = node.promo ? ' promo' : '';
     const childrenHTML = (node.children || []).map(c => this.renderSidebarNode(c)).join('');
-    return `<div class="side-group" data-group="${node.id}">
-      <button class="side-item parent" onclick="window.menuApp.toggleSidebarGroup('${node.id}', this)">
-        <span class="side-left">${icon}<span class="side-label">${name}</span>${star}${age}</span>
+    return `<div class="side-group${groupPromoClass}" data-group="${node.id}">
+      <button class="side-item parent${groupPromoClass}" onclick="window.menuApp.toggleSidebarGroup('${node.id}', this)">
+        <span class="side-left">${icon}<span class="side-label">${name}</span>${age}</span>
         ${countBadge}
         <i class="fas fa-chevron-down side-arrow"></i>
       </button>
@@ -292,7 +295,7 @@ class MenuApp {
       (nodes || []).forEach(n => {
         if (n.leaf) {
           const items = this.getItemsForSubcategory(n.itemsOf);
-          if (items.length > 0) sections.push({ naziv: n.naziv, items });
+          if (items.length > 0) sections.push({ naziv: n.naziv, items, alcoholic: n.alcoholic, promo: n.promo });
         } else if (n.children) {
           collect(n.children);
         }
@@ -305,7 +308,9 @@ class MenuApp {
     }
     container.innerHTML = sections.map(s => {
       const name = this.translationManager ? this.translationManager.translateCategory(s.naziv) : s.naziv;
-      return `<h2 class="grid-title">${this.sanitizeHtml(name)}</h2><div class="items-grid">${this.createItemsHTML(s.items)}</div>`;
+      const age = s.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
+      const star = s.promo ? '<span class="promo-star">⭐</span>' : '';
+      return `<h2 class="grid-title">${star}${this.sanitizeHtml(name)}${age}</h2><div class="items-grid">${this.createItemsHTML(s.items)}</div>`;
     }).join('');
   }
 
@@ -327,7 +332,9 @@ class MenuApp {
       container.innerHTML = this.createEmptyState('No items in this category');
       return;
     }
-    container.innerHTML = `<h2 class="grid-title">${this.sanitizeHtml(name)}</h2><div class="items-grid">${this.createItemsHTML(items)}</div>`;
+    const age = node.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
+    const star = node.promo ? '<span class="promo-star">⭐</span>' : '';
+    container.innerHTML = `<h2 class="grid-title">${star}${this.sanitizeHtml(name)}${age}</h2><div class="items-grid">${this.createItemsHTML(items)}</div>`;
   }
 
   /* Kreira hijerarhijski prikaz kada postoje glavne kategorije (STARO — više se ne poziva iz createMainTabs, ostavljeno kao rezerva) */
