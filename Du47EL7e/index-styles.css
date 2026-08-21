@@ -1660,7 +1660,8 @@ html, body { height: auto; }
 #sidebarBackdrop { display: none; }
 
 @media (max-width: 900px) {
-  .app-shell { flex-direction: column; }
+  .app-shell { flex-direction: column; align-items: stretch; }
+  .main-area { width: 100%; }
 
   .hamburger {
     display: flex; align-items: center; justify-content: center;
