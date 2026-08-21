@@ -1638,7 +1638,6 @@ html, body { height: auto; }
   background: rgba(198,166,100,.14); color: var(--gold-accent); border: 1px solid rgba(198,166,100,.3);
   box-shadow: none; margin: 0;
 }
-.side-item.leaf.active .item-count { background: rgba(26,26,26,.18); color: #1a1a1a; border-color: rgba(26,26,26,.25); }
 
 /* Promocijska GRUPA (npr. "Specijalna ponuda") — puno zlatno isticanje,
    traka sa zvjezdicama iznad, isto kao stara harmonika */
@@ -1675,11 +1674,24 @@ html, body { height: auto; }
 .side-children .side-item { padding-left: 34px; font-size: .82rem; font-weight: 600; }
 .side-children .side-children .side-item { padding-left: 50px; font-size: .78rem; font-weight: 500; color: var(--text-muted); }
 
-/* Aktivan (izabran) list — konkretna kategorija čiji se artikli prikazuju */
+/* Aktivan (izabran) list — konkretna kategorija čiji se artikli prikazuju.
+   Namjerno DRUGAČIJI izgled od trajno-zlatne "Specijalna ponuda" grupe
+   (zlatna lijeva traka + blaga pozadina, ne puna zlatna ispuna) — da se
+   nikad ne pomiješaju/izgledaju kao ista stvar. */
 .side-item.leaf.active {
-  background: var(--primary-gradient); color: #1a1a1a; font-weight: 700;
+  background: rgba(198,166,100,.16); color: var(--gold-accent); font-weight: 700;
+  border-left: 3px solid var(--gold-accent);
 }
-.side-item.leaf.active i { color: #1a1a1a; }
+.side-item.leaf.active i { color: var(--gold-accent); }
+.side-item.leaf.active .item-count { background: rgba(198,166,100,.22); color: var(--gold-accent); border-color: rgba(198,166,100,.4); }
+
+/* Aktivna "Svi artikli" — jedini list koji SMIJE koristiti puno zlatno,
+   pošto nema promo grupu sa kojom bi se pomiješala */
+.side-item.leaf.all-items.active {
+  background: var(--primary-gradient); color: #1a1a1a; border-left: none;
+}
+.side-item.leaf.all-items.active i { color: #1a1a1a; }
+.side-item.leaf.all-items.active .item-count { background: rgba(26,26,26,.18); color: #1a1a1a; border-color: rgba(26,26,26,.25); }
 
 /* "Svi artikli" — izdvojeno na vrhu menija */
 .side-item.all-items {
@@ -1723,13 +1735,25 @@ html, body { height: auto; }
 /* ── MREŽA KARTICA (novi izgled artikala) ── */
 .main-area { flex: 1; min-width: 0; }
 .content-grid { padding: var(--spacing-lg) clamp(14px, 3vw, 34px) 60px; }
+.grid-section { margin-bottom: var(--spacing-sm); }
+/* Okvir oko cijele sekcije — zlatni za "Specijalnu ponudu", crveni za alkoholna pića,
+   tako da se vidi na prvi pogled koji artikli spadaju u tu grupu */
+.grid-section.promo-frame {
+  border: 2px solid var(--gold-accent); border-radius: var(--border-radius-large);
+  padding: 16px 14px; box-shadow: var(--promocija-shadow); margin-top: var(--spacing-md);
+}
+.grid-section.alcohol-frame {
+  border: 2px solid #dc2626; border-radius: var(--border-radius-large);
+  padding: 16px 14px; box-shadow: 0 8px 25px rgba(220,38,38,.15); margin-top: var(--spacing-md);
+}
 .grid-title {
   font-family: 'Playfair Display', serif; font-weight: 800; color: var(--gold-accent);
   font-size: clamp(1.2rem, 3vw, 1.6rem); letter-spacing: .3px; margin: var(--spacing-md) 0 var(--spacing-sm);
   padding-bottom: 6px; border-bottom: 1px solid var(--glass-border); text-align: center;
 }
 .grid-title .age-restrictor, .grid-title .promo-star { vertical-align: middle; margin: 0 6px; }
-.content-grid > .grid-title:first-child { margin-top: 0; }
+.content-grid > .grid-section:first-child > .grid-title { margin-top: 0; }
+.grid-section.promo-frame .grid-title, .grid-section.alcohol-frame .grid-title { margin-top: 0; }
 .items-grid {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 168px));
   justify-content: center;

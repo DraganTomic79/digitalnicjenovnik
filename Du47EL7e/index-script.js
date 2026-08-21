@@ -310,7 +310,8 @@ class MenuApp {
       const name = this.translationManager ? this.translationManager.translateCategory(s.naziv) : s.naziv;
       const age = s.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
       const star = s.promo ? '<span class="promo-star">⭐</span>' : '';
-      return `<h2 class="grid-title">${star}${this.sanitizeHtml(name)}${age}</h2><div class="items-grid">${this.createItemsHTML(s.items)}</div>`;
+      const wrapClass = s.promo ? ' promo-frame' : (s.alcoholic ? ' alcohol-frame' : '');
+      return `<div class="grid-section${wrapClass}"><h2 class="grid-title">${star}${this.sanitizeHtml(name)}${age}</h2><div class="items-grid">${this.createItemsHTML(s.items)}</div></div>`;
     }).join('');
   }
 
@@ -334,7 +335,8 @@ class MenuApp {
     }
     const age = node.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
     const star = node.promo ? '<span class="promo-star">⭐</span>' : '';
-    container.innerHTML = `<h2 class="grid-title">${star}${this.sanitizeHtml(name)}${age}</h2><div class="items-grid">${this.createItemsHTML(items)}</div>`;
+    const wrapClass = node.promo ? ' promo-frame' : (node.alcoholic ? ' alcohol-frame' : '');
+    container.innerHTML = `<div class="grid-section${wrapClass}"><h2 class="grid-title">${star}${this.sanitizeHtml(name)}${age}</h2><div class="items-grid">${this.createItemsHTML(items)}</div></div>`;
   }
 
   /* Kreira hijerarhijski prikaz kada postoje glavne kategorije (STARO — više se ne poziva iz createMainTabs, ostavljeno kao rezerva) */
