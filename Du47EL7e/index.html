@@ -4,6 +4,15 @@
   <meta charset="UTF-8" />
   <title>Kafic4</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Kritičan CSS — sprječava "skok" sadržaja pri učitavanju stranice: hamburger i
+       jezička ikona su odmah ispravno fiksirani u uglovima, bez čekanja na spoljni CSS fajl -->
+  <style>
+    .hamburger, .language-switcher { position: fixed !important; top: 15px !important; z-index: 1000 !important; }
+    .hamburger { left: 15px !important; display: none; }
+    .language-switcher { right: 15px !important; }
+    @media (max-width: 900px) { .hamburger { display: flex !important; } }
+  </style>
   
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-EDDYKYZG4J"></script>
@@ -16,7 +25,7 @@
   
   <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="index-styles.css?v=20260820d" />
+  <link rel="stylesheet" href="index-styles.css?v=20260821" />
 </head>
 <body>
   <div id="sidebarBackdrop"></div>
@@ -163,7 +172,7 @@
   </script>
 
   <!-- Translation Manager MORA biti prije index-script.js -->
-  <script src="index-translation-manager.js?v=20260820d"></script>
-  <script type="module" src="index-script.js?v=20260820d"></script>
+  <script src="index-translation-manager.js?v=20260821"></script>
+  <script type="module" src="index-script.js?v=20260821"></script>
 </body>
 </html>

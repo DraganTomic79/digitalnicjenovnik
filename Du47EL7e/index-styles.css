@@ -1681,7 +1681,7 @@ html, body { height: auto; }
   }
 
   /* Dvije kartice u red na mobilnom */
-  .items-grid { grid-template-columns: repeat(2, 1fr) !important; gap: var(--spacing-sm) !important; }
+  .items-grid { grid-template-columns: repeat(auto-fit, minmax(135px, 155px)) !important; justify-content: center; gap: var(--spacing-sm) !important; }
   .items-grid .item-name { font-size: .72rem !important; }
   .items-grid .item-description, .items-grid .item-description2 { font-size: .6rem !important; }
   .items-grid .item-price { font-size: .74rem !important; }
@@ -1697,18 +1697,12 @@ html, body { height: auto; }
 }
 .content-grid > .grid-title:first-child { margin-top: 0; }
 .items-grid {
-  display: grid; grid-template-columns: repeat(2, 1fr);
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 168px));
+  justify-content: center;
   gap: var(--spacing-md);
 }
-@media (min-width: 620px) { .items-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 1000px) { .items-grid { grid-template-columns: repeat(4, 1fr); } }
-
-/* Kad je samo JEDAN artikal u kategoriji — neka zauzme cijeli red umjesto da
-   ostane sam u prvoj koloni sa praznim prostorom pored sebe */
-.items-grid:has(> .item-card:only-child) {
-  grid-template-columns: minmax(0, 340px) !important;
-  justify-content: center;
-}
+@media (min-width: 620px) { .items-grid { grid-template-columns: repeat(auto-fit, minmax(155px, 195px)); } }
+@media (min-width: 1000px) { .items-grid { grid-template-columns: repeat(auto-fit, minmax(165px, 215px)); } }
 
 .items-grid .item-card {
   display: flex !important; flex-direction: column !important; align-items: stretch !important;
@@ -1743,7 +1737,7 @@ html, body { height: auto; }
   .content-grid { padding-top: 8px !important; }
 
   /* Na položenom telefonu ima dovoljno širine za 3 kartice u red umjesto 2 */
-  .items-grid { grid-template-columns: repeat(3, 1fr) !important; }
+  .items-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 165px)) !important; justify-content: center; }
   .items-grid .item-image-wrapper, .items-grid .item-image, .items-grid .item-placeholder {
     height: 80px !important;
   }
