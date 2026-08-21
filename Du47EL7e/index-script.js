@@ -164,12 +164,16 @@ class MenuApp {
             return {
               id: kat.id, naziv: kat.naziv, ikona: kat.ikonaKategorije || kat.ikona,
               alcoholic: katAlcoholic, promo: katPromo,
-              children: podkategorije.map(pod => ({
-                id: pod.id, naziv: pod.naziv, ikona: pod.ikonaKategorije || pod.ikona,
-                alcoholic: katAlcoholic || this.isAlcoholicSubcategory(pod),
-                promo: katPromo || this.isPromotion(pod),
-                leaf: true, itemsOf: pod.naziv, parentNaziv: kat.naziv
-              }))
+              children: podkategorije.map(pod => {
+                const pAlc = katAlcoholic || this.isAlcoholicSubcategory(pod);
+                const pPromo = katPromo || this.isPromotion(pod);
+                return {
+                  id: pod.id, naziv: pod.naziv, ikona: pod.ikonaKategorije || pod.ikona,
+                  alcoholic: pAlc, promo: pPromo,
+                  alcKey: pAlc ? 'k' + kat.id : null, promoKey: pPromo ? 'k' + kat.id : null,
+                  leaf: true, itemsOf: pod.naziv, parentNaziv: kat.naziv
+                };
+              })
             };
           })
         };
@@ -179,10 +183,13 @@ class MenuApp {
       if (podkategorijeSSadrzajem.length > 0) {
         tree = podkategorijeSSadrzajem.map(pod => {
           const roditelj = this.state.allCategories.find(k => k.id === pod.kategorijaId || k.naziv === pod.kategorija);
+          const pAlc = this.isAlcoholicSubcategory(pod) || (roditelj && this.isAlcoholicCategory(roditelj));
+          const pPromo = this.isPromotion(pod) || (roditelj && this.isPromotion(roditelj));
           return {
             id: pod.id, naziv: pod.naziv, ikona: pod.ikonaKategorije || pod.ikona,
-            alcoholic: this.isAlcoholicSubcategory(pod) || (roditelj && this.isAlcoholicCategory(roditelj)),
-            promo: this.isPromotion(pod) || (roditelj && this.isPromotion(roditelj)),
+            alcoholic: pAlc, promo: pPromo,
+            alcKey: pAlc ? (roditelj ? 'k' + roditelj.id : 'p' + pod.id) : null,
+            promoKey: pPromo ? (roditelj ? 'k' + roditelj.id : 'p' + pod.id) : null,
             leaf: true, itemsOf: pod.naziv, parentNaziv: roditelj ? roditelj.naziv : null
           };
         });
@@ -231,18 +238,19 @@ class MenuApp {
       ? `<img src="${ikonaVal}" class="side-icon" alt="">`
       : `<i class="fas ${(ikonaVal && ikonaVal.startsWith('fa-')) ? ikonaVal : (node.isTop ? 'fa-layer-group' : (node.leaf ? 'fa-tag' : 'fa-folder'))}"></i>`;
     const name = this.translationManager ? this.translationManager.translateCategory(node.naziv) : node.naziv;
-    const age = node.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
-    const star = node.promo ? '<span class="promo-star">⭐</span>' : '';
     const countBadge = `<span class="item-count">${node.count || 0}</span>`;
 
     if (node.leaf) {
+      // Oznake (18+/zvjezdica) se NE ponavljaju na svakoj podkategoriji —
+      // već se prikazuju samo jednom, na roditeljskoj grupi (npr. "Alkoholna pića")
       return `<button class="side-item leaf" data-node-id="${node.id}" onclick="window.menuApp.selectSidebarLeaf('${node.id}', this)">
-        <span class="side-left">${icon}<span class="side-label">${name}</span>${star}${age}</span>
+        <span class="side-left">${icon}<span class="side-label">${name}</span></span>
         ${countBadge}
       </button>`;
     }
     // Grupe (glavna/kategorija) koje su promocija dobijaju puno zlatno isticanje —
     // zvjezdica u traci iznad, cijelo dugme zlatno (kao stara harmonika)
+    const age = node.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
     const groupPromoClass = node.promo ? ' promo' : '';
     const childrenHTML = (node.children || []).map(c => this.renderSidebarNode(c)).join('');
     return `<div class="side-group${groupPromoClass}" data-group="${node.id}">
@@ -301,7 +309,7 @@ class MenuApp {
       (nodes || []).forEach(n => {
         if (n.leaf) {
           const items = this.getItemsForSubcategory(n.itemsOf);
-          if (items.length > 0) sections.push({ naziv: n.naziv, parentNaziv: n.parentNaziv, items, alcoholic: n.alcoholic, promo: n.promo });
+          if (items.length > 0) sections.push({ naziv: n.naziv, parentNaziv: n.parentNaziv, items, alcoholic: n.alcoholic, promo: n.promo, alcKey: n.alcKey, promoKey: n.promoKey });
         } else if (n.children) {
           collect(n.children);
         }
@@ -312,10 +320,19 @@ class MenuApp {
       container.innerHTML = this.createEmptyState('No items in this category');
       return;
     }
+    // Oznaka (18+/zvjezdica) se prikazuje SAMO na prvoj sekciji svake grupe —
+    // ne ponavlja se na svakoj podkategoriji iste kategorije (obrub ostaje na svima)
+    const seenAlc = new Set(), seenPromo = new Set();
+    sections.forEach(s => {
+      s.showAge = s.alcoholic && s.alcKey && !seenAlc.has(s.alcKey);
+      if (s.alcoholic && s.alcKey) seenAlc.add(s.alcKey);
+      s.showStar = s.promo && s.promoKey && !seenPromo.has(s.promoKey);
+      if (s.promo && s.promoKey) seenPromo.add(s.promoKey);
+    });
     container.innerHTML = sections.map(s => {
       const name = this.buildSectionTitle(s.naziv, s.parentNaziv);
-      const age = s.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
-      const star = s.promo ? '<span class="promo-star">⭐</span>' : '';
+      const age = s.showAge ? '<span class="age-restrictor">18+</span>' : '';
+      const star = s.showStar ? '<span class="promo-star">⭐</span>' : '';
       const wrapClass = s.promo ? ' promo-frame' : (s.alcoholic ? ' alcohol-frame' : '');
       return `<div class="grid-section${wrapClass}"><h2 class="grid-title">${star}${name}${age}</h2><div class="items-grid">${this.createItemsHTML(s.items)}</div></div>`;
     }).join('');

@@ -292,16 +292,24 @@ function buildBlocks(gk,kat,pod,items){
           for(const p of pods){
             const its=getI(p.naziv);if(!its.length)continue;
             if(!added){B.push({type:'main',label:g.naziv});added=true;}
-            B.push({type:'sub',label:`${k.naziv} – ${p.naziv}`,items:its,alcoholic:kAlc||isAlcoholicName(p.naziv),promo:kPromo||isPromoName(p.naziv)});
+            const pAlc=kAlc||isAlcoholicName(p.naziv), pPromo=kPromo||isPromoName(p.naziv);
+            B.push({type:'sub',label:`${k.naziv} – ${p.naziv}`,items:its,alcoholic:pAlc,promo:pPromo,
+              alcKey:pAlc?'k'+k.id:null, promoKey:pPromo?'k'+k.id:null});
           }
         }else{
           const its=getI(k.naziv);if(!its.length)continue;
           if(!added){B.push({type:'main',label:g.naziv});added=true;}
-          B.push({type:'sub',label:k.naziv,items:its,alcoholic:kAlc,promo:kPromo});
+          B.push({type:'sub',label:k.naziv,items:its,alcoholic:kAlc,promo:kPromo,
+            alcKey:kAlc?'k'+k.id:null, promoKey:kPromo?'k'+k.id:null});
         }
       }
       const di=getI(g.naziv);
-      if(di.length){if(!added){B.push({type:'main',label:g.naziv});added=true;}B.push({type:'sub',label:g.naziv,items:di,alcoholic:isAlcoholicName(g.naziv),promo:gPromo});}
+      if(di.length){
+        const gAlc=isAlcoholicName(g.naziv);
+        if(!added){B.push({type:'main',label:g.naziv});added=true;}
+        B.push({type:'sub',label:g.naziv,items:di,alcoholic:gAlc,promo:gPromo,
+          alcKey:gAlc?'g'+g.id:null, promoKey:gPromo?'g'+g.id:null});
+      }
     }
   }else if(kat.length){
     for(const k of srt(kat)){
@@ -311,12 +319,27 @@ function buildBlocks(gk,kat,pod,items){
       for(const p of srt(pod.filter(p=>p.kategorijaId===k.id))){
         const its=getI(p.naziv);if(!its.length)continue;
         if(!added){B.push({type:'main',label:k.naziv});added=true;}
-        B.push({type:'sub',label:p.naziv,items:its,alcoholic:kAlc||isAlcoholicName(p.naziv),promo:kPromo||isPromoName(p.naziv)});
+        const pAlc=kAlc||isAlcoholicName(p.naziv), pPromo=kPromo||isPromoName(p.naziv);
+        B.push({type:'sub',label:p.naziv,items:its,alcoholic:pAlc,promo:pPromo,
+          alcKey:pAlc?'k'+k.id:null, promoKey:pPromo?'k'+k.id:null});
       }
       const di=getI(k.naziv);
-      if(di.length){if(!added)B.push({type:'main',label:k.naziv});B.push({type:'sub',label:k.naziv,items:di,alcoholic:kAlc,promo:kPromo});}
+      if(di.length){
+        if(!added)B.push({type:'main',label:k.naziv});
+        B.push({type:'sub',label:k.naziv,items:di,alcoholic:kAlc,promo:kPromo,
+          alcKey:kAlc?'k'+k.id:null, promoKey:kPromo?'k'+k.id:null});
+      }
     }
   }else if(active.length){B.push({type:'main',label:'Ponuda'});B.push({type:'sub',label:'Svi artikli',items:active});}
+
+  // Oznaka (18+/zvjezdica) se prikazuje SAMO na prvoj sekciji svake grupe —
+  // ne ponavlja se na svakoj podkategoriji iste kategorije
+  const seenAlc=new Set(), seenPromo=new Set();
+  for(const b of B){
+    if(b.type!=='sub') continue;
+    if(b.alcoholic){ if(seenAlc.has(b.alcKey)) b.alcoholic=false; else seenAlc.add(b.alcKey); }
+    if(b.promo){ if(seenPromo.has(b.promoKey)) b.promo=false; else seenPromo.add(b.promoKey); }
+  }
   return B;
 }
 
@@ -365,7 +388,7 @@ function packPages(blocks){
 
       const chunk=rem.splice(0,take);
       page.usedH+=gap()+subPx(take);
-      page.subs.push({label:first?b.label:`${b.label} (nastavak)`,items:chunk});
+      page.subs.push({label:first?b.label:`${b.label} (nastavak)`,items:chunk,alcoholic:b.alcoholic,promo:b.promo});
       first=false;
       if(rem.length>0)newPage();
     }
