@@ -331,15 +331,6 @@ function buildBlocks(gk,kat,pod,items){
       }
     }
   }else if(active.length){B.push({type:'main',label:'Ponuda'});B.push({type:'sub',label:'Svi artikli',items:active});}
-
-  // Oznaka (18+/zvjezdica) se prikazuje SAMO na prvoj sekciji svake grupe —
-  // ne ponavlja se na svakoj podkategoriji iste kategorije
-  const seenAlc=new Set(), seenPromo=new Set();
-  for(const b of B){
-    if(b.type!=='sub') continue;
-    if(b.alcoholic){ if(seenAlc.has(b.alcKey)) b.alcoholic=false; else seenAlc.add(b.alcKey); }
-    if(b.promo){ if(seenPromo.has(b.promoKey)) b.promo=false; else seenPromo.add(b.promoKey); }
-  }
   return B;
 }
 

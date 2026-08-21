@@ -241,10 +241,9 @@ class MenuApp {
     const countBadge = `<span class="item-count">${node.count || 0}</span>`;
 
     if (node.leaf) {
-      // Oznake (18+/zvjezdica) se NE ponavljaju na svakoj podkategoriji —
-      // već se prikazuju samo jednom, na roditeljskoj grupi (npr. "Alkoholna pića")
+      const age = node.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
       return `<button class="side-item leaf" data-node-id="${node.id}" onclick="window.menuApp.selectSidebarLeaf('${node.id}', this)">
-        <span class="side-left">${icon}<span class="side-label">${name}</span></span>
+        <span class="side-left">${icon}<span class="side-label">${name}</span>${age}</span>
         ${countBadge}
       </button>`;
     }
@@ -309,7 +308,7 @@ class MenuApp {
       (nodes || []).forEach(n => {
         if (n.leaf) {
           const items = this.getItemsForSubcategory(n.itemsOf);
-          if (items.length > 0) sections.push({ naziv: n.naziv, parentNaziv: n.parentNaziv, items, alcoholic: n.alcoholic, promo: n.promo, alcKey: n.alcKey, promoKey: n.promoKey });
+          if (items.length > 0) sections.push({ naziv: n.naziv, parentNaziv: n.parentNaziv, items, alcoholic: n.alcoholic, promo: n.promo });
         } else if (n.children) {
           collect(n.children);
         }
@@ -320,18 +319,9 @@ class MenuApp {
       container.innerHTML = this.createEmptyState('No items in this category');
       return;
     }
-    // Oznaka (18+/zvjezdica) se prikazuje SAMO na prvoj sekciji svake grupe —
-    // ne ponavlja se na svakoj podkategoriji iste kategorije (obrub ostaje na svima)
-    const seenAlc = new Set(), seenPromo = new Set();
-    sections.forEach(s => {
-      s.showAge = s.alcoholic && s.alcKey && !seenAlc.has(s.alcKey);
-      if (s.alcoholic && s.alcKey) seenAlc.add(s.alcKey);
-      s.showStar = s.promo && s.promoKey && !seenPromo.has(s.promoKey);
-      if (s.promo && s.promoKey) seenPromo.add(s.promoKey);
-    });
     container.innerHTML = sections.map(s => {
-      const age = s.showAge ? '<span class="age-restrictor">18+</span>' : '';
-      const star = s.showStar ? '<span class="promo-star">⭐</span>' : '';
+      const age = s.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
+      const star = s.promo ? '<span class="promo-star">⭐</span>' : '';
       const name = this.buildSectionTitle(s.naziv, s.parentNaziv, age, star);
       const wrapClass = s.promo ? ' promo-frame' : (s.alcoholic ? ' alcohol-frame' : '');
       return `<div class="grid-section${wrapClass}"><h2 class="grid-title">${name}</h2><div class="items-grid">${this.createItemsHTML(s.items)}</div></div>`;
