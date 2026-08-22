@@ -183,19 +183,6 @@ const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 const srt=a=>[...a].sort((x,y)=>(x.sortOrder||999)-(y.sortOrder||999));
 
 /* ── BUILD BLOCKS (ista logika kao katalog.html) ── */
-/* Prepoznavanje alkoholnih i promotivnih kategorija po nazivu (isto kao na glavnoj stranici) */
-function isAlcoholicName(naziv){
-  if(!naziv) return false;
-  const n=naziv.toLowerCase();
-  if(n.includes('bez')||n.includes('non')||n.includes('zero')||n.includes('0%')) return false;
-  return n.includes('alkohol')&&!n.includes('bezalkohol') || n==='alkoholna pića' || n==='alkoholna pica' || n.includes('vina') || n.includes('cigarete') || (n.includes('piva')&&!n.includes('bezalkohol')) || n.includes('žestok') || n.includes('žestoka') || n.includes('žestice') || n.includes('rakije') || n.includes('whiskey') || n.includes('vodka') || n.includes('rum') || n.includes('gin') || n.includes('brandy') || n.includes('konjak') || n.includes('cocktail') || n.includes('koktel') || n.includes('vinjak') || n.includes('tequila') || n.includes('likeri-aperitivi');
-}
-function isPromoName(naziv){
-  if(!naziv) return false;
-  const n=naziv.toLowerCase();
-  return n.includes('promocija')||n.includes('promo')||n.includes('special')||n.includes('offer')||n.includes('akcija')||n.includes('specijalna ponuda');
-}
-
 function buildBlocks(gk,kat,pod,items){
   const active=items.filter(i=>i.aktivna!==false);
   const getI=name=>srt(active.filter(i=>i.podkategorija===name||i.kategorija===name));
@@ -203,51 +190,45 @@ function buildBlocks(gk,kat,pod,items){
   if(gk.length){
     for(const g of srt(gk)){
       let added=false;
-      const gPromo=isPromoName(g.naziv);
+      const gPromo=!!g.specijalnaPonuda;
       for(const k of srt(kat.filter(k=>k.glavnaKategorijaId===g.id))){
-        const kPromo=gPromo||isPromoName(k.naziv);
-        const kAlc=isAlcoholicName(k.naziv);
+        const kPromo=gPromo||!!k.specijalnaPonuda;
+        const kAlc=!!k.sadrziAlkohol;
         const pods=srt(pod.filter(p=>p.kategorijaId===k.id));
         if(pods.length){
           for(const p of pods){
             const its=getI(p.naziv);if(!its.length)continue;
             if(!added){B.push({type:'main',label:g.naziv});added=true;}
-            const pAlc=kAlc||isAlcoholicName(p.naziv), pPromo=kPromo||isPromoName(p.naziv);
-            B.push({type:'sub',label:`${k.naziv} – ${p.naziv}`,items:its,alcoholic:pAlc,promo:pPromo,
-              alcKey:pAlc?'k'+k.id:null, promoKey:pPromo?'k'+k.id:null});
+            const pAlc=kAlc||!!p.sadrziAlkohol, pPromo=kPromo||!!p.specijalnaPonuda;
+            B.push({type:'sub',label:`${k.naziv} – ${p.naziv}`,items:its,alcoholic:pAlc,promo:pPromo});
           }
         }else{
           const its=getI(k.naziv);if(!its.length)continue;
           if(!added){B.push({type:'main',label:g.naziv});added=true;}
-          B.push({type:'sub',label:k.naziv,items:its,alcoholic:kAlc,promo:kPromo,
-            alcKey:kAlc?'k'+k.id:null, promoKey:kPromo?'k'+k.id:null});
+          B.push({type:'sub',label:k.naziv,items:its,alcoholic:kAlc,promo:kPromo});
         }
       }
       const di=getI(g.naziv);
       if(di.length){
-        const gAlc=isAlcoholicName(g.naziv);
         if(!added){B.push({type:'main',label:g.naziv});added=true;}
-        B.push({type:'sub',label:g.naziv,items:di,alcoholic:gAlc,promo:gPromo,
-          alcKey:gAlc?'g'+g.id:null, promoKey:gPromo?'g'+g.id:null});
+        B.push({type:'sub',label:g.naziv,items:di,alcoholic:!!g.sadrziAlkohol,promo:gPromo});
       }
     }
   }else if(kat.length){
     for(const k of srt(kat)){
       let added=false;
-      const kPromo=isPromoName(k.naziv);
-      const kAlc=isAlcoholicName(k.naziv);
+      const kPromo=!!k.specijalnaPonuda;
+      const kAlc=!!k.sadrziAlkohol;
       for(const p of srt(pod.filter(p=>p.kategorijaId===k.id))){
         const its=getI(p.naziv);if(!its.length)continue;
         if(!added){B.push({type:'main',label:k.naziv});added=true;}
-        const pAlc=kAlc||isAlcoholicName(p.naziv), pPromo=kPromo||isPromoName(p.naziv);
-        B.push({type:'sub',label:p.naziv,items:its,alcoholic:pAlc,promo:pPromo,
-          alcKey:pAlc?'k'+k.id:null, promoKey:pPromo?'k'+k.id:null});
+        const pAlc=kAlc||!!p.sadrziAlkohol, pPromo=kPromo||!!p.specijalnaPonuda;
+        B.push({type:'sub',label:p.naziv,items:its,alcoholic:pAlc,promo:pPromo});
       }
       const di=getI(k.naziv);
       if(di.length){
         if(!added)B.push({type:'main',label:k.naziv});
-        B.push({type:'sub',label:k.naziv,items:di,alcoholic:kAlc,promo:kPromo,
-          alcKey:kAlc?'k'+k.id:null, promoKey:kPromo?'k'+k.id:null});
+        B.push({type:'sub',label:k.naziv,items:di,alcoholic:kAlc,promo:kPromo});
       }
     }
   }else if(active.length){B.push({type:'main',label:'Ponuda'});B.push({type:'sub',label:'Svi artikli',items:active});}

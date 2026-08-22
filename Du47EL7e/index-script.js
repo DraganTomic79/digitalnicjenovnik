@@ -485,18 +485,12 @@ class MenuApp {
 
   /* Provjerava da li je kategorija alkoholna */
   isAlcoholicCategory(kategorija) {
-    if (!kategorija || !kategorija.naziv) return false;
-    const naziv = kategorija.naziv.toLowerCase();
-    if (naziv.includes('bez') || naziv.includes('non') || naziv.includes('zero') || naziv.includes('0%')) return false;
-    return naziv.includes('alkohol') && !naziv.includes('bezalkohol') || naziv === 'alkoholna pića' || naziv === 'alkoholna pica' || naziv.includes('vina') || naziv.includes('cigarete') || naziv.includes('piva') && !naziv.includes('bezalkohol') || naziv.includes('žestok') || naziv.includes('žestoka') || naziv.includes('žestice') || naziv.includes('rakije') || naziv.includes('whiskey') || naziv.includes('vodka') || naziv.includes('rum') || naziv.includes('gin') || naziv.includes('brandy') || naziv.includes('konjak') || naziv.includes('cocktail') || naziv.includes('koktel') || naziv.includes('vinjak') || naziv.includes('tequila') || naziv.includes('likeri-aperitivi');
+    return !!(kategorija && kategorija.sadrziAlkohol);
   }
 
   /* Provjerava da li je podkategorija alkoholna */
   isAlcoholicSubcategory(podkategorija) {
-    if (!podkategorija || !podkategorija.naziv) return false;
-    const naziv = podkategorija.naziv.toLowerCase();
-    if (naziv.includes('bez') || naziv.includes('non') || naziv.includes('zero') || naziv.includes('0%')) return false;
-    return naziv.includes('alkohol') && !naziv.includes('bezalkohol') || naziv === 'alkoholna pića' || naziv === 'alkoholna pica' || naziv.includes('vina') || naziv.includes('cigarete') || naziv.includes('piva') && !naziv.includes('bezalkohol') || naziv.includes('žestok') || naziv.includes('žestoka') || naziv.includes('žestice') || naziv.includes('rakije') || naziv.includes('whiskey') || naziv.includes('vodka') || naziv.includes('rum') || naziv.includes('gin') || naziv.includes('brandy') || naziv.includes('konjak') || naziv.includes('cocktail') || naziv.includes('koktel') || naziv.includes('vinjak') || naziv.includes('tequila') || naziv.includes('likeri-aperitivi');
+    return !!(podkategorija && podkategorija.sadrziAlkohol);
   }
 
   /* Kreira stavku u accordion meniju za kategoriju */
@@ -1045,9 +1039,7 @@ class MenuApp {
 
   /* Provjerava je li stavka promocija */
   isPromotion(item) { 
-    if (!item || !item.naziv) return false;
-    const naziv = item.naziv.toLowerCase();
-    return naziv.includes('promocija') || naziv.includes('promo') || naziv.includes('special') || naziv.includes('offer') || naziv.includes('akcija') || naziv.includes('specijalna ponuda');
+    return !!(item && item.specijalnaPonuda);
   }
 }
 

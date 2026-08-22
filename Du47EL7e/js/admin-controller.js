@@ -187,14 +187,17 @@ class AdminController {
     const groups = { 
       glavnaKategorija: [
         'naziv', 'ikona', 'previewContainer', 'selectGlavnaKategorija',
+        'sadrziAlkohol', 'specijalnaPonuda',
         'dodaj', 'sacuvaj', 'otkazi', 'listaContainer'
       ], 
       kategorija: [
         'naziv', 'ikona', 'previewContainer', 'selectGlavnaKategorija',
+        'sadrziAlkohol', 'specijalnaPonuda',
         'dodaj', 'sacuvaj', 'otkazi', 'listaContainer'
       ], 
       podkategorija: [
         'naziv', 'ikona', 'previewContainer', 'kategorijaSelect',
+        'sadrziAlkohol', 'specijalnaPonuda',
         'dodaj', 'sacuvaj', 'otkazi', 'listaContainer'
       ], 
       artikal: [
@@ -230,6 +233,8 @@ class AdminController {
         ikona: 'ikonaGlavneKategorije', 
         previewContainer: 'glavnaIkonaPreview', 
         selectGlavnaKategorija: 'selectGlavnaKategorija', 
+        sadrziAlkohol: 'sadrziAlkoholGlavnaKategorija',
+        specijalnaPonuda: 'specijalnaPonudaGlavnaKategorija',
         dodaj: 'dodajGlavnuKategorijuBtn', 
         sacuvaj: 'sacuvajGlavnuKategorijuBtn', 
         otkazi: 'otkaziGlavnuKategorijuBtn', 
@@ -240,6 +245,8 @@ class AdminController {
         ikona: 'ikonaKategorije', 
         previewContainer: 'ikonaPreview', 
         selectGlavnaKategorija: 'selectGlavnaKategorija', 
+        sadrziAlkohol: 'sadrziAlkoholKategorija',
+        specijalnaPonuda: 'specijalnaPonudaKategorija',
         dodaj: 'dodajKategorijuBtn', 
         sacuvaj: 'sacuvajKategorijuBtn', 
         otkazi: 'otkaziKategorijuBtn', 
@@ -250,6 +257,8 @@ class AdminController {
         ikona: 'ikonaPodkategorije', 
         previewContainer: 'podkategorijaIkonaPreview', 
         kategorijaSelect: 'selectKategorijaPodkategorija', 
+        sadrziAlkohol: 'sadrziAlkoholPodkategorija',
+        specijalnaPonuda: 'specijalnaPonudaPodkategorija',
         dodaj: 'dodajPodkategorijuBtn', 
         sacuvaj: 'sacuvajPodkategorijuBtn', 
         otkazi: 'otkaziPodkategorijuBtn', 
@@ -1038,7 +1047,9 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     
     const base = { 
       naziv: el.naziv?.value?.trim() || "", 
-      imageFile: el.ikona?.files[0] || el.slika?.files[0] || null 
+      imageFile: el.ikona?.files[0] || el.slika?.files[0] || null,
+      sadrziAlkohol: el.sadrziAlkohol?.checked || false,
+      specijalnaPonuda: el.specijalnaPonuda?.checked || false
     }; 
     
     if (entityType === 'kategorija') 
@@ -1088,21 +1099,27 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
       return { 
         naziv: data.naziv, 
         sortOrder: null, 
-        ikona: imageURL || 'fa-layer-group' 
+        ikona: imageURL || 'fa-layer-group',
+        sadrziAlkohol: data.sadrziAlkohol || false,
+        specijalnaPonuda: data.specijalnaPonuda || false
       }; 
       
     if (entityType === 'kategorija') 
       return { 
         naziv: data.naziv, 
         ikona: imageURL || 'fa-folder', 
-        glavnaKategorijaId: data.glavnaKategorijaId 
+        glavnaKategorijaId: data.glavnaKategorijaId,
+        sadrziAlkohol: data.sadrziAlkohol || false,
+        specijalnaPonuda: data.specijalnaPonuda || false
       }; 
       
     if (entityType === 'podkategorija') { 
       const finalData = { 
         naziv: data.naziv, 
         ikona: imageURL || 'fa-tag', 
-        kategorijaId: data.kategorijaId 
+        kategorijaId: data.kategorijaId,
+        sadrziAlkohol: data.sadrziAlkohol || false,
+        specijalnaPonuda: data.specijalnaPonuda || false
       }; 
       
       Utils.debug.log('Pripravljeni podaci za podkategoriju:', finalData); 
@@ -1135,7 +1152,9 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     if (entityType === 'glavnaKategorija') 
       return { 
         naziv: data.naziv, 
-        ikona: imageURL 
+        ikona: imageURL,
+        sadrziAlkohol: data.sadrziAlkohol || false,
+        specijalnaPonuda: data.specijalnaPonuda || false
       }; 
       
     if (entityType === 'kategorija') 
@@ -1143,7 +1162,9 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
         naziv: data.naziv, 
         ikonaKategorije: imageURL, 
         glavnaKategorijaId: data.glavnaKategorijaId, 
-        sortOrder: current?.sortOrder || 999 
+        sortOrder: current?.sortOrder || 999,
+        sadrziAlkohol: data.sadrziAlkohol || false,
+        specijalnaPonuda: data.specijalnaPonuda || false
       }; 
       
     if (entityType === 'podkategorija') 
@@ -1151,7 +1172,9 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
         naziv: data.naziv, 
         ikona: imageURL, 
         kategorijaId: data.kategorijaId, 
-        sortOrder: current?.sortOrder || 999 
+        sortOrder: current?.sortOrder || 999,
+        sadrziAlkohol: data.sadrziAlkohol || false,
+        specijalnaPonuda: data.specijalnaPonuda || false
       }; 
       
     if (entityType === 'artikal') { 
@@ -1188,6 +1211,8 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
       if (el.previewContainer) 
         el.previewContainer.innerHTML = '<p>Ikona nije odabrana</p>'; 
     } 
+    if (el.sadrziAlkohol) el.sadrziAlkohol.checked = false;
+    if (el.specijalnaPonuda) el.specijalnaPonuda.checked = false;
   }
 
   /* TOGGLE STATUS ARTIKLA */
@@ -1356,6 +1381,9 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
           
         if (el.ikona) 
           el.ikona.value = ""; 
+
+        if (el.sadrziAlkohol) el.sadrziAlkohol.checked = !!data.sadrziAlkohol;
+        if (el.specijalnaPonuda) el.specijalnaPonuda.checked = !!data.specijalnaPonuda;
           
         this.updatePreviewForEdit(entityType, data.ikona || data.ikonaKategorije); 
         UIService.setEditModeKategorija(true, el); 
