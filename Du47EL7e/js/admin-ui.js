@@ -90,7 +90,7 @@ export function setEditModeKategorija(isEdit, elements) { toggleButtonVisibility
 function toggleButtonVisibility(elements, isEdit) { const { dodaj, sacuvaj, otkazi } = elements; if (isEdit) { dodaj?.classList.add('d-none'); sacuvaj?.classList.remove('d-none'); otkazi?.classList.remove('d-none'); } else { dodaj?.classList.remove('d-none'); sacuvaj?.classList.add('d-none'); otkazi?.classList.add('d-none'); } }
 
 export function popuniFormuArtikal(artikal, elements) { const fieldMappings = { naziv: artikal.naziv, cijena: artikal.cijena, podkategorijaSelect: artikal.podkategorija, opis: artikal.opis || "", opis2: artikal.opis2 || "" }; Object.entries(fieldMappings).forEach(([field, value]) => { if (elements[field]) elements[field].value = value; }); }
-export function ocistiFormuArtikal(elements) { clearFormFields(elements, ['naziv', 'cijena', 'podkategorijaSelect', 'opis', 'opis2', 'slika']); }
+export function ocistiFormuArtikal(elements) { clearFormFields(elements, ['naziv', 'cijena', 'podkategorijaSelect', 'opis', 'opis2', 'slika', 'slikaUrl']); }
 export function ocistiFormuKategorija(elements) { clearFormFields(elements, ['naziv', 'ikona', 'kategorijaSelect']); if (elements.previewContainer) elements.previewContainer.innerHTML = '<p>Ikona trenutno nije odabrana</p>'; }
 function clearFormFields(elements, fields) { fields.forEach(field => { if (elements[field]) elements[field].value = ""; }); }
 

@@ -201,7 +201,7 @@ class AdminController {
         'dodaj', 'sacuvaj', 'otkazi', 'listaContainer'
       ], 
       artikal: [
-        'naziv', 'cijena', 'podkategorijaSelect', 'opis', 'opis2', 'slika',
+        'naziv', 'cijena', 'podkategorijaSelect', 'opis', 'opis2', 'slika', 'slikaUrl',
         'dodaj', 'sacuvaj', 'otkazi', 'listaContainer'
       ], 
       postavke: [
@@ -271,6 +271,7 @@ class AdminController {
         opis: 'opisArtikla', 
         opis2: 'opisArtikla2', 
         slika: 'slikaArtikla', 
+        slikaUrl: 'slikaArtiklaUrl', 
         dodaj: 'dodajArtikalBtn', 
         sacuvaj: 'sacuvajIzmjenuBtn', 
         otkazi: 'otkaziIzmjenuBtn', 
@@ -530,6 +531,8 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
           return Utils.prikaziPoruku(imgValidation.errors.join('\n'), 'error'); 
         
         imageURL = await FirebaseService.uploadSlika(data.imageFile); 
+      } else if (data.imageUrl) {
+        imageURL = data.imageUrl;
       }
 
       Utils.setLoadingState(elements.dodaj, true); 
@@ -599,6 +602,8 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
           return Utils.prikaziPoruku(imgValidation.errors.join('\n'), 'error'); 
           
         imageURL = await FirebaseService.uploadSlika(data.imageFile); 
+      } else if (data.imageUrl) {
+        imageURL = data.imageUrl;
       }
 
       Utils.setLoadingState(elements.sacuvaj, true); 
@@ -1084,7 +1089,8 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
         podkategorija: podkategorija, 
         opis: el.opis?.value?.trim() || "", 
         opis2: el.opis2?.value?.trim() || "", 
-        imageFile: base.imageFile 
+        imageFile: base.imageFile,
+        imageUrl: el.slikaUrl?.value?.trim() || ""
       }; 
     } 
     

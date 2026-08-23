@@ -6,7 +6,7 @@
   <title>Admin Panel - Upravljanje Menijem</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="admin-styles.css?v=20260822">
+  <link rel="stylesheet" href="admin-styles.css?v=20260823">
   <style>
     .size-recommendation { background: #e7f3ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #17a2b8; font-size: 0.8rem; line-height: 1.4; margin-top: 8px; }
     .size-recommendation strong { color: #0c5460; }
@@ -507,6 +507,10 @@
                   <input type="file" class="form-control" id="slikaArtikla" accept="image/*">
                   <div class="size-recommendation"><i class="fas fa-info-circle" style="color: #17a2b8;"></i> <strong>Preporučena veličina:</strong> 300x300px | Format: PNG, JPG | Max: 3MB</div>
                 </div>
+                <div class="form-group">
+                  <label for="slikaArtiklaUrl"><i class="fas fa-link"></i> ILI nalijepi postojeći link slike <small class="text-muted">(ako je ista slika već negdje uploadovana — štedi prostor na ImgBB)</small></label>
+                  <input type="text" class="form-control" id="slikaArtiklaUrl" placeholder="https://i.ibb.co/...">
+                </div>
               </div>
             </div>
             <div class="form-actions">
@@ -678,8 +682,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Include Translation Manager -->
-  <script src="translation-manager.js?v=20260822"></script>
-  <script type="module" src="js/admin-controller.js?v=20260822"></script>
+  <script src="translation-manager.js?v=20260823"></script>
+  <script type="module" src="js/admin-controller.js?v=20260823"></script>
 <script>
 // Hamburger meni (fioka sa strane) — samo na mobilnom
 (function () {
