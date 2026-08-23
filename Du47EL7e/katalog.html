@@ -318,26 +318,24 @@ function buildBlocks(gk,kat,pod,items){
 /* ── PIXEL-BUDGET PACKING ── */
 function packPages(blocks){
   const pages=[];
-  let page={mainLabel:'',subs:[],usedH:0};
+  let page={content:[],usedH:0};
 
-  const gap=()=>page.subs.length>0||page.mainLabel?BODY_GAP:0;
+  const gap=()=>page.content.length>0?BODY_GAP:0;
   const avail=()=>BODY_H-page.usedH;
 
   function newPage(){
-    if(page.subs.length||page.mainLabel)pages.push(page);
-    page={mainLabel:'',subs:[],usedH:0};
+    if(page.content.length)pages.push(page);
+    page={content:[],usedH:0};
   }
 
   for(const b of blocks){
     if(b.type==='main'){
-      // Nova stranica ako je trenutna već >40% popunjena, ILI ako već sadrži
-      // ostatak sadržaja neke DRUGE kategorije (spriječava da naslov nove
-      // glavne kategorije "pluta" iznad ostatka prethodne)
-      if(page.usedH>BODY_H*0.4 || page.subs.length>0) newPage();
-      if(!page.mainLabel){
-        page.mainLabel=b.label;
-        page.usedH+=LBL_MAIN+BODY_GAP;
-      }
+      // Nova stranica samo ako je trenutna već >40% popunjena — inače se naslov
+      // nove kategorije jednostavno nastavlja odmah ispod postojećeg sadržaja
+      // (npr. ostatka prethodne kategorije), bez praznog prostora
+      if(page.usedH>BODY_H*0.4) newPage();
+      page.usedH+=gap()+LBL_MAIN;
+      page.content.push({kind:'main',label:b.label});
       continue;
     }
 
@@ -362,12 +360,12 @@ function packPages(blocks){
 
       const chunk=rem.splice(0,take);
       page.usedH+=gap()+subPx(take);
-      page.subs.push({label:first?b.label:`${b.label} (nastavak)`,items:chunk,alcoholic:b.alcoholic,promo:b.promo});
+      page.content.push({kind:'sub',label:first?b.label:`${b.label} (nastavak)`,items:chunk,alcoholic:b.alcoholic,promo:b.promo});
       first=false;
       if(rem.length>0)newPage();
     }
   }
-  if(page.subs.length||page.mainLabel)pages.push(page);
+  if(page.content.length)pages.push(page);
   return pages;
 }
 
@@ -393,8 +391,12 @@ function renderPage(data){
   el.appendChild(hd);
   // body
   const bd=document.createElement('div');bd.className='pb';
-  if(data.mainLabel){const m=document.createElement('div');m.className='lbl-main';m.innerHTML=`<i class="fas fa-layer-group"></i>${esc(data.mainLabel)}`;bd.appendChild(m);}
-  for(const sb of data.subs){
+  for(const c of data.content){
+    if(c.kind==='main'){
+      const m=document.createElement('div');m.className='lbl-main';m.innerHTML=`<i class="fas fa-layer-group"></i>${esc(c.label)}`;bd.appendChild(m);
+      continue;
+    }
+    const sb=c;
     const blk=document.createElement('div');blk.className='cat-block';
     const lblClass = sb.promo ? ' promo-lbl' : (sb.alcoholic ? ' alcohol-lbl' : '');
     const age = sb.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
