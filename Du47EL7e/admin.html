@@ -6,7 +6,7 @@
   <title>Admin Panel - Upravljanje Menijem</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="admin-styles.css?v=20260823a">
+  <link rel="stylesheet" href="admin-styles.css?v=20260823c">
   <style>
     .size-recommendation { background: #e7f3ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #17a2b8; font-size: 0.8rem; line-height: 1.4; margin-top: 8px; }
     .size-recommendation strong { color: #0c5460; }
@@ -335,6 +335,8 @@
               <label for="ikonaGlavneKategorije"><i class="fas fa-image"></i> Ikona</label>
               <input type="file" class="form-control" id="ikonaGlavneKategorije" accept="image/*">
               <div class="size-recommendation"><i class="fas fa-info-circle" style="color: #17a2b8;"></i> <strong>Preporučena veličina:</strong> 64x64px | Format: PNG, JPG | Max: 2MB</div>
+              <input type="hidden" id="ikonaGlavneKategorijeExisting">
+              <button type="button" class="btn btn-sm" style="margin-top:8px;background:#2a2a3e;color:#C6A664;border:1.5px solid #C6A664;" onclick="window.adminController && window.adminController.openIconPicker('glavnaKategorija')"><i class="fas fa-icons"></i> Izaberi postojeću ikonu</button>
             </div>
             <div class="form-group">
               <label>Pregled ikone:</label>
@@ -385,6 +387,8 @@
               <label for="ikonaKategorije"><i class="fas fa-image"></i> Ikona</label>
               <input type="file" class="form-control" id="ikonaKategorije" accept="image/*">
               <div class="size-recommendation"><i class="fas fa-info-circle" style="color: #17a2b8;"></i> <strong>Preporučena veličina:</strong> 64x64px | Format: PNG, JPG | Max: 2MB</div>
+              <input type="hidden" id="ikonaKategorijeExisting">
+              <button type="button" class="btn btn-sm" style="margin-top:8px;background:#2a2a3e;color:#C6A664;border:1.5px solid #C6A664;" onclick="window.adminController && window.adminController.openIconPicker('kategorija')"><i class="fas fa-icons"></i> Izaberi postojeću ikonu</button>
             </div>
             <div class="form-group">
               <label>Pregled ikone:</label>
@@ -435,6 +439,8 @@
               <label for="ikonaPodkategorije"><i class="fas fa-image"></i> Ikona</label>
               <input type="file" class="form-control" id="ikonaPodkategorije" accept="image/*">
               <div class="size-recommendation"><i class="fas fa-info-circle" style="color: #17a2b8;"></i> <strong>Preporučena veličina:</strong> 64x64px | Format: PNG, JPG | Max: 2MB</div>
+              <input type="hidden" id="ikonaPodkategorijeExisting">
+              <button type="button" class="btn btn-sm" style="margin-top:8px;background:#2a2a3e;color:#C6A664;border:1.5px solid #C6A664;" onclick="window.adminController && window.adminController.openIconPicker('podkategorija')"><i class="fas fa-icons"></i> Izaberi postojeću ikonu</button>
             </div>
             <div class="form-group">
               <label>Pregled ikone:</label>
@@ -475,7 +481,7 @@
           
           <div class="form-section">
             <h4><i class="fas fa-plus-circle"></i> Novi Artikal</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="artikal-form-grid">
               <div>
                 <div class="form-group">
                   <label for="selectPodkategorija"><i class="fas fa-tags"></i> Podkategorija *</label>
@@ -683,8 +689,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Include Translation Manager -->
-  <script src="translation-manager.js?v=20260823a"></script>
-  <script type="module" src="js/admin-controller.js?v=20260823a"></script>
+  <script src="translation-manager.js?v=20260823c"></script>
+  <script type="module" src="js/admin-controller.js?v=20260823c"></script>
 <script>
 // Hamburger meni (fioka sa strane) — samo na mobilnom
 (function () {
@@ -833,6 +839,19 @@ function otvoriSimpleCjenovnikModal() {
   document.body.appendChild(m);
 }
 </script>
+
+<!-- Galerija za izbor postojeće ikone (dijeljena za sve 3 forme kategorija) -->
+<div id="iconPickerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:5000;align-items:flex-start;justify-content:center;padding:30px 16px;overflow-y:auto;">
+  <div style="background:#1a1a1a;border:1px solid rgba(198,166,100,.3);border-radius:16px;max-width:640px;width:100%;padding:24px;">
+    <h2 style="font-family:'Playfair Display',serif;color:#C6A664;font-size:1.15rem;margin-bottom:16px;display:flex;align-items:center;gap:9px;"><i class="fas fa-icons"></i> Izaberi postojeću ikonu</h2>
+    <input type="text" id="iconPickerSearch" class="form-control" placeholder="Pretraži po nazivu kategorije...">
+    <div id="iconPickerStatus" style="color:#8f887a;font-size:.8rem;margin-top:8px;">Učitavanje...</div>
+    <div id="iconPickerGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;max-height:420px;overflow-y:auto;margin-top:12px;"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:18px;">
+      <button type="button" class="btn btn-secondary" onclick="window.adminController && window.adminController.closeIconPicker()">Zatvori</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
 </html>

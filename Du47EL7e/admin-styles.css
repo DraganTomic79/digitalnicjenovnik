@@ -130,6 +130,18 @@ body {
 .main-content.full-width { 
   grid-template-columns: 1fr; 
 }
+/* Raspored forme za novi artikal — dva stupca na širim ekranima, jedan na mobilnom */
+.artikal-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 700px) {
+  .artikal-form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 4px;
+  }
+}
 /* Sadržaj tabova (skriveni po defaultu) */
 .tab-content { 
   display: none; 
