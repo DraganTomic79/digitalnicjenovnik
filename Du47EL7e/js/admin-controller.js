@@ -334,6 +334,10 @@ class AdminController {
       'change', 
       () => this.filterPodkategorije()
     ); 
+
+    // Naziv artikla — kad korisnik izabere/upiše postojeći naziv, ponudi automatsko
+    // popunjavanje ostalih polja iz tog artikla (slika, opis, opis2)
+    this.addHandler(this.elements.artikal?.naziv, 'change', () => this.autofillArtikalFromExisting());
     
     this.initPostavkeHandlers(); 
   }
@@ -452,6 +456,43 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     set('statArtikliSakriveni', sakriveni);
   }
 
+  /** Popunjava listu za automatsko dovršavanje naziva artikla (nativni browser datalist) */
+  updateArtikalDatalist() {
+    const dl = document.getElementById('artikalNazivDatalist');
+    if (!dl) return;
+    const artikli = this.state.data.artikli || [];
+    // Po jedan unos po jedinstvenom nazivu (izbjegava duplirane opcije u listi)
+    const seen = new Set();
+    let html = '';
+    artikli.forEach(a => {
+      const key = (a.naziv || '').toLowerCase();
+      if (!key || seen.has(key)) return;
+      seen.add(key);
+      html += `<option value="${(a.naziv || '').replace(/"/g, '&quot;')}"></option>`;
+    });
+    dl.innerHTML = html;
+  }
+
+  /** Kad korisnik upiše/izabere naziv koji već postoji među artiklima (u ISTOM kafiću),
+      automatski popuni opis/opis2/link slike iz tog postojećeg artikla — sve ostaje izmjenjivo. */
+  autofillArtikalFromExisting() {
+    // Ne autopopunjavaj dok se MIJENJA postojeći artikal (samo kod dodavanja novog)
+    if (this.state.editIds && this.state.editIds.artikal) return;
+    const el = this.elements.artikal;
+    if (!el || !el.naziv) return;
+    const naziv = (el.naziv.value || '').trim().toLowerCase();
+    if (!naziv) return;
+    const match = (this.state.data.artikli || []).find(a => (a.naziv || '').trim().toLowerCase() === naziv);
+    if (!match) return;
+
+    if (el.opis && !el.opis.value) el.opis.value = match.opis || '';
+    if (el.opis2 && !el.opis2.value) el.opis2.value = match.opis2 || '';
+    if (el.slikaUrl && !el.slikaUrl.value && (!el.slika || !el.slika.files.length)) {
+      el.slikaUrl.value = match.slikaURL || '';
+    }
+    Utils.prikaziPoruku(`Popunjeno iz postojećeg artikla "${match.naziv}" — provjeri i izmijeni po potrebi`, 'info');
+  }
+
   /** Učitavanje pojedinačnog entiteta */
   async loadEntity(entityType) { 
     try { 
@@ -461,6 +502,7 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
       this.state.data[config.stateProp] = await config.services.load(); 
       await this.updateUI(entityType); 
       this.renderDashboardStats();
+      if (entityType === 'artikal') this.updateArtikalDatalist();
     } catch (error) { 
       Utils.debug.error(`Greška učitavanja ${entityType}:`, error); 
       UIService.showError(
