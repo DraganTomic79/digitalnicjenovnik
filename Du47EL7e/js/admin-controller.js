@@ -577,17 +577,49 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
 
   /** Otvara galeriju za izbor postojeće ikone za dati tip entiteta (glavnaKategorija/kategorija/podkategorija) */
   async openIconPicker(entityType) {
+    this.state.pickerMode = 'icon';
     this.state.iconPickerTarget = entityType;
     const modal = document.getElementById('iconPickerModal');
     const status = document.getElementById('iconPickerStatus');
     const search = document.getElementById('iconPickerSearch');
+    const title = document.getElementById('iconPickerTitle');
     if (!modal) return;
+    if (title) title.textContent = 'Izaberi postojeću ikonu';
     modal.style.display = 'flex';
     if (search) { search.value = ''; search.oninput = () => this.renderIconPickerGrid(search.value); }
     if (status) status.textContent = 'Učitavanje...';
 
     await this.loadAllIcons();
-    if (status) status.textContent = `${this.state.svihIkona.length} dostupnih ikona (sa sva 4 kafića)`;
+    this.state.pickerItems = this.state.svihIkona;
+    if (status) status.textContent = `${this.state.pickerItems.length} dostupnih ikona (sa sva 4 kafića)`;
+    this.renderIconPickerGrid('');
+  }
+
+  /** Otvara istu galeriju, ali za slike ARTIKALA (koristi već učitane podatke — bez novog upita ka bazi) */
+  async openArtikalImagePicker() {
+    this.state.pickerMode = 'artikal';
+    const modal = document.getElementById('iconPickerModal');
+    const status = document.getElementById('iconPickerStatus');
+    const search = document.getElementById('iconPickerSearch');
+    const title = document.getElementById('iconPickerTitle');
+    if (!modal) return;
+    if (title) title.textContent = 'Izaberi postojeću sliku artikla';
+    modal.style.display = 'flex';
+    if (search) { search.value = ''; search.oninput = () => this.renderIconPickerGrid(search.value); }
+    if (status) status.textContent = 'Učitavanje...';
+
+    // Pretraga artikala već učitava sve sa sva 4 kafića za automatsko popunjavanje —
+    // ovdje samo sačekamo da to (ako još nije) stigne, bez novog upita ka bazi
+    await this.loadCrossKaficArtikle();
+    const svi = [...(this.state.data.artikli || []).map(a => ({ ...a, _kafic: TRENUTNI_KAFIC })), ...(this.state.crossKaficArtikli || [])];
+    const seen = new Set();
+    this.state.pickerItems = svi
+      .filter(a => a.slikaURL && a.slikaURL.startsWith('http'))
+      .filter(a => { if (seen.has(a.slikaURL)) return false; seen.add(a.slikaURL); return true; })
+      .map(a => ({ naziv: a.naziv, url: a.slikaURL, kafic: a._kafic }))
+      .sort((a, b) => a.naziv.localeCompare(b.naziv, 'sr'));
+
+    if (status) status.textContent = `${this.state.pickerItems.length} dostupnih slika artikala (sa sva 4 kafića)`;
     this.renderIconPickerGrid('');
   }
 
@@ -601,7 +633,7 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     const grid = document.getElementById('iconPickerGrid');
     if (!grid) return;
     const f = (filterText || '').trim().toLowerCase();
-    const lista = (this.state.svihIkona || []).filter(i => !f || i.naziv.toLowerCase().includes(f));
+    const lista = (this.state.pickerItems || []).filter(i => !f || i.naziv.toLowerCase().includes(f));
 
     if (lista.length === 0) {
       grid.innerHTML = '<p style="color:#8f887a;grid-column:1/-1;text-align:center;padding:20px 0;">Nema rezultata</p>';
@@ -609,7 +641,7 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     }
 
     grid.innerHTML = lista.map((i, idx) => `
-      <div onclick="window.adminController && window.adminController.selectExistingIcon(${idx}, '${(filterText || '').replace(/'/g, "\\'")}')"
+      <div onclick="window.adminController && window.adminController.selectPickedImage(${idx})"
            style="cursor:pointer;background:#242424;border:1px solid rgba(198,166,100,.2);border-radius:8px;padding:6px;text-align:center;transition:border-color .15s;"
            onmouseover="this.style.borderColor='#C6A664'" onmouseout="this.style.borderColor='rgba(198,166,100,.2)'">
         <img src="${i.url}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:5px;margin-bottom:4px;" loading="lazy">
@@ -622,20 +654,26 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     this._iconPickerFiltered = lista;
   }
 
-  /** Klik na sličicu u galeriji — postavlja izabranu ikonu za ciljanu formu */
-  selectExistingIcon(idx) {
+  /** Klik na sličicu u galeriji — postavlja izabranu sliku, zavisno od moda (ikona kategorije ili slika artikla) */
+  selectPickedImage(idx) {
     const izabrana = (this._iconPickerFiltered || [])[idx];
     if (!izabrana) return;
-    const entityType = this.state.iconPickerTarget;
-    const el = this.elements[entityType];
-    if (!el) return;
 
-    const existingField = document.getElementById(el.ikona ? el.ikona.id + 'Existing' : '');
-    if (existingField) existingField.value = izabrana.url;
-    if (el.ikona) el.ikona.value = ''; // isprazni file input da ne dođe do sukoba
-    if (el.previewContainer) el.previewContainer.innerHTML = `<img src="${izabrana.url}" style="max-width:80px;max-height:80px;border-radius:8px;">`;
+    if (this.state.pickerMode === 'artikal') {
+      const el = this.elements.artikal;
+      if (el && el.slikaUrl) el.slikaUrl.value = izabrana.url;
+      if (el && el.slika) el.slika.value = ''; // isprazni file input da ne dođe do sukoba
+    } else {
+      const entityType = this.state.iconPickerTarget;
+      const el = this.elements[entityType];
+      if (!el) return;
+      const existingField = document.getElementById(el.ikona ? el.ikona.id + 'Existing' : '');
+      if (existingField) existingField.value = izabrana.url;
+      if (el.ikona) el.ikona.value = '';
+      if (el.previewContainer) el.previewContainer.innerHTML = `<img src="${izabrana.url}" style="max-width:80px;max-height:80px;border-radius:8px;">`;
+    }
 
-    Utils.prikaziPoruku(`Izabrana ikona "${izabrana.naziv}" (sa ${izabrana.kafic})`, 'success');
+    Utils.prikaziPoruku(`Izabrano "${izabrana.naziv}" (sa ${izabrana.kafic})`, 'success');
     this.closeIconPicker();
   }
 
