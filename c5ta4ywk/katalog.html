@@ -110,8 +110,17 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#111;color:var(--beige);
   background:rgba(198,166,100,.08);border-left:3px solid var(--gold);
   color:var(--gold);padding:0 11px;
   font-size:.68rem;font-weight:700;
-  display:flex;align-items:center;
+  display:flex;align-items:center;gap:6px;
 }
+.lbl-sub .age-restrictor{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;
+  font-size:.5rem;font-weight:800;width:16px;height:16px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.8);flex-shrink:0;
+}
+.lbl-sub .promo-star{font-size:.7rem;flex-shrink:0}
+.lbl-sub.promo-lbl{border-left-color:#C6A664;background:rgba(198,166,100,.2)}
+.lbl-sub.alcohol-lbl{border-left-color:#dc2626;background:rgba(220,38,38,.12);color:#dc2626}
 
 /* CAT BLOCK */
 .cat-block{display:flex;flex-direction:column;gap:4px;flex-shrink:0}
@@ -261,33 +270,46 @@ function buildBlocks(gk,kat,pod,items){
   if(gk.length){
     for(const g of srt(gk)){
       let added=false;
+      const gPromo=!!g.specijalnaPonuda;
       for(const k of srt(kat.filter(k=>k.glavnaKategorijaId===g.id))){
+        const kPromo=gPromo||!!k.specijalnaPonuda;
+        const kAlc=!!k.sadrziAlkohol;
         const pods=srt(pod.filter(p=>p.kategorijaId===k.id));
         if(pods.length){
           for(const p of pods){
             const its=getI(p.naziv);if(!its.length)continue;
             if(!added){B.push({type:'main',label:g.naziv});added=true;}
-            B.push({type:'sub',label:`${k.naziv} – ${p.naziv}`,items:its});
+            const pAlc=kAlc||!!p.sadrziAlkohol, pPromo=kPromo||!!p.specijalnaPonuda;
+            B.push({type:'sub',label:`${k.naziv} – ${p.naziv}`,items:its,alcoholic:pAlc,promo:pPromo});
           }
         }else{
           const its=getI(k.naziv);if(!its.length)continue;
           if(!added){B.push({type:'main',label:g.naziv});added=true;}
-          B.push({type:'sub',label:k.naziv,items:its});
+          B.push({type:'sub',label:k.naziv,items:its,alcoholic:kAlc,promo:kPromo});
         }
       }
       const di=getI(g.naziv);
-      if(di.length){if(!added){B.push({type:'main',label:g.naziv});added=true;}B.push({type:'sub',label:g.naziv,items:di});}
+      if(di.length){
+        if(!added){B.push({type:'main',label:g.naziv});added=true;}
+        B.push({type:'sub',label:g.naziv,items:di,alcoholic:!!g.sadrziAlkohol,promo:gPromo});
+      }
     }
   }else if(kat.length){
     for(const k of srt(kat)){
       let added=false;
+      const kPromo=!!k.specijalnaPonuda;
+      const kAlc=!!k.sadrziAlkohol;
       for(const p of srt(pod.filter(p=>p.kategorijaId===k.id))){
         const its=getI(p.naziv);if(!its.length)continue;
         if(!added){B.push({type:'main',label:k.naziv});added=true;}
-        B.push({type:'sub',label:p.naziv,items:its});
+        const pAlc=kAlc||!!p.sadrziAlkohol, pPromo=kPromo||!!p.specijalnaPonuda;
+        B.push({type:'sub',label:p.naziv,items:its,alcoholic:pAlc,promo:pPromo});
       }
       const di=getI(k.naziv);
-      if(di.length){if(!added)B.push({type:'main',label:k.naziv});B.push({type:'sub',label:k.naziv,items:di});}
+      if(di.length){
+        if(!added)B.push({type:'main',label:k.naziv});
+        B.push({type:'sub',label:k.naziv,items:di,alcoholic:kAlc,promo:kPromo});
+      }
     }
   }else if(active.length){B.push({type:'main',label:'Ponuda'});B.push({type:'sub',label:'Svi artikli',items:active});}
   return B;
@@ -296,24 +318,24 @@ function buildBlocks(gk,kat,pod,items){
 /* ── PIXEL-BUDGET PACKING ── */
 function packPages(blocks){
   const pages=[];
-  let page={mainLabel:'',subs:[],usedH:0};
+  let page={content:[],usedH:0};
 
-  const gap=()=>page.subs.length>0||page.mainLabel?BODY_GAP:0;
+  const gap=()=>page.content.length>0?BODY_GAP:0;
   const avail=()=>BODY_H-page.usedH;
 
   function newPage(){
-    if(page.subs.length||page.mainLabel)pages.push(page);
-    page={mainLabel:'',subs:[],usedH:0};
+    if(page.content.length)pages.push(page);
+    page={content:[],usedH:0};
   }
 
   for(const b of blocks){
     if(b.type==='main'){
-      // New page if current already > 40% full
-      if(page.usedH>BODY_H*0.4)newPage();
-      if(!page.mainLabel){
-        page.mainLabel=b.label;
-        page.usedH+=LBL_MAIN+BODY_GAP;
-      }
+      // Nova stranica samo ako je trenutna već >40% popunjena — inače se naslov
+      // nove kategorije jednostavno nastavlja odmah ispod postojećeg sadržaja
+      // (npr. ostatka prethodne kategorije), bez praznog prostora
+      if(page.usedH>BODY_H*0.4) newPage();
+      page.usedH+=gap()+LBL_MAIN;
+      page.content.push({kind:'main',label:b.label});
       continue;
     }
 
@@ -338,12 +360,12 @@ function packPages(blocks){
 
       const chunk=rem.splice(0,take);
       page.usedH+=gap()+subPx(take);
-      page.subs.push({label:first?b.label:`${b.label} (nastavak)`,items:chunk});
+      page.content.push({kind:'sub',label:first?b.label:`${b.label} (nastavak)`,items:chunk,alcoholic:b.alcoholic,promo:b.promo});
       first=false;
       if(rem.length>0)newPage();
     }
   }
-  if(page.subs.length||page.mainLabel)pages.push(page);
+  if(page.content.length)pages.push(page);
   return pages;
 }
 
@@ -369,10 +391,21 @@ function renderPage(data){
   el.appendChild(hd);
   // body
   const bd=document.createElement('div');bd.className='pb';
-  if(data.mainLabel){const m=document.createElement('div');m.className='lbl-main';m.innerHTML=`<i class="fas fa-layer-group"></i>${esc(data.mainLabel)}`;bd.appendChild(m);}
-  for(const sb of data.subs){
+  for(const c of data.content){
+    if(c.kind==='main'){
+      const m=document.createElement('div');m.className='lbl-main';m.innerHTML=`<i class="fas fa-layer-group"></i>${esc(c.label)}`;bd.appendChild(m);
+      continue;
+    }
+    const sb=c;
     const blk=document.createElement('div');blk.className='cat-block';
-    blk.innerHTML=`<div class="lbl-sub">${esc(sb.label)}</div><div class="grid">${sb.items.map(cardHTML).join('')}</div>`;
+    const lblClass = sb.promo ? ' promo-lbl' : (sb.alcoholic ? ' alcohol-lbl' : '');
+    const age = sb.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
+    const star = sb.promo ? '<span class="promo-star">⭐</span>' : '';
+    const dashIdx = sb.label.indexOf(' – ');
+    const labelHtml = dashIdx>-1
+      ? `${esc(sb.label.slice(0,dashIdx))}${star}${age} – ${esc(sb.label.slice(dashIdx+3))}`
+      : `${star}${esc(sb.label)}${age}`;
+    blk.innerHTML=`<div class="lbl-sub${lblClass}">${labelHtml}</div><div class="grid">${sb.items.map(cardHTML).join('')}</div>`;
     bd.appendChild(blk);
   }
   el.appendChild(bd);
