@@ -529,6 +529,155 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     this.renderArtikalDatalist();
   }
 
+  /* ══════ GALERIJA POSTOJEĆIH IKONA/SLIKA (za kategorije i artikle) ══════ */
+
+  /** Učitava sve postojeće ikone (sa OVOG i sva tri OSTALA kafića) iz sve tri kategorijske
+      kolekcije, jednom, keširano u memoriji. Uzima samo prave upload-ovane slike (URL), ne
+      FontAwesome fallback ikone (npr. "fa-tag"). */
+  async loadAllIcons() {
+    if (this.state.svihIkonaLoaded) return;
+    const rezultati = [];
+    const dodajIzListe = (lista, kaficLabel) => {
+      (lista || []).forEach(item => {
+        const url = item.ikona || item.ikonaKategorije || '';
+        if (!url || !url.startsWith('http')) return;
+        rezultati.push({ naziv: item.naziv || '(bez naziva)', url, kafic: kaficLabel });
+      });
+    };
+
+    // Ovaj kafić — podaci su već učitani, bez novog upita ka bazi
+    dodajIzListe(this.state.data.glavneKategorije, TRENUTNI_KAFIC);
+    dodajIzListe(this.state.data.kategorije, TRENUTNI_KAFIC);
+    dodajIzListe(this.state.data.podkategorije, TRENUTNI_KAFIC);
+
+    // Ostala tri kafića
+    const ostali = SVI_KAFICI.filter(k => k.slug !== TRENUTNI_KAFIC);
+    for (const kafic of ostali) {
+      try {
+        const appName = 'cross-' + kafic.slug;
+        const app = getApps().find(a => a.name === appName) || initializeApp(kafic.config, appName);
+        const db = getFirestore(app);
+        for (const kolekcija of ['glavne-kategorije', 'kategorije', 'podkategorije']) {
+          const snap = await getDocs(collection(db, kolekcija));
+          const lista = [];
+          snap.forEach(doc => lista.push(doc.data()));
+          dodajIzListe(lista, kafic.slug);
+        }
+      } catch (err) {
+        Utils.debug.error(`Greška učitavanja ikona sa ${kafic.slug}:`, err);
+      }
+    }
+
+    // Ukloni duplikate po istom linku slike, sortiraj abecedno po nazivu
+    const seen = new Set();
+    this.state.svihIkona = rezultati
+      .filter(i => { if (seen.has(i.url)) return false; seen.add(i.url); return true; })
+      .sort((a, b) => a.naziv.localeCompare(b.naziv, 'sr'));
+    this.state.svihIkonaLoaded = true;
+  }
+
+  /** Otvara galeriju za izbor postojeće ikone za dati tip entiteta (glavnaKategorija/kategorija/podkategorija) */
+  async openIconPicker(entityType) {
+    this.state.pickerMode = 'icon';
+    this.state.iconPickerTarget = entityType;
+    const modal = document.getElementById('iconPickerModal');
+    const status = document.getElementById('iconPickerStatus');
+    const search = document.getElementById('iconPickerSearch');
+    const title = document.getElementById('iconPickerTitle');
+    if (!modal) return;
+    if (title) title.textContent = 'Izaberi postojeću ikonu';
+    modal.style.display = 'flex';
+    if (search) { search.value = ''; search.oninput = () => this.renderIconPickerGrid(search.value); }
+    if (status) status.textContent = 'Učitavanje...';
+
+    await this.loadAllIcons();
+    this.state.pickerItems = this.state.svihIkona;
+    if (status) status.textContent = `${this.state.pickerItems.length} dostupnih ikona (sa sva 4 kafića)`;
+    this.renderIconPickerGrid('');
+  }
+
+  /** Otvara istu galeriju, ali za slike ARTIKALA (koristi već učitane podatke — bez novog upita ka bazi) */
+  async openArtikalImagePicker() {
+    this.state.pickerMode = 'artikal';
+    const modal = document.getElementById('iconPickerModal');
+    const status = document.getElementById('iconPickerStatus');
+    const search = document.getElementById('iconPickerSearch');
+    const title = document.getElementById('iconPickerTitle');
+    if (!modal) return;
+    if (title) title.textContent = 'Izaberi postojeću sliku artikla';
+    modal.style.display = 'flex';
+    if (search) { search.value = ''; search.oninput = () => this.renderIconPickerGrid(search.value); }
+    if (status) status.textContent = 'Učitavanje...';
+
+    // Pretraga artikala već učitava sve sa sva 4 kafića za automatsko popunjavanje —
+    // ovdje samo sačekamo da to (ako još nije) stigne, bez novog upita ka bazi
+    await this.loadCrossKaficArtikle();
+    const svi = [...(this.state.data.artikli || []).map(a => ({ ...a, _kafic: TRENUTNI_KAFIC })), ...(this.state.crossKaficArtikli || [])];
+    const seen = new Set();
+    this.state.pickerItems = svi
+      .filter(a => a.slikaURL && a.slikaURL.startsWith('http'))
+      .filter(a => { if (seen.has(a.slikaURL)) return false; seen.add(a.slikaURL); return true; })
+      .map(a => ({ naziv: a.naziv, url: a.slikaURL, kafic: a._kafic }))
+      .sort((a, b) => a.naziv.localeCompare(b.naziv, 'sr'));
+
+    if (status) status.textContent = `${this.state.pickerItems.length} dostupnih slika artikala (sa sva 4 kafića)`;
+    this.renderIconPickerGrid('');
+  }
+
+  closeIconPicker() {
+    const modal = document.getElementById('iconPickerModal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  /** Iscrtava mrežu sličica u galeriji, filtrirano po tekstu pretrage */
+  renderIconPickerGrid(filterText) {
+    const grid = document.getElementById('iconPickerGrid');
+    if (!grid) return;
+    const f = (filterText || '').trim().toLowerCase();
+    const lista = (this.state.pickerItems || []).filter(i => !f || i.naziv.toLowerCase().includes(f));
+
+    if (lista.length === 0) {
+      grid.innerHTML = '<p style="color:#8f887a;grid-column:1/-1;text-align:center;padding:20px 0;">Nema rezultata</p>';
+      return;
+    }
+
+    grid.innerHTML = lista.map((i, idx) => `
+      <div onclick="window.adminController && window.adminController.selectPickedImage(${idx})"
+           style="cursor:pointer;background:#242424;border:1px solid rgba(198,166,100,.2);border-radius:8px;padding:6px;text-align:center;transition:border-color .15s;"
+           onmouseover="this.style.borderColor='#C6A664'" onmouseout="this.style.borderColor='rgba(198,166,100,.2)'">
+        <img src="${i.url}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:5px;margin-bottom:4px;" loading="lazy">
+        <div style="font-size:.62rem;color:#c9c2b3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${i.naziv}</div>
+        <div style="font-size:.55rem;color:#8f887a;">${i.kafic}</div>
+      </div>
+    `).join('');
+
+    // Sačuvaj trenutno filtrirani niz da klik zna tačno koju stavku je izabrao
+    this._iconPickerFiltered = lista;
+  }
+
+  /** Klik na sličicu u galeriji — postavlja izabranu sliku, zavisno od moda (ikona kategorije ili slika artikla) */
+  selectPickedImage(idx) {
+    const izabrana = (this._iconPickerFiltered || [])[idx];
+    if (!izabrana) return;
+
+    if (this.state.pickerMode === 'artikal') {
+      const el = this.elements.artikal;
+      if (el && el.slikaUrl) el.slikaUrl.value = izabrana.url;
+      if (el && el.slika) el.slika.value = ''; // isprazni file input da ne dođe do sukoba
+    } else {
+      const entityType = this.state.iconPickerTarget;
+      const el = this.elements[entityType];
+      if (!el) return;
+      const existingField = document.getElementById(el.ikona ? el.ikona.id + 'Existing' : '');
+      if (existingField) existingField.value = izabrana.url;
+      if (el.ikona) el.ikona.value = '';
+      if (el.previewContainer) el.previewContainer.innerHTML = `<img src="${izabrana.url}" style="max-width:80px;max-height:80px;border-radius:8px;">`;
+    }
+
+    Utils.prikaziPoruku(`Izabrano "${izabrana.naziv}" (sa ${izabrana.kafic})`, 'success');
+    this.closeIconPicker();
+  }
+
   /** Kad korisnik upiše/izabere naziv koji već postoji među artiklima (u ISTOM ili
       BILO KOM DRUGOM kafiću), automatski popuni opis/opis2/link slike iz tog artikla
       — sve ostaje izmjenjivo. Prioritet: prvo ovaj kafić, pa ostali (fiksnim redom). */
@@ -635,6 +784,8 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
         imageURL = await FirebaseService.uploadSlika(data.imageFile); 
       } else if (data.imageUrl) {
         imageURL = data.imageUrl;
+      } else if (data.existingIconUrl) {
+        imageURL = data.existingIconUrl;
       }
 
       Utils.setLoadingState(elements.dodaj, true); 
@@ -706,6 +857,8 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
         imageURL = await FirebaseService.uploadSlika(data.imageFile); 
       } else if (data.imageUrl) {
         imageURL = data.imageUrl;
+      } else if (data.existingIconUrl) {
+        imageURL = data.existingIconUrl;
       }
       const updateData = this.prepareUpdateData(entityType, data, imageURL, currentEntity); 
       await config.services.update(editId, updateData);
@@ -1154,7 +1307,8 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
       naziv: el.naziv?.value?.trim() || "", 
       imageFile: el.ikona?.files[0] || el.slika?.files[0] || null,
       sadrziAlkohol: el.sadrziAlkohol?.checked || false,
-      specijalnaPonuda: el.specijalnaPonuda?.checked || false
+      specijalnaPonuda: el.specijalnaPonuda?.checked || false,
+      existingIconUrl: el.ikona ? (document.getElementById(el.ikona.id + 'Existing')?.value || '') : ''
     }; 
     
     if (entityType === 'kategorija') 
@@ -1319,6 +1473,7 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     } 
     if (el.sadrziAlkohol) el.sadrziAlkohol.checked = false;
     if (el.specijalnaPonuda) el.specijalnaPonuda.checked = false;
+    if (el.ikona) { const ef = document.getElementById(el.ikona.id + 'Existing'); if (ef) ef.value = ''; }
   }
 
   /* TOGGLE STATUS ARTIKLA */
