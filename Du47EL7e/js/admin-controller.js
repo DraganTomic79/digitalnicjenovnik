@@ -3,6 +3,8 @@ import * as FirebaseService from './admin-firebase.js';
 import * as UIService from './admin-ui.js';
 import * as Utils from './admin-utils.js';
 import { initMobileOptimizations, initTabSystem } from './admin-ui.js';
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 import { 
   obrisiGlavnuKategorijuKaskadno, 
   obrisiKategorijuKaskadno, 
@@ -10,6 +12,17 @@ import {
   vratiArtikleIzNepoznate,
   toggleArtikalAktivnost
 } from './admin-firebase.js';
+
+/* Firebase konfiguracije SVIH kafića — koristi se za pretragu artikala preko svih
+   baza odjednom (čitanje je javno dozvoljeno za sve, isto kao za sam meni sajta).
+   OVAJ kafić (trenutni) se automatski preskače pri pretraživanju (već je učitan). */
+const SVI_KAFICI = [
+  { slug: 'kafic1', config: { apiKey: "AIzaSyCW6EehwraJazNSMOXxrdUNEYx8YIQgRQE", authDomain: "digitalnicjenovnik-kafic1.firebaseapp.com", projectId: "digitalnicjenovnik-kafic1", storageBucket: "digitalnicjenovnik-kafic1.firebasestorage.app", messagingSenderId: "1020174209293", appId: "1:1020174209293:web:33125083ba0b9d9cb5a044" } },
+  { slug: 'kafic2', config: { apiKey: "AIzaSyBvegEdujvS-INu91MhMtcawYfXnDiZg-Y", authDomain: "digitalnicjenovnik-kafic2.firebaseapp.com", projectId: "digitalnicjenovnik-kafic2", storageBucket: "digitalnicjenovnik-kafic2.firebasestorage.app", messagingSenderId: "1029765650849", appId: "1:1029765650849:web:574922e70636681dfe53e0" } },
+  { slug: 'kafic3', config: { apiKey: "AIzaSyDkdX8R51_tM5KBgSBWvDEGkzW65F-jo8w", authDomain: "digitalnicjenovnik-kafic3.firebaseapp.com", projectId: "digitalnicjenovnik-kafic3", storageBucket: "digitalnicjenovnik-kafic3.firebasestorage.app", messagingSenderId: "848812318853", appId: "1:848812318853:web:573e474a946c2a8be189ec" } },
+  { slug: 'kafic4', config: { apiKey: "AIzaSyAnV5t8nv3In0rlQ3EKBTTTV6rMWb5Wqbo", authDomain: "digitalnicjenovnik-kafic4.firebaseapp.com", projectId: "digitalnicjenovnik-kafic4", storageBucket: "digitalnicjenovnik-kafic4.firebasestorage.app", messagingSenderId: "579052981017", appId: "1:579052981017:web:08bb83b2f3728cf1499388" } }
+];
+const TRENUTNI_KAFIC = 'kafic4';
 
 class AdminController {
   constructor() {
@@ -456,15 +469,22 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     set('statArtikliSakriveni', sakriveni);
   }
 
-  /** Popunjava listu za automatsko dovršavanje naziva artikla (nativni browser datalist) */
+  /** Popunjava listu za automatsko dovršavanje naziva artikla (nativni browser datalist).
+      Prvo puni sa artiklima IZ OVOG kafića (odmah), a zatim, kad stignu, dopunjuje
+      sa artiklima sa OSTALA tri kafića (učitavaju se u pozadini, javno je dozvoljeno čitanje). */
   updateArtikalDatalist() {
+    this.renderArtikalDatalist();
+    this.loadCrossKaficArtikle();
+  }
+
+  /** Iscrtava datalist opcije iz trenutno poznatih artikala (ovaj kafić + eventualno već učitani ostali) */
+  renderArtikalDatalist() {
     const dl = document.getElementById('artikalNazivDatalist');
     if (!dl) return;
-    const artikli = this.state.data.artikli || [];
-    // Po jedan unos po jedinstvenom nazivu (izbjegava duplirane opcije u listi)
+    const svi = [...(this.state.data.artikli || []), ...(this.state.crossKaficArtikli || [])];
     const seen = new Set();
     let html = '';
-    artikli.forEach(a => {
+    svi.forEach(a => {
       const key = (a.naziv || '').toLowerCase();
       if (!key || seen.has(key)) return;
       seen.add(key);
@@ -473,8 +493,39 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     dl.innerHTML = html;
   }
 
-  /** Kad korisnik upiše/izabere naziv koji već postoji među artiklima (u ISTOM kafiću),
-      automatski popuni opis/opis2/link slike iz tog postojećeg artikla — sve ostaje izmjenjivo. */
+  /** Učitava artikle sa OSTALA tri kafića (jednom, keširano u memoriji za trajanje sesije) —
+      koristi se samo za pretragu/automatsko popunjavanje pri dodavanju novog artikla, ne mijenja ništa. */
+  async loadCrossKaficArtikle() {
+    if (this.state.crossKaficLoaded) { this.renderArtikalDatalist(); return; }
+    this.state.crossKaficArtikli = this.state.crossKaficArtikli || [];
+
+    const ostali = SVI_KAFICI.filter(k => k.slug !== TRENUTNI_KAFIC);
+    await Promise.all(ostali.map(async (kafic) => {
+      try {
+        const appName = 'cross-' + kafic.slug;
+        const app = getApps().find(a => a.name === appName) || initializeApp(kafic.config, appName);
+        const db = getFirestore(app);
+        const snap = await getDocs(collection(db, 'meni'));
+        snap.forEach(doc => {
+          const d = doc.data();
+          if (!d.naziv) return;
+          this.state.crossKaficArtikli.push({
+            naziv: d.naziv, opis: d.opis || '', opis2: d.opis2 || '',
+            slikaURL: d.slikaURL || '', _kafic: kafic.slug
+          });
+        });
+      } catch (err) {
+        Utils.debug.error(`Greška učitavanja artikala sa ${kafic.slug}:`, err);
+      }
+    }));
+
+    this.state.crossKaficLoaded = true;
+    this.renderArtikalDatalist();
+  }
+
+  /** Kad korisnik upiše/izabere naziv koji već postoji među artiklima (u ISTOM ili
+      BILO KOM DRUGOM kafiću), automatski popuni opis/opis2/link slike iz tog artikla
+      — sve ostaje izmjenjivo. Prioritet: prvo ovaj kafić, pa ostali. */
   autofillArtikalFromExisting() {
     // Ne autopopunjavaj dok se MIJENJA postojeći artikal (samo kod dodavanja novog)
     if (this.state.editIds && this.state.editIds.artikal) return;
@@ -482,7 +533,9 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     if (!el || !el.naziv) return;
     const naziv = (el.naziv.value || '').trim().toLowerCase();
     if (!naziv) return;
-    const match = (this.state.data.artikli || []).find(a => (a.naziv || '').trim().toLowerCase() === naziv);
+
+    const match = (this.state.data.artikli || []).find(a => (a.naziv || '').trim().toLowerCase() === naziv)
+      || (this.state.crossKaficArtikli || []).find(a => (a.naziv || '').trim().toLowerCase() === naziv);
     if (!match) return;
 
     if (el.opis && !el.opis.value) el.opis.value = match.opis || '';
@@ -490,7 +543,8 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     if (el.slikaUrl && !el.slikaUrl.value && (!el.slika || !el.slika.files.length)) {
       el.slikaUrl.value = match.slikaURL || '';
     }
-    Utils.prikaziPoruku(`Popunjeno iz postojećeg artikla "${match.naziv}" — provjeri i izmijeni po potrebi`, 'info');
+    const izvor = match._kafic ? ` (sa ${match._kafic})` : '';
+    Utils.prikaziPoruku(`Popunjeno iz postojećeg artikla "${match.naziv}"${izvor} — provjeri i izmijeni po potrebi`, 'info');
   }
 
   /** Učitavanje pojedinačnog entiteta */
