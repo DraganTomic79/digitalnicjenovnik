@@ -483,24 +483,28 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     if (!dl) return;
     const svi = [...(this.state.data.artikli || []), ...(this.state.crossKaficArtikli || [])];
     const seen = new Set();
-    let html = '';
+    const nazivi = [];
     svi.forEach(a => {
       const key = (a.naziv || '').toLowerCase();
       if (!key || seen.has(key)) return;
       seen.add(key);
-      html += `<option value="${(a.naziv || '').replace(/"/g, '&quot;')}"></option>`;
+      nazivi.push(a.naziv);
     });
-    dl.innerHTML = html;
+    nazivi.sort((a, b) => a.localeCompare(b, 'sr'));
+    dl.innerHTML = nazivi.map(n => `<option value="${n.replace(/"/g, '&quot;')}"></option>`).join('');
   }
 
   /** Učitava artikle sa OSTALA tri kafića (jednom, keširano u memoriji za trajanje sesije) —
-      koristi se samo za pretragu/automatsko popunjavanje pri dodavanju novog artikla, ne mijenja ništa. */
+      koristi se samo za pretragu/automatsko popunjavanje pri dodavanju novog artikla, ne mijenja ništa.
+      Redoslijed je UVIJEK isti (kafic1 → kafic2 → kafic3, fiksnim redom) — bitno kad ista slika/artikal
+      postoji na više kafića sa RAZLIČITIM linkom slike (duplikat na ImgBB): uvijek se bira isti izvor,
+      predvidivo, umjesto da zavisi od toga koja mreža/zahtjev stigne prvi. */
   async loadCrossKaficArtikle() {
     if (this.state.crossKaficLoaded) { this.renderArtikalDatalist(); return; }
-    this.state.crossKaficArtikli = this.state.crossKaficArtikli || [];
 
     const ostali = SVI_KAFICI.filter(k => k.slug !== TRENUTNI_KAFIC);
-    await Promise.all(ostali.map(async (kafic) => {
+    const rezultati = [];
+    for (const kafic of ostali) {
       try {
         const appName = 'cross-' + kafic.slug;
         const app = getApps().find(a => a.name === appName) || initializeApp(kafic.config, appName);
@@ -509,7 +513,7 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
         snap.forEach(doc => {
           const d = doc.data();
           if (!d.naziv) return;
-          this.state.crossKaficArtikli.push({
+          rezultati.push({
             naziv: d.naziv, opis: d.opis || '', opis2: d.opis2 || '',
             slikaURL: d.slikaURL || '', _kafic: kafic.slug
           });
@@ -517,8 +521,9 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
       } catch (err) {
         Utils.debug.error(`Greška učitavanja artikala sa ${kafic.slug}:`, err);
       }
-    }));
+    }
 
+    this.state.crossKaficArtikli = rezultati;
     this.state.crossKaficLoaded = true;
     this.renderArtikalDatalist();
   }
