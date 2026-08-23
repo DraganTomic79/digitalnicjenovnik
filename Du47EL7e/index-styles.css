@@ -1770,8 +1770,9 @@ html, body { height: auto; }
 .items-grid .item-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-medium); }
 .items-grid .item-image-wrapper, .items-grid .item-image, .items-grid .item-placeholder {
   width: 100% !important; height: clamp(95px, 15vw, 130px) !important; border-radius: 0 !important;
+  background: #fff;
 }
-.items-grid .item-image { object-fit: cover; }
+.items-grid .item-image { object-fit: contain; }
 .items-grid .item-info { padding: 8px 12px 2px; flex: 1; text-align: center; }
 .items-grid .item-name { font-size: .86rem; white-space: normal; }
 .items-grid .item-description, .items-grid .item-description2 { white-space: normal; }
