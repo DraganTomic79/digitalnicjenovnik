@@ -330,8 +330,10 @@ function packPages(blocks){
 
   for(const b of blocks){
     if(b.type==='main'){
-      // New page if current already > 40% full
-      if(page.usedH>BODY_H*0.4)newPage();
+      // Nova stranica ako je trenutna već >40% popunjena, ILI ako već sadrži
+      // ostatak sadržaja neke DRUGE kategorije (spriječava da naslov nove
+      // glavne kategorije "pluta" iznad ostatka prethodne)
+      if(page.usedH>BODY_H*0.4 || page.subs.length>0) newPage();
       if(!page.mainLabel){
         page.mainLabel=b.label;
         page.usedH+=LBL_MAIN+BODY_GAP;
