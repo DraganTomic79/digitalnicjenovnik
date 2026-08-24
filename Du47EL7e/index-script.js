@@ -154,19 +154,18 @@ class MenuApp {
       tree = this.state.allMainCategories.map(glavna => {
         const kategorije = this.getSubcategoriesForMain(glavna.id);
         if (kategorije.length === 0) return null;
-        const glavnaPromo = this.isPromotion(glavna);
         return {
           id: glavna.id, naziv: glavna.naziv, ikona: glavna.ikona, isTop: true,
           children: kategorije.map(kat => {
             const podkategorije = this.getSubcategoriesForCategory(kat.id);
-            const katPromo = glavnaPromo || this.isPromotion(kat);
+            const katPromo = this.isPromotion(kat);
             const katAlcoholic = this.isAlcoholicCategory(kat);
             return {
               id: kat.id, naziv: kat.naziv, ikona: kat.ikonaKategorije || kat.ikona,
               alcoholic: katAlcoholic, promo: katPromo,
               children: podkategorije.map(pod => {
-                const pAlc = katAlcoholic || this.isAlcoholicSubcategory(pod);
-                const pPromo = katPromo || this.isPromotion(pod);
+                const pAlc = this.isAlcoholicSubcategory(pod);
+                const pPromo = this.isPromotion(pod);
                 return {
                   id: pod.id, naziv: pod.naziv, ikona: pod.ikonaKategorije || pod.ikona,
                   alcoholic: pAlc, promo: pPromo,
@@ -183,8 +182,8 @@ class MenuApp {
       if (podkategorijeSSadrzajem.length > 0) {
         tree = podkategorijeSSadrzajem.map(pod => {
           const roditelj = this.state.allCategories.find(k => k.id === pod.kategorijaId || k.naziv === pod.kategorija);
-          const pAlc = this.isAlcoholicSubcategory(pod) || (roditelj && this.isAlcoholicCategory(roditelj));
-          const pPromo = this.isPromotion(pod) || (roditelj && this.isPromotion(roditelj));
+          const pAlc = this.isAlcoholicSubcategory(pod);
+          const pPromo = this.isPromotion(pod);
           return {
             id: pod.id, naziv: pod.naziv, ikona: pod.ikonaKategorije || pod.ikona,
             alcoholic: pAlc, promo: pPromo,
