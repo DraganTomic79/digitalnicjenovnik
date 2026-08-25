@@ -38,6 +38,10 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0c0c0c;color:var(--beige
 #priceModal .pm-box{background:#1e1e2e;border:2px solid var(--gold);border-radius:14px;padding:32px 28px;max-width:320px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.6)}
 #priceModal h3{color:var(--gold);font-size:1.1rem;font-weight:800;margin-bottom:8px;font-family:'Playfair Display',serif}
 #priceModal p{color:var(--muted);font-size:.85rem;margin-bottom:24px}
+#promoModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center}
+#promoModal .pm-box{background:#1e1e2e;border:2px solid var(--gold);border-radius:14px;padding:32px 28px;max-width:320px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+#promoModal h3{color:var(--gold);font-size:1.1rem;font-weight:800;margin-bottom:8px;font-family:'Playfair Display',serif}
+#promoModal p{color:var(--muted);font-size:.85rem;margin-bottom:24px}
 .pm-btn{display:block;width:100%;font-weight:800;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:.9rem;margin-bottom:10px}
 .pm-btn-yes{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a1a}
 .pm-btn-no{background:#2a2a3e;color:var(--gold);border:2px solid var(--gold)!important}
@@ -55,7 +59,11 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0c0c0c;color:var(--beige
 .cols{column-count:2;column-gap:34px}
 
 .cat-block{break-inside:avoid;-webkit-column-break-inside:avoid;display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
-.lbl-sub{font-size:.82rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);opacity:.85}
+.lbl-sub{font-size:.82rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);opacity:.85;display:flex;align-items:center;gap:6px}
+.cat-block.promo-frame{border:2px solid var(--gold);border-radius:8px;padding:10px;background:rgba(198,166,100,.05)}
+.cat-block.alcohol-frame{border:2px solid #dc2626;border-radius:8px;padding:10px;background:rgba(220,38,38,.05)}
+.age-restrictor{display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;font-size:.42rem;font-weight:800;width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,255,255,.8);flex-shrink:0}
+.promo-star{font-size:.78rem;flex-shrink:0}
 
 .divider{display:flex;align-items:center;gap:8px;color:var(--gold);opacity:.5;margin:6px 0 16px}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--line)}
@@ -113,6 +121,16 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0c0c0c;color:var(--beige
   </div>
 </div>
 
+<!-- Modal — izbor sa/bez Specijalne ponude, pojavljuje se nakon izbora cijena -->
+<div id="promoModal" style="display:none">
+  <div class="pm-box">
+    <h3><i class="fas fa-star"></i> Specijalna ponuda</h3>
+    <p>Da li da uključim Specijalnu ponudu u cjenovnik?</p>
+    <button class="pm-btn pm-btn-yes" onclick="initPromo(1)"><i class="fas fa-star"></i> Sa Specijalnom ponudom</button>
+    <button class="pm-btn pm-btn-no" onclick="initPromo(0)"><i class="fas fa-eye-slash"></i> Bez Specijalne ponude</button>
+  </div>
+</div>
+
 <div id="topbar">
   <span class="tb-label">Cjenovnik</span>
   <div class="tb-btns">
@@ -132,6 +150,7 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0c0c0c;color:var(--beige
 <script>
 // Prikaz sa/bez cijena — čita ?cijene=1 ili ?cijene=0 iz URL-a; ako nije zadano, prikazuje modal
 let _showPrices=null;
+let _showPromo=null;
 function initCijene(val){
   _showPrices=val;
   const modal=document.getElementById('priceModal');
@@ -141,7 +160,18 @@ function initCijene(val){
     if(!val)book.classList.add('hide-prices');
     else book.classList.remove('hide-prices');
   }
-  window._pdfNameSuffix=val?'':'-bezcijena';
+
+  const pPromo=new URLSearchParams(window.location.search).get('promo');
+  if(pPromo!==null){ initPromo(parseInt(pPromo)); }
+  else{ const pm=document.getElementById('promoModal'); if(pm)pm.style.display='flex'; }
+}
+function initPromo(val){
+  _showPromo=val;
+  const modal=document.getElementById('promoModal');
+  if(modal)modal.style.display='none';
+  window._pdfNameSuffix=(_showPrices?'':'-bezcijena')+(val?'':'-bezpromo');
+  const tryStart=()=>{ if(window._startBuild)window._startBuild(); else setTimeout(tryStart,50); };
+  tryStart();
 }
 function _initCijeneFromUrl(){
   const p=new URLSearchParams(window.location.search).get('cijene');
@@ -179,6 +209,20 @@ const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 const srt=a=>[...a].sort((x,y)=>(x.sortOrder||999)-(y.sortOrder||999));
 
 /* ── BUILD BLOCKS (ista logika kao katalog.html) ── */
+/* Uklanja promotivne sekcije (i naslove kategorija koji bi ostali bez sadržaja) kad
+   korisnik izabere "Bez Specijalne ponude" */
+function filterPromo(blocks, showPromo){
+  if(showPromo) return blocks;
+  const result=[]; let pendingMain=null;
+  for(const b of blocks){
+    if(b.type==='main'){ pendingMain=b; continue; }
+    if(b.promo) continue;
+    if(pendingMain){ result.push(pendingMain); pendingMain=null; }
+    result.push(b);
+  }
+  return result;
+}
+
 function buildBlocks(gk,kat,pod,items){
   const active=items.filter(i=>i.aktivna!==false);
   const getI=name=>srt(active.filter(i=>i.podkategorija===name||i.kategorija===name));
@@ -187,32 +231,44 @@ function buildBlocks(gk,kat,pod,items){
     for(const g of srt(gk)){
       let added=false;
       for(const k of srt(kat.filter(k=>k.glavnaKategorijaId===g.id))){
+        const kPromo=!!k.specijalnaPonuda;
+        const kAlc=!!k.sadrziAlkohol;
         const pods=srt(pod.filter(p=>p.kategorijaId===k.id));
         if(pods.length){
           for(const p of pods){
             const its=getI(p.naziv);if(!its.length)continue;
             if(!added){B.push({type:'main',label:g.naziv});added=true;}
-            B.push({type:'sub',label:`${k.naziv} – ${p.naziv}`,items:its});
+            const pAlc=!!p.sadrziAlkohol, pPromo=!!p.specijalnaPonuda;
+            B.push({type:'sub',label:`${k.naziv} – ${p.naziv}`,items:its,alcoholic:pAlc,promo:pPromo});
           }
         }else{
           const its=getI(k.naziv);if(!its.length)continue;
           if(!added){B.push({type:'main',label:g.naziv});added=true;}
-          B.push({type:'sub',label:k.naziv,items:its});
+          B.push({type:'sub',label:k.naziv,items:its,alcoholic:kAlc,promo:kPromo});
         }
       }
       const di=getI(g.naziv);
-      if(di.length){if(!added){B.push({type:'main',label:g.naziv});added=true;}B.push({type:'sub',label:g.naziv,items:di});}
+      if(di.length){
+        if(!added){B.push({type:'main',label:g.naziv});added=true;}
+        B.push({type:'sub',label:g.naziv,items:di,alcoholic:!!g.sadrziAlkohol,promo:!!g.specijalnaPonuda});
+      }
     }
   }else if(kat.length){
     for(const k of srt(kat)){
       let added=false;
+      const kPromo=!!k.specijalnaPonuda;
+      const kAlc=!!k.sadrziAlkohol;
       for(const p of srt(pod.filter(p=>p.kategorijaId===k.id))){
         const its=getI(p.naziv);if(!its.length)continue;
         if(!added){B.push({type:'main',label:k.naziv});added=true;}
-        B.push({type:'sub',label:p.naziv,items:its});
+        const pAlc=!!p.sadrziAlkohol, pPromo=!!p.specijalnaPonuda;
+        B.push({type:'sub',label:p.naziv,items:its,alcoholic:pAlc,promo:pPromo});
       }
       const di=getI(k.naziv);
-      if(di.length){if(!added)B.push({type:'main',label:k.naziv});B.push({type:'sub',label:k.naziv,items:di});}
+      if(di.length){
+        if(!added)B.push({type:'main',label:k.naziv});
+        B.push({type:'sub',label:k.naziv,items:di,alcoholic:kAlc,promo:kPromo});
+      }
     }
   }else if(active.length){B.push({type:'main',label:'Ponuda'});B.push({type:'sub',label:'Svi artikli',items:active});}
   return B;
@@ -248,7 +304,14 @@ function bodyHTML(blocks){
       out+='<div class="cols">';
       open=true;
     }else{
-      out+=`<div class="cat-block"><div class="lbl-sub">${esc(b.label)}</div>${b.items.map(rowHTML).join('')}</div>`;
+      const frameClass = b.promo ? ' promo-frame' : (b.alcoholic ? ' alcohol-frame' : '');
+      const age = b.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
+      const star = b.promo ? '<span class="promo-star">⭐</span>' : '';
+      const dashIdx = b.label.indexOf(' – ');
+      const labelHtml = dashIdx>-1
+        ? `${esc(b.label.slice(0,dashIdx))}${star}${age} – ${esc(b.label.slice(dashIdx+3))}`
+        : `${star}${esc(b.label)}${age}`;
+      out+=`<div class="cat-block${frameClass}"><div class="lbl-sub">${labelHtml}</div>${b.items.map(rowHTML).join('')}</div>`;
     }
   }
   if(open)out+='</div>';
@@ -311,12 +374,19 @@ function pdfNewPage(titleLabel,showDivider){
 const PDF_SAFETY=24; // rezerva protiv sitnih razlika u renderovanju html2canvas klona
 function pdfFits(){ return pdfActive.scrollHeight<=pdfCurPb.clientHeight-PDF_SAFETY; }
 
-function pdfPlaceSubBlock(label,items){
+function pdfPlaceSubBlock(label,items,alcoholic,promo){
   let idx=0,first=true;
+  const frameClass = promo ? ' promo-frame' : (alcoholic ? ' alcohol-frame' : '');
+  const age = alcoholic ? '<span class="age-restrictor">18+</span>' : '';
+  const star = promo ? '<span class="promo-star">⭐</span>' : '';
   while(idx<items.length){
     const headerText=first?label:`${label} (nastavak)`;
-    const block=document.createElement('div');block.className='cat-block';
-    const hdr=elFromHTML(`<div class="lbl-sub">${esc(headerText)}</div>`);
+    const block=document.createElement('div');block.className='cat-block'+frameClass;
+    const dashIdx = headerText.indexOf(' – ');
+    const labelHtml = dashIdx>-1
+      ? `${esc(headerText.slice(0,dashIdx))}${star}${age} – ${esc(headerText.slice(dashIdx+3))}`
+      : `${star}${esc(headerText)}${age}`;
+    const hdr=elFromHTML(`<div class="lbl-sub">${labelHtml}</div>`);
     block.appendChild(hdr);
     pdfActive.appendChild(block);
     if(!pdfFits()){
@@ -358,7 +428,7 @@ async function buildPdfPages(blocks){
       pdfNewPage(b.label,divider);
       continue;
     }
-    pdfPlaceSubBlock(b.label,b.items);
+    pdfPlaceSubBlock(b.label,b.items,b.alcoholic,b.promo);
   }
   const total=pdfPages.length;
   pdfPages.forEach(pg=>{
@@ -377,7 +447,7 @@ async function build(){
     ]);
     pSnap.forEach(d=>{const x=d.data();gLogo=x.logoURL||'';gCur=x.currencyCode||'KM';});
 
-    gBlocks=buildBlocks(gk,kat,pod,meni);
+    gBlocks=filterPromo(buildBlocks(gk,kat,pod,meni), _showPromo);
     renderContinuous(gBlocks);
 
     if(_showPrices===0)document.getElementById('book').classList.add('hide-prices');
@@ -457,7 +527,7 @@ window._pdfStart=async function(format){
   }
 };
 
-build();
+window._startBuild=build;
 </script>
 </body>
 </html>

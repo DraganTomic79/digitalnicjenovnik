@@ -190,16 +190,15 @@ function buildBlocks(gk,kat,pod,items){
   if(gk.length){
     for(const g of srt(gk)){
       let added=false;
-      const gPromo=!!g.specijalnaPonuda;
       for(const k of srt(kat.filter(k=>k.glavnaKategorijaId===g.id))){
-        const kPromo=gPromo||!!k.specijalnaPonuda;
+        const kPromo=!!k.specijalnaPonuda;
         const kAlc=!!k.sadrziAlkohol;
         const pods=srt(pod.filter(p=>p.kategorijaId===k.id));
         if(pods.length){
           for(const p of pods){
             const its=getI(p.naziv);if(!its.length)continue;
             if(!added){B.push({type:'main',label:g.naziv});added=true;}
-            const pAlc=kAlc||!!p.sadrziAlkohol, pPromo=kPromo||!!p.specijalnaPonuda;
+            const pAlc=!!p.sadrziAlkohol, pPromo=!!p.specijalnaPonuda;
             B.push({type:'sub',label:`${k.naziv} – ${p.naziv}`,items:its,alcoholic:pAlc,promo:pPromo});
           }
         }else{
@@ -211,7 +210,7 @@ function buildBlocks(gk,kat,pod,items){
       const di=getI(g.naziv);
       if(di.length){
         if(!added){B.push({type:'main',label:g.naziv});added=true;}
-        B.push({type:'sub',label:g.naziv,items:di,alcoholic:!!g.sadrziAlkohol,promo:gPromo});
+        B.push({type:'sub',label:g.naziv,items:di,alcoholic:!!g.sadrziAlkohol,promo:!!g.specijalnaPonuda});
       }
     }
   }else if(kat.length){
@@ -222,7 +221,7 @@ function buildBlocks(gk,kat,pod,items){
       for(const p of srt(pod.filter(p=>p.kategorijaId===k.id))){
         const its=getI(p.naziv);if(!its.length)continue;
         if(!added){B.push({type:'main',label:k.naziv});added=true;}
-        const pAlc=kAlc||!!p.sadrziAlkohol, pPromo=kPromo||!!p.specijalnaPonuda;
+        const pAlc=!!p.sadrziAlkohol, pPromo=!!p.specijalnaPonuda;
         B.push({type:'sub',label:p.naziv,items:its,alcoholic:pAlc,promo:pPromo});
       }
       const di=getI(k.naziv);
