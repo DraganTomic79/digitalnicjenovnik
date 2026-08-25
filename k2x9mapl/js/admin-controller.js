@@ -3,13 +3,27 @@ import * as FirebaseService from './admin-firebase.js';
 import * as UIService from './admin-ui.js';
 import * as Utils from './admin-utils.js';
 import { initMobileOptimizations, initTabSystem } from './admin-ui.js';
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 import { 
   obrisiGlavnuKategorijuKaskadno, 
   obrisiKategorijuKaskadno, 
   obrisiPodkategorijuKaskadno, 
   vratiArtikleIzNepoznate,
-  toggleArtikalAktivnost
+  toggleArtikalAktivnost,
+  primijeniOznakeKaskadno
 } from './admin-firebase.js';
+
+/* Firebase konfiguracije SVIH kafića — koristi se za pretragu artikala preko svih
+   baza odjednom (čitanje je javno dozvoljeno za sve, isto kao za sam meni sajta).
+   OVAJ kafić (trenutni) se automatski preskače pri pretraživanju (već je učitan). */
+const SVI_KAFICI = [
+  { slug: 'kafic1', config: { apiKey: "AIzaSyCW6EehwraJazNSMOXxrdUNEYx8YIQgRQE", authDomain: "digitalnicjenovnik-kafic1.firebaseapp.com", projectId: "digitalnicjenovnik-kafic1", storageBucket: "digitalnicjenovnik-kafic1.firebasestorage.app", messagingSenderId: "1020174209293", appId: "1:1020174209293:web:33125083ba0b9d9cb5a044" } },
+  { slug: 'kafic2', config: { apiKey: "AIzaSyBvegEdujvS-INu91MhMtcawYfXnDiZg-Y", authDomain: "digitalnicjenovnik-kafic2.firebaseapp.com", projectId: "digitalnicjenovnik-kafic2", storageBucket: "digitalnicjenovnik-kafic2.firebasestorage.app", messagingSenderId: "1029765650849", appId: "1:1029765650849:web:574922e70636681dfe53e0" } },
+  { slug: 'kafic3', config: { apiKey: "AIzaSyDkdX8R51_tM5KBgSBWvDEGkzW65F-jo8w", authDomain: "digitalnicjenovnik-kafic3.firebaseapp.com", projectId: "digitalnicjenovnik-kafic3", storageBucket: "digitalnicjenovnik-kafic3.firebasestorage.app", messagingSenderId: "848812318853", appId: "1:848812318853:web:573e474a946c2a8be189ec" } },
+  { slug: 'kafic4', config: { apiKey: "AIzaSyAnV5t8nv3In0rlQ3EKBTTTV6rMWb5Wqbo", authDomain: "digitalnicjenovnik-kafic4.firebaseapp.com", projectId: "digitalnicjenovnik-kafic4", storageBucket: "digitalnicjenovnik-kafic4.firebasestorage.app", messagingSenderId: "579052981017", appId: "1:579052981017:web:08bb83b2f3728cf1499388" } }
+];
+const TRENUTNI_KAFIC = 'kafic2';
 
 class AdminController {
   constructor() {
@@ -187,18 +201,21 @@ class AdminController {
     const groups = { 
       glavnaKategorija: [
         'naziv', 'ikona', 'previewContainer', 'selectGlavnaKategorija',
+        'sadrziAlkohol', 'specijalnaPonuda', 'primijeniAlkohol', 'primijeniPromo',
         'dodaj', 'sacuvaj', 'otkazi', 'listaContainer'
       ], 
       kategorija: [
         'naziv', 'ikona', 'previewContainer', 'selectGlavnaKategorija',
+        'sadrziAlkohol', 'specijalnaPonuda', 'primijeniAlkohol', 'primijeniPromo',
         'dodaj', 'sacuvaj', 'otkazi', 'listaContainer'
       ], 
       podkategorija: [
         'naziv', 'ikona', 'previewContainer', 'kategorijaSelect',
+        'sadrziAlkohol', 'specijalnaPonuda',
         'dodaj', 'sacuvaj', 'otkazi', 'listaContainer'
       ], 
       artikal: [
-        'naziv', 'cijena', 'podkategorijaSelect', 'opis', 'opis2', 'slika',
+        'naziv', 'cijena', 'podkategorijaSelect', 'opis', 'opis2', 'slika', 'slikaUrl',
         'dodaj', 'sacuvaj', 'otkazi', 'listaContainer'
       ], 
       postavke: [
@@ -230,6 +247,10 @@ class AdminController {
         ikona: 'ikonaGlavneKategorije', 
         previewContainer: 'glavnaIkonaPreview', 
         selectGlavnaKategorija: 'selectGlavnaKategorija', 
+        sadrziAlkohol: 'sadrziAlkoholGlavnaKategorija',
+        specijalnaPonuda: 'specijalnaPonudaGlavnaKategorija',
+        primijeniAlkohol: 'primijeniAlkoholGlavnaKategorija',
+        primijeniPromo: 'primijeniPromoGlavnaKategorija',
         dodaj: 'dodajGlavnuKategorijuBtn', 
         sacuvaj: 'sacuvajGlavnuKategorijuBtn', 
         otkazi: 'otkaziGlavnuKategorijuBtn', 
@@ -240,6 +261,10 @@ class AdminController {
         ikona: 'ikonaKategorije', 
         previewContainer: 'ikonaPreview', 
         selectGlavnaKategorija: 'selectGlavnaKategorija', 
+        sadrziAlkohol: 'sadrziAlkoholKategorija',
+        specijalnaPonuda: 'specijalnaPonudaKategorija',
+        primijeniAlkohol: 'primijeniAlkoholKategorija',
+        primijeniPromo: 'primijeniPromoKategorija',
         dodaj: 'dodajKategorijuBtn', 
         sacuvaj: 'sacuvajKategorijuBtn', 
         otkazi: 'otkaziKategorijuBtn', 
@@ -250,6 +275,8 @@ class AdminController {
         ikona: 'ikonaPodkategorije', 
         previewContainer: 'podkategorijaIkonaPreview', 
         kategorijaSelect: 'selectKategorijaPodkategorija', 
+        sadrziAlkohol: 'sadrziAlkoholPodkategorija',
+        specijalnaPonuda: 'specijalnaPonudaPodkategorija',
         dodaj: 'dodajPodkategorijuBtn', 
         sacuvaj: 'sacuvajPodkategorijuBtn', 
         otkazi: 'otkaziPodkategorijuBtn', 
@@ -262,6 +289,7 @@ class AdminController {
         opis: 'opisArtikla', 
         opis2: 'opisArtikla2', 
         slika: 'slikaArtikla', 
+        slikaUrl: 'slikaArtiklaUrl', 
         dodaj: 'dodajArtikalBtn', 
         sacuvaj: 'sacuvajIzmjenuBtn', 
         otkazi: 'otkaziIzmjenuBtn', 
@@ -324,6 +352,10 @@ class AdminController {
       'change', 
       () => this.filterPodkategorije()
     ); 
+
+    // Naziv artikla — kad korisnik izabere/upiše postojeći naziv, ponudi automatsko
+    // popunjavanje ostalih polja iz tog artikla (slika, opis, opis2)
+    this.addHandler(this.elements.artikal?.naziv, 'change', () => this.autofillArtikalFromExisting());
     
     this.initPostavkeHandlers(); 
   }
@@ -442,6 +474,232 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     set('statArtikliSakriveni', sakriveni);
   }
 
+  /** Popunjava listu za automatsko dovršavanje naziva artikla (nativni browser datalist).
+      Prvo puni sa artiklima IZ OVOG kafića (odmah), a zatim, kad stignu, dopunjuje
+      sa artiklima sa OSTALA tri kafića (učitavaju se u pozadini, javno je dozvoljeno čitanje). */
+  updateArtikalDatalist() {
+    this.renderArtikalDatalist();
+    this.loadCrossKaficArtikle();
+  }
+
+  /** Iscrtava datalist opcije iz trenutno poznatih artikala (ovaj kafić + eventualno već učitani ostali),
+      abecedno sortirano */
+  renderArtikalDatalist() {
+    const dl = document.getElementById('artikalNazivDatalist');
+    if (!dl) return;
+    const svi = [...(this.state.data.artikli || []), ...(this.state.crossKaficArtikli || [])];
+    const seen = new Set();
+    const nazivi = [];
+    svi.forEach(a => {
+      const key = (a.naziv || '').toLowerCase();
+      if (!key || seen.has(key)) return;
+      seen.add(key);
+      nazivi.push(a.naziv);
+    });
+    nazivi.sort((a, b) => a.localeCompare(b, 'sr'));
+    dl.innerHTML = nazivi.map(n => `<option value="${n.replace(/"/g, '&quot;')}"></option>`).join('');
+  }
+
+  /** Učitava artikle sa OSTALA tri kafića (jednom, keširano u memoriji za trajanje sesije) —
+      koristi se samo za pretragu/automatsko popunjavanje pri dodavanju novog artikla, ne mijenja ništa.
+      Redoslijed je UVIJEK isti (fiksnim redom) — bitno kad ista slika/artikal postoji na više kafića
+      sa RAZLIČITIM linkom slike (duplikat na ImgBB): uvijek se bira isti izvor, predvidivo, umjesto
+      da zavisi od toga koja mreža/zahtjev stigne prvi. */
+  async loadCrossKaficArtikle() {
+    if (this.state.crossKaficLoaded) { this.renderArtikalDatalist(); return; }
+
+    const ostali = SVI_KAFICI.filter(k => k.slug !== TRENUTNI_KAFIC);
+    const rezultati = [];
+    for (const kafic of ostali) {
+      try {
+        const appName = 'cross-' + kafic.slug;
+        const app = getApps().find(a => a.name === appName) || initializeApp(kafic.config, appName);
+        const db = getFirestore(app);
+        const snap = await getDocs(collection(db, 'meni'));
+        snap.forEach(doc => {
+          const d = doc.data();
+          if (!d.naziv) return;
+          rezultati.push({
+            naziv: d.naziv, opis: d.opis || '', opis2: d.opis2 || '',
+            slikaURL: d.slikaURL || '', _kafic: kafic.slug
+          });
+        });
+      } catch (err) {
+        Utils.debug.error(`Greška učitavanja artikala sa ${kafic.slug}:`, err);
+      }
+    }
+
+    this.state.crossKaficArtikli = rezultati;
+    this.state.crossKaficLoaded = true;
+    this.renderArtikalDatalist();
+  }
+
+  /* ══════ GALERIJA POSTOJEĆIH IKONA/SLIKA (za kategorije i artikle) ══════ */
+
+  /** Učitava sve postojeće ikone (sa OVOG i sva tri OSTALA kafića) iz sve tri kategorijske
+      kolekcije, jednom, keširano u memoriji. Uzima samo prave upload-ovane slike (URL), ne
+      FontAwesome fallback ikone (npr. "fa-tag"). */
+  async loadAllIcons() {
+    if (this.state.svihIkonaLoaded) return;
+    const rezultati = [];
+    const dodajIzListe = (lista, kaficLabel) => {
+      (lista || []).forEach(item => {
+        const url = item.ikona || item.ikonaKategorije || '';
+        if (!url || !url.startsWith('http')) return;
+        rezultati.push({ naziv: item.naziv || '(bez naziva)', url, kafic: kaficLabel });
+      });
+    };
+
+    dodajIzListe(this.state.data.glavneKategorije, TRENUTNI_KAFIC);
+    dodajIzListe(this.state.data.kategorije, TRENUTNI_KAFIC);
+    dodajIzListe(this.state.data.podkategorije, TRENUTNI_KAFIC);
+
+    const ostali = SVI_KAFICI.filter(k => k.slug !== TRENUTNI_KAFIC);
+    for (const kafic of ostali) {
+      try {
+        const appName = 'cross-' + kafic.slug;
+        const app = getApps().find(a => a.name === appName) || initializeApp(kafic.config, appName);
+        const db = getFirestore(app);
+        for (const kolekcija of ['glavne-kategorije', 'kategorije', 'podkategorije']) {
+          const snap = await getDocs(collection(db, kolekcija));
+          const lista = [];
+          snap.forEach(doc => lista.push(doc.data()));
+          dodajIzListe(lista, kafic.slug);
+        }
+      } catch (err) {
+        Utils.debug.error(`Greška učitavanja ikona sa ${kafic.slug}:`, err);
+      }
+    }
+
+    const seen = new Set();
+    this.state.svihIkona = rezultati
+      .filter(i => { if (seen.has(i.url)) return false; seen.add(i.url); return true; })
+      .sort((a, b) => a.naziv.localeCompare(b.naziv, 'sr'));
+    this.state.svihIkonaLoaded = true;
+  }
+
+  /** Otvara galeriju za izbor postojeće ikone za dati tip entiteta (glavnaKategorija/kategorija/podkategorija) */
+  async openIconPicker(entityType) {
+    this.state.pickerMode = 'icon';
+    this.state.iconPickerTarget = entityType;
+    const modal = document.getElementById('iconPickerModal');
+    const status = document.getElementById('iconPickerStatus');
+    const search = document.getElementById('iconPickerSearch');
+    const title = document.getElementById('iconPickerTitle');
+    if (!modal) return;
+    if (title) title.textContent = 'Izaberi postojeću ikonu';
+    modal.style.display = 'flex';
+    if (search) { search.value = ''; search.oninput = () => this.renderIconPickerGrid(search.value); }
+    if (status) status.textContent = 'Učitavanje...';
+
+    await this.loadAllIcons();
+    this.state.pickerItems = this.state.svihIkona;
+    if (status) status.textContent = `${this.state.pickerItems.length} dostupnih ikona (sa sva 4 kafića)`;
+    this.renderIconPickerGrid('');
+  }
+
+  /** Otvara istu galeriju, ali za slike ARTIKALA (koristi već učitane podatke — bez novog upita ka bazi) */
+  async openArtikalImagePicker() {
+    this.state.pickerMode = 'artikal';
+    const modal = document.getElementById('iconPickerModal');
+    const status = document.getElementById('iconPickerStatus');
+    const search = document.getElementById('iconPickerSearch');
+    const title = document.getElementById('iconPickerTitle');
+    if (!modal) return;
+    if (title) title.textContent = 'Izaberi postojeću sliku artikla';
+    modal.style.display = 'flex';
+    if (search) { search.value = ''; search.oninput = () => this.renderIconPickerGrid(search.value); }
+    if (status) status.textContent = 'Učitavanje...';
+
+    await this.loadCrossKaficArtikle();
+    const svi = [...(this.state.data.artikli || []).map(a => ({ ...a, _kafic: TRENUTNI_KAFIC })), ...(this.state.crossKaficArtikli || [])];
+    const seen = new Set();
+    this.state.pickerItems = svi
+      .filter(a => a.slikaURL && a.slikaURL.startsWith('http'))
+      .filter(a => { if (seen.has(a.slikaURL)) return false; seen.add(a.slikaURL); return true; })
+      .map(a => ({ naziv: a.naziv, url: a.slikaURL, kafic: a._kafic }))
+      .sort((a, b) => a.naziv.localeCompare(b.naziv, 'sr'));
+
+    if (status) status.textContent = `${this.state.pickerItems.length} dostupnih slika artikala (sa sva 4 kafića)`;
+    this.renderIconPickerGrid('');
+  }
+
+  closeIconPicker() {
+    const modal = document.getElementById('iconPickerModal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  /** Iscrtava mrežu sličica u galeriji, filtrirano po tekstu pretrage */
+  renderIconPickerGrid(filterText) {
+    const grid = document.getElementById('iconPickerGrid');
+    if (!grid) return;
+    const f = (filterText || '').trim().toLowerCase();
+    const lista = (this.state.pickerItems || []).filter(i => !f || i.naziv.toLowerCase().includes(f));
+
+    if (lista.length === 0) {
+      grid.innerHTML = '<p style="color:#8f887a;grid-column:1/-1;text-align:center;padding:20px 0;">Nema rezultata</p>';
+      return;
+    }
+
+    grid.innerHTML = lista.map((i, idx) => `
+      <div onclick="window.adminController && window.adminController.selectPickedImage(${idx})"
+           style="cursor:pointer;background:#242424;border:1px solid rgba(198,166,100,.2);border-radius:8px;padding:6px;text-align:center;transition:border-color .15s;"
+           onmouseover="this.style.borderColor='#C6A664'" onmouseout="this.style.borderColor='rgba(198,166,100,.2)'">
+        <img src="${i.url}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:5px;margin-bottom:4px;" loading="lazy">
+        <div style="font-size:.62rem;color:#c9c2b3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${i.naziv}</div>
+        <div style="font-size:.55rem;color:#8f887a;">${i.kafic}</div>
+      </div>
+    `).join('');
+
+    this._iconPickerFiltered = lista;
+  }
+
+  /** Klik na sličicu u galeriji — postavlja izabranu sliku, zavisno od moda (ikona kategorije ili slika artikla) */
+  selectPickedImage(idx) {
+    const izabrana = (this._iconPickerFiltered || [])[idx];
+    if (!izabrana) return;
+
+    if (this.state.pickerMode === 'artikal') {
+      const el = this.elements.artikal;
+      if (el && el.slikaUrl) el.slikaUrl.value = izabrana.url;
+      if (el && el.slika) el.slika.value = '';
+    } else {
+      const entityType = this.state.iconPickerTarget;
+      const el = this.elements[entityType];
+      if (!el) return;
+      const existingField = document.getElementById(el.ikona ? el.ikona.id + 'Existing' : '');
+      if (existingField) existingField.value = izabrana.url;
+      if (el.ikona) el.ikona.value = '';
+      if (el.previewContainer) el.previewContainer.innerHTML = `<img src="${izabrana.url}" style="max-width:80px;max-height:80px;border-radius:8px;">`;
+    }
+
+    Utils.prikaziPoruku(`Izabrano "${izabrana.naziv}" (sa ${izabrana.kafic})`, 'success');
+    this.closeIconPicker();
+  }
+
+  /** Kad korisnik upiše/izabere naziv koji već postoji među artiklima (u ISTOM ili
+      BILO KOM DRUGOM kafiću), automatski popuni opis/opis2/link slike iz tog artikla
+      — sve ostaje izmjenjivo. Prioritet: prvo ovaj kafić, pa ostali (fiksnim redom). */
+  autofillArtikalFromExisting() {
+    if (this.state.editIds && this.state.editIds.artikal) return;
+    const el = this.elements.artikal;
+    if (!el || !el.naziv) return;
+    const naziv = (el.naziv.value || '').trim().toLowerCase();
+    if (!naziv) return;
+
+    const match = (this.state.data.artikli || []).find(a => (a.naziv || '').trim().toLowerCase() === naziv)
+      || (this.state.crossKaficArtikli || []).find(a => (a.naziv || '').trim().toLowerCase() === naziv);
+    if (!match) return;
+
+    if (el.opis && !el.opis.value) el.opis.value = match.opis || '';
+    if (el.opis2 && !el.opis2.value) el.opis2.value = match.opis2 || '';
+    if (el.slikaUrl && !el.slikaUrl.value && (!el.slika || !el.slika.files.length)) {
+      el.slikaUrl.value = match.slikaURL || '';
+    }
+    const izvor = match._kafic ? ` (sa ${match._kafic})` : '';
+    Utils.prikaziPoruku(`Popunjeno iz postojećeg artikla "${match.naziv}"${izvor} — provjeri i izmijeni po potrebi`, 'info');
+  }
+
   /** Učitavanje pojedinačnog entiteta */
   async loadEntity(entityType) { 
     try { 
@@ -451,6 +709,7 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
       this.state.data[config.stateProp] = await config.services.load(); 
       await this.updateUI(entityType); 
       this.renderDashboardStats();
+      if (entityType === 'artikal') this.updateArtikalDatalist();
     } catch (error) { 
       Utils.debug.error(`Greška učitavanja ${entityType}:`, error); 
       UIService.showError(
@@ -521,6 +780,10 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
           return Utils.prikaziPoruku(imgValidation.errors.join('\n'), 'error'); 
         
         imageURL = await FirebaseService.uploadSlika(data.imageFile); 
+      } else if (data.imageUrl) {
+        imageURL = data.imageUrl;
+      } else if (data.existingIconUrl) {
+        imageURL = data.existingIconUrl;
       }
 
       Utils.setLoadingState(elements.dodaj, true); 
@@ -590,17 +853,41 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
           return Utils.prikaziPoruku(imgValidation.errors.join('\n'), 'error'); 
           
         imageURL = await FirebaseService.uploadSlika(data.imageFile); 
+      } else if (data.imageUrl) {
+        imageURL = data.imageUrl;
+      } else if (data.existingIconUrl) {
+        imageURL = data.existingIconUrl;
       }
 
       Utils.setLoadingState(elements.sacuvaj, true); 
       const updateData = this.prepareUpdateData(entityType, data, imageURL, currentEntity); 
       await config.services.update(editId, updateData);
 
+      const primijeniNesto = data.primijeniAlkohol || data.primijeniPromo;
+      if (primijeniNesto && (entityType === 'glavnaKategorija' || entityType === 'kategorija')) {
+        try {
+          const rez = await primijeniOznakeKaskadno(entityType, editId, {
+            sadrziAlkohol: data.primijeniAlkohol ? data.sadrziAlkohol : undefined,
+            specijalnaPonuda: data.primijeniPromo ? data.specijalnaPonuda : undefined
+          });
+          const dijelovi = [];
+          if (rez.brojKategorija) dijelovi.push(`${rez.brojKategorija} kategorija`);
+          if (rez.brojPodkategorija) dijelovi.push(`${rez.brojPodkategorija} podkategorija`);
+          Utils.prikaziPoruku(`Oznake primijenjene na ${dijelovi.join(' i ')}`, 'info');
+        } catch (cascadeErr) {
+          Utils.debug.error('Greška kaskadnog primjenjivanja oznaka:', cascadeErr);
+          Utils.prikaziPoruku('Sačuvano, ali kaskadno primjenjivanje na podkategorije nije uspjelo — provjeri ručno', 'warning');
+        }
+      }
+
       this.cancelEntity(entityType); 
       await this.loadEntity(entityType); 
       
-      if (entityType === 'kategorija') 
+      if (entityType === 'kategorija' || (entityType === 'glavnaKategorija' && primijeniNesto)) 
         await this.loadEntity('podkategorija'); 
+
+      if (entityType === 'glavnaKategorija' && primijeniNesto) 
+        await this.loadEntity('kategorija'); 
         
       if (entityType === 'podkategorija') 
         await this.loadEntity('artikal'); 
@@ -1038,7 +1325,12 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     
     const base = { 
       naziv: el.naziv?.value?.trim() || "", 
-      imageFile: el.ikona?.files[0] || el.slika?.files[0] || null 
+      imageFile: el.ikona?.files[0] || el.slika?.files[0] || null,
+      sadrziAlkohol: el.sadrziAlkohol?.checked || false,
+      specijalnaPonuda: el.specijalnaPonuda?.checked || false,
+      primijeniAlkohol: el.primijeniAlkohol?.checked || false,
+      primijeniPromo: el.primijeniPromo?.checked || false,
+      existingIconUrl: el.ikona ? (document.getElementById(el.ikona.id + 'Existing')?.value || '') : ''
     }; 
     
     if (entityType === 'kategorija') 
@@ -1073,7 +1365,8 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
         podkategorija: podkategorija, 
         opis: el.opis?.value?.trim() || "", 
         opis2: el.opis2?.value?.trim() || "", 
-        imageFile: base.imageFile 
+        imageFile: base.imageFile,
+        imageUrl: el.slikaUrl?.value?.trim() || ""
       }; 
     } 
     
@@ -1088,21 +1381,27 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
       return { 
         naziv: data.naziv, 
         sortOrder: null, 
-        ikona: imageURL || 'fa-layer-group' 
+        ikona: imageURL || 'fa-layer-group',
+        sadrziAlkohol: data.sadrziAlkohol || false,
+        specijalnaPonuda: data.specijalnaPonuda || false
       }; 
       
     if (entityType === 'kategorija') 
       return { 
         naziv: data.naziv, 
         ikona: imageURL || 'fa-folder', 
-        glavnaKategorijaId: data.glavnaKategorijaId 
+        glavnaKategorijaId: data.glavnaKategorijaId,
+        sadrziAlkohol: data.sadrziAlkohol || false,
+        specijalnaPonuda: data.specijalnaPonuda || false
       }; 
       
     if (entityType === 'podkategorija') { 
       const finalData = { 
         naziv: data.naziv, 
         ikona: imageURL || 'fa-tag', 
-        kategorijaId: data.kategorijaId 
+        kategorijaId: data.kategorijaId,
+        sadrziAlkohol: data.sadrziAlkohol || false,
+        specijalnaPonuda: data.specijalnaPonuda || false
       }; 
       
       Utils.debug.log('Pripravljeni podaci za podkategoriju:', finalData); 
@@ -1135,7 +1434,9 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     if (entityType === 'glavnaKategorija') 
       return { 
         naziv: data.naziv, 
-        ikona: imageURL 
+        ikona: imageURL,
+        sadrziAlkohol: data.sadrziAlkohol || false,
+        specijalnaPonuda: data.specijalnaPonuda || false
       }; 
       
     if (entityType === 'kategorija') 
@@ -1143,7 +1444,9 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
         naziv: data.naziv, 
         ikonaKategorije: imageURL, 
         glavnaKategorijaId: data.glavnaKategorijaId, 
-        sortOrder: current?.sortOrder || 999 
+        sortOrder: current?.sortOrder || 999,
+        sadrziAlkohol: data.sadrziAlkohol || false,
+        specijalnaPonuda: data.specijalnaPonuda || false
       }; 
       
     if (entityType === 'podkategorija') 
@@ -1151,7 +1454,9 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
         naziv: data.naziv, 
         ikona: imageURL, 
         kategorijaId: data.kategorijaId, 
-        sortOrder: current?.sortOrder || 999 
+        sortOrder: current?.sortOrder || 999,
+        sadrziAlkohol: data.sadrziAlkohol || false,
+        specijalnaPonuda: data.specijalnaPonuda || false
       }; 
       
     if (entityType === 'artikal') { 
@@ -1188,6 +1493,11 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
       if (el.previewContainer) 
         el.previewContainer.innerHTML = '<p>Ikona nije odabrana</p>'; 
     } 
+    if (el.sadrziAlkohol) el.sadrziAlkohol.checked = false;
+    if (el.specijalnaPonuda) el.specijalnaPonuda.checked = false;
+    if (el.primijeniAlkohol) el.primijeniAlkohol.checked = false;
+    if (el.primijeniPromo) el.primijeniPromo.checked = false;
+    if (el.ikona) { const ef = document.getElementById(el.ikona.id + 'Existing'); if (ef) ef.value = ''; }
   }
 
   /* TOGGLE STATUS ARTIKLA */
@@ -1356,6 +1666,9 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
           
         if (el.ikona) 
           el.ikona.value = ""; 
+
+        if (el.sadrziAlkohol) el.sadrziAlkohol.checked = !!data.sadrziAlkohol;
+        if (el.specijalnaPonuda) el.specijalnaPonuda.checked = !!data.specijalnaPonuda;
           
         this.updatePreviewForEdit(entityType, data.ikona || data.ikonaKategorije); 
         UIService.setEditModeKategorija(true, el); 
