@@ -93,16 +93,56 @@ body {
 /* === DUGMAD ZA PREVOĐENJE === */
 /* Kontejner za dugmad za promjenu jezika */
 .language-switcher {
-  position: absolute !important;
+  position: fixed !important;
   top: 15px !important;
   right: 15px !important;
-  display: flex !important;
-  gap: 8px !important;
   z-index: 1000 !important;
-  flex-wrap: wrap;
+  display: flex; align-items: center; gap: 10px;
 }
 
-/* Dugmad za izbor jezika */
+/* Dugme koje otvara/zatvara izbor jezika */
+.lang-toggle {
+  border: 2px solid var(--gold-accent); background: var(--primary-gradient); color: #1a1a1a;
+  border-radius: 50%; cursor: pointer; font-size: 19px; width: 45px; height: 45px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 10px rgba(198,166,100,.4);
+  transition: all .3s ease;
+}
+.lang-toggle:hover { transform: translateY(-1px) scale(1.05); box-shadow: 0 5px 14px rgba(198,166,100,.55); }
+
+/* Traka sa jezicima — sakrivena (širine 0) dok se ne otvori, tad se širi ulijevo od ikone */
+.lang-inline {
+  display: flex; align-items: center; gap: 6px;
+  max-width: 0; overflow: hidden; opacity: 0;
+  background: #1c1c1c; border: 2px solid transparent; border-radius: 24px;
+  transition: max-width .25s ease, opacity .2s ease, padding .25s ease, border-color .25s ease;
+  white-space: nowrap; padding: 0;
+}
+.lang-inline.show {
+  max-width: 220px; opacity: 1; padding: 6px 10px; border-color: var(--gold-accent);
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+}
+
+/* Dugmad za izbor jezika unutar trake — čitljive značke (zastavice se na dijelu uređaja/browsera
+   prikazuju kao tekst koda umjesto slike, pa su stilizovane tako da uvijek budu jasno vidljive) */
+.lang-inline .language-btn {
+  width: auto !important; min-width: 32px !important; height: auto !important;
+  background: transparent !important; border: 1.5px solid rgba(198,166,100,.4) !important; box-shadow: none !important;
+  border-radius: 8px !important; padding: 5px 9px !important; font-size: .78rem !important;
+  font-weight: 700; line-height: 1; color: var(--beige-white) !important;
+  transition: all .2s ease;
+}
+.lang-inline .language-btn:hover { border-color: var(--gold-accent) !important; color: var(--gold-accent) !important; }
+.lang-inline .language-btn.active {
+  background: var(--primary-gradient) !important; border-color: var(--gold-accent) !important;
+  color: #1a1a1a !important;
+}
+
+@media (max-width: 900px) {
+  .lang-inline.show { max-width: 170px; padding: 5px 8px; gap: 4px; }
+  .lang-inline .language-btn { font-size: .68rem !important; padding: 4px 6px !important; min-width: 26px !important; }
+}
+
+/* Dugmad za izbor jezika (baza — koristi se i unutar .lang-inline) */
 .language-btn {
   padding: 8px 10px !important;
  border: 2px solid var(--gold-accent) !important;
@@ -1207,55 +1247,10 @@ body {
 }
 
 /* === RESPONSIVE ZA JEZIČKA DUGMAD === */
-/* Prilagođeni stilovi za mobilne uređaje (ispod 768px) */
-@media (max-width: 768px) {
-  .language-switcher {
-    top: 8px !important;
-    right: 8px !important;
-    flex-direction: column !important;
-    gap: 3px !important;
-  }
-  
-  .language-btn {
-    min-width: 32px !important;
-    height: 32px !important;
-    font-size: 13px !important;
-    padding: 4px 6px !important;
-  }
-}
-
-/* Prilagođeni stilovi za vrlo male mobilne uređaje (ispod 480px) */
-@media (max-width: 480px) {
-  .language-switcher {
-    top: 5px !important;
-    right: 5px !important;
-    flex-direction: column !important;
-    gap: 2px !important;
-  }
-  
-  .language-btn {
-    min-width: 28px !important;
-    height: 28px !important;
-    font-size: 12px !important;
-    padding: 3px 5px !important;
-  }
-}
-
-/* Prilagođeni stilovi za najmanje mobilne uređaje (ispod 360px) */
-@media (max-width: 360px) {
-  .language-switcher {
-    flex-direction: column !important;
-    gap: 2px !important;
-    top: 3px !important;
-    right: 3px !important;
-  }
-  
-  .language-btn {
-    min-width: 25px !important;
-    height: 25px !important;
-    font-size: 11px !important;
-    padding: 2px 4px !important;
-  }
+/* Responzivnost sad rješava .lang-inline.show pravilo iznad (900px breakpoint) */
+@media (max-width: 900px) and (orientation: landscape) {
+  .lang-toggle { width: 36px !important; height: 36px !important; top: 8px !important; font-size: .95rem !important; }
+  .language-switcher { top: 8px !important; }
 }
 
 /* Responzivni stilovi za tablete i male desktop uređaje */
