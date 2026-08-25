@@ -6,7 +6,7 @@
   <title>Admin Panel - Upravljanje Menijem</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="admin-styles.css?v=20260825">
+  <link rel="stylesheet" href="admin-styles.css?v=20260825b">
   <style>
     .size-recommendation { background: #e7f3ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #17a2b8; font-size: 0.8rem; line-height: 1.4; margin-top: 8px; }
     .size-recommendation strong { color: #0c5460; }
@@ -354,6 +354,12 @@
                 <span>🔞 Sadrži alkohol/cigarete (18+)</span>
               </label>
             </div>
+            <div class="form-group" style="background:rgba(198,166,100,.08);border-radius:8px;padding:10px 12px;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
+                <input type="checkbox" id="primijeniNaPodkategorijeGlavnaKategorija" style="width:auto;height:18px;">
+                <span style="font-size:.85rem;">↳ Primijeni oznake iznad i na SVE kategorije i podkategorije ispod ove glavne kategorije (jednokratno, pri čuvanju)</span>
+              </label>
+            </div>
             <div class="form-actions">
               <button type="button" class="btn btn-primary" id="dodajGlavnuKategorijuBtn"><i class="fas fa-plus"></i> Dodaj</button>
               <button type="button" class="btn btn-success d-none" id="sacuvajGlavnuKategorijuBtn"><i class="fas fa-save"></i> Sačuvaj</button>
@@ -404,6 +410,12 @@
               <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
                 <input type="checkbox" id="sadrziAlkoholKategorija" style="width:auto;height:18px;">
                 <span>🔞 Sadrži alkohol/cigarete (18+)</span>
+              </label>
+            </div>
+            <div class="form-group" style="background:rgba(198,166,100,.08);border-radius:8px;padding:10px 12px;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
+                <input type="checkbox" id="primijeniNaPodkategorijeKategorija" style="width:auto;height:18px;">
+                <span style="font-size:.85rem;">↳ Primijeni oznake iznad i na SVE podkategorije ispod ove kategorije (jednokratno, pri čuvanju)</span>
               </label>
             </div>
             <div class="form-actions">
@@ -689,8 +701,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Include Translation Manager -->
-  <script src="translation-manager.js?v=20260825"></script>
-  <script type="module" src="js/admin-controller.js?v=20260825"></script>
+  <script src="translation-manager.js?v=20260825b"></script>
+  <script type="module" src="js/admin-controller.js?v=20260825b"></script>
 <script>
 // Hamburger meni (fioka sa strane) — samo na mobilnom
 (function () {

@@ -75,6 +75,46 @@ export async function obrisiGlavnuKategorijuKaskadno(glavnaKategorijaId, nazivGl
   } catch (error) { debug.error('Greška u kaskadnom brisanju glavne kategorije:', error); throw new Error(`Greška kaskadnog brisanja: ${error.message}`); }
 }
 
+/* Jednokratno kopira oznake (18+/Specijalna ponuda) sa glavne kategorije na SVE njene
+   kategorije i podkategorije, ili sa kategorije na SVE njene podkategorije — NIJE trajno
+   nasljeđivanje, samo brzo popunjavanje pri čuvanju da se ne mora ručno čekirati svaka
+   podkategorija pojedinačno */
+export async function primijeniOznakeKaskadno(nivo, id, sadrziAlkohol, specijalnaPonuda) {
+  try {
+    const podaci = { sadrziAlkohol: !!sadrziAlkohol, specijalnaPonuda: !!specijalnaPonuda };
+    let brojKategorija = 0, brojPodkategorija = 0;
+
+    if (nivo === 'glavnaKategorija') {
+      const q1 = query(services.kategorije.collection, where("glavnaKategorijaId", "==", id));
+      const kategorijeSnapshot = await getDocs(q1);
+      const kategorijeIds = [];
+      kategorijeSnapshot.forEach((doc) => { kategorijeIds.push(doc.id); });
+      brojKategorija = kategorijeIds.length;
+
+      for (const katId of kategorijeIds) {
+        await services.kategorije.update(katId, podaci);
+        const q2 = query(services.podkategorije.collection, where("kategorijaId", "==", katId));
+        const podkategorijeSnapshot = await getDocs(q2);
+        const podUpdates = [];
+        podkategorijeSnapshot.forEach((doc) => { podUpdates.push(services.podkategorije.update(doc.id, podaci)); brojPodkategorija++; });
+        if (podUpdates.length > 0) await Promise.all(podUpdates);
+      }
+    } else if (nivo === 'kategorija') {
+      const q2 = query(services.podkategorije.collection, where("kategorijaId", "==", id));
+      const podkategorijeSnapshot = await getDocs(q2);
+      const podUpdates = [];
+      podkategorijeSnapshot.forEach((doc) => { podUpdates.push(services.podkategorije.update(doc.id, podaci)); brojPodkategorija++; });
+      if (podUpdates.length > 0) await Promise.all(podUpdates);
+    }
+
+    debug.log(`Oznake primijenjene kaskadno: ${brojKategorija} kategorija, ${brojPodkategorija} podkategorija`);
+    return { success: true, brojKategorija, brojPodkategorija };
+  } catch (error) {
+    debug.error('Greška pri kaskadnom primjenjivanju oznaka:', error);
+    throw new Error(`Greška kaskadnog primjenjivanja oznaka: ${error.message}`);
+  }
+}
+
 export async function obrisiKategorijuKaskadno(kategorijaId, nazivKategorije) {
   try {
     debug.log(`Početak kaskadnog brisanja kategorije: ${nazivKategorije}`);
