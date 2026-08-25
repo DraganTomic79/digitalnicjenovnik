@@ -304,7 +304,7 @@ function bodyHTML(blocks){
       out+='<div class="cols">';
       open=true;
     }else{
-      const frameClass = b.promo ? ' promo-frame' : (b.alcoholic ? ' alcohol-frame' : '');
+      const frameClass = b.alcoholic ? ' alcohol-frame' : (b.promo ? ' promo-frame' : '');
       const age = b.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
       const star = b.promo ? '<span class="promo-star">⭐</span>' : '';
       const dashIdx = b.label.indexOf(' – ');
@@ -376,7 +376,7 @@ function pdfFits(){ return pdfActive.scrollHeight<=pdfCurPb.clientHeight-PDF_SAF
 
 function pdfPlaceSubBlock(label,items,alcoholic,promo){
   let idx=0,first=true;
-  const frameClass = promo ? ' promo-frame' : (alcoholic ? ' alcohol-frame' : '');
+  const frameClass = alcoholic ? ' alcohol-frame' : (promo ? ' promo-frame' : '');
   const age = alcoholic ? '<span class="age-restrictor">18+</span>' : '';
   const star = promo ? '<span class="promo-star">⭐</span>' : '';
   while(idx<items.length){

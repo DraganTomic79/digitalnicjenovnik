@@ -449,7 +449,7 @@ function renderPage(data){
     }
     const sb=c;
     const blk=document.createElement('div');blk.className='cat-block';
-    const lblClass = sb.promo ? ' promo-lbl' : (sb.alcoholic ? ' alcohol-lbl' : '');
+    const lblClass = sb.alcoholic ? ' alcohol-lbl' : (sb.promo ? ' promo-lbl' : '');
     const age = sb.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
     const star = sb.promo ? '<span class="promo-star">⭐</span>' : '';
     const dashIdx = sb.label.indexOf(' – ');
