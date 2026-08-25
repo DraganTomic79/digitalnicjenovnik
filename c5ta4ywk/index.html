@@ -16,7 +16,7 @@
   
   <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="index-styles.css?v=20260823" />
+  <link rel="stylesheet" href="index-styles.css?v=20260825e" />
 </head>
 <body>
   <div class="container">
@@ -24,9 +24,12 @@
     <div class="hero-section">
       <!-- DUGMAD ZA JEZIKE -->
       <div class="language-switcher">
-        <button class="language-btn active" data-lang="sr" title="Srpski">🇷🇸</button>
-        <button class="language-btn" data-lang="en" title="English">🇬🇧</button>
-        <button class="language-btn" data-lang="de" title="Deutsch">🇩🇪</button>
+        <div class="lang-inline" id="langOptions">
+          <button class="language-btn active" data-lang="sr" title="Srpski">RS</button>
+          <button class="language-btn" data-lang="en" title="English">GB</button>
+          <button class="language-btn" data-lang="de" title="Deutsch">DE</button>
+        </div>
+        <button class="lang-toggle" id="langToggle" aria-label="Izaberi jezik"><i class="fas fa-globe"></i></button>
       </div>
 
       <div class="hero-content">
@@ -97,8 +100,35 @@
     </div>
   </footer>
 
+  <script>
+  // Jezici — traka se otvara ulijevo od ikone, klikom na ikonu ili van trake se zatvara
+  (function () {
+    function init() {
+      const toggle = document.getElementById('langToggle');
+      const bar = document.getElementById('langOptions');
+      if (!toggle || !bar) return;
+
+      const closeBar = () => bar.classList.remove('show');
+      const openBar  = () => bar.classList.add('show');
+
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        bar.classList.contains('show') ? closeBar() : openBar();
+      });
+      document.addEventListener('click', (e) => {
+        if (!bar.contains(e.target) && e.target !== toggle) closeBar();
+      });
+      bar.querySelectorAll('.language-btn').forEach(b => {
+        b.addEventListener('click', closeBar);
+      });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+  })();
+  </script>
+
   <!-- Translation Manager MORA biti prije index-script.js -->
-  <script src="index-translation-manager.js?v=20260823"></script>
-  <script type="module" src="index-script.js?v=20260823"></script>
+  <script src="index-translation-manager.js?v=20260825e"></script>
+  <script type="module" src="index-script.js?v=20260825e"></script>
 </body>
 </html>

@@ -10,7 +10,8 @@ import {
   obrisiKategorijuKaskadno, 
   obrisiPodkategorijuKaskadno, 
   vratiArtikleIzNepoznate,
-  toggleArtikalAktivnost
+  toggleArtikalAktivnost,
+  primijeniOznakeKaskadno
 } from './admin-firebase.js';
 
 /* Firebase konfiguracije SVIH kafića — koristi se za pretragu artikala preko svih
@@ -200,12 +201,12 @@ class AdminController {
     const groups = { 
       glavnaKategorija: [
         'naziv', 'ikona', 'previewContainer', 'selectGlavnaKategorija',
-        'sadrziAlkohol', 'specijalnaPonuda',
+        'sadrziAlkohol', 'specijalnaPonuda', 'primijeniAlkohol', 'primijeniPromo',
         'dodaj', 'sacuvaj', 'otkazi', 'listaContainer'
       ], 
       kategorija: [
         'naziv', 'ikona', 'previewContainer', 'selectGlavnaKategorija',
-        'sadrziAlkohol', 'specijalnaPonuda',
+        'sadrziAlkohol', 'specijalnaPonuda', 'primijeniAlkohol', 'primijeniPromo',
         'dodaj', 'sacuvaj', 'otkazi', 'listaContainer'
       ], 
       podkategorija: [
@@ -248,6 +249,8 @@ class AdminController {
         selectGlavnaKategorija: 'selectGlavnaKategorija', 
         sadrziAlkohol: 'sadrziAlkoholGlavnaKategorija',
         specijalnaPonuda: 'specijalnaPonudaGlavnaKategorija',
+        primijeniAlkohol: 'primijeniAlkoholGlavnaKategorija',
+        primijeniPromo: 'primijeniPromoGlavnaKategorija',
         dodaj: 'dodajGlavnuKategorijuBtn', 
         sacuvaj: 'sacuvajGlavnuKategorijuBtn', 
         otkazi: 'otkaziGlavnuKategorijuBtn', 
@@ -260,6 +263,8 @@ class AdminController {
         selectGlavnaKategorija: 'selectGlavnaKategorija', 
         sadrziAlkohol: 'sadrziAlkoholKategorija',
         specijalnaPonuda: 'specijalnaPonudaKategorija',
+        primijeniAlkohol: 'primijeniAlkoholKategorija',
+        primijeniPromo: 'primijeniPromoKategorija',
         dodaj: 'dodajKategorijuBtn', 
         sacuvaj: 'sacuvajKategorijuBtn', 
         otkazi: 'otkaziKategorijuBtn', 
@@ -863,11 +868,31 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
       const updateData = this.prepareUpdateData(entityType, data, imageURL, currentEntity); 
       await config.services.update(editId, updateData);
 
+      const primijeniNesto = data.primijeniAlkohol || data.primijeniPromo;
+      if (primijeniNesto && (entityType === 'glavnaKategorija' || entityType === 'kategorija')) {
+        try {
+          const rez = await primijeniOznakeKaskadno(entityType, editId, {
+            sadrziAlkohol: data.primijeniAlkohol ? data.sadrziAlkohol : undefined,
+            specijalnaPonuda: data.primijeniPromo ? data.specijalnaPonuda : undefined
+          });
+          const dijelovi = [];
+          if (rez.brojKategorija) dijelovi.push(`${rez.brojKategorija} kategorija`);
+          if (rez.brojPodkategorija) dijelovi.push(`${rez.brojPodkategorija} podkategorija`);
+          Utils.prikaziPoruku(`Oznake primijenjene na ${dijelovi.join(' i ')}`, 'info');
+        } catch (cascadeErr) {
+          Utils.debug.error('Greška kaskadnog primjenjivanja oznaka:', cascadeErr);
+          Utils.prikaziPoruku('Sačuvano, ali kaskadno primjenjivanje na podkategorije nije uspjelo — provjeri ručno', 'warning');
+        }
+      }
+
       this.cancelEntity(entityType); 
       await this.loadEntity(entityType); 
       
-      if (entityType === 'kategorija') 
+      if (entityType === 'kategorija' || (entityType === 'glavnaKategorija' && primijeniNesto)) 
         await this.loadEntity('podkategorija'); 
+
+      if (entityType === 'glavnaKategorija' && primijeniNesto) 
+        await this.loadEntity('kategorija'); 
         
       if (entityType === 'podkategorija') 
         await this.loadEntity('artikal'); 
@@ -1308,6 +1333,8 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
       imageFile: el.ikona?.files[0] || el.slika?.files[0] || null,
       sadrziAlkohol: el.sadrziAlkohol?.checked || false,
       specijalnaPonuda: el.specijalnaPonuda?.checked || false,
+      primijeniAlkohol: el.primijeniAlkohol?.checked || false,
+      primijeniPromo: el.primijeniPromo?.checked || false,
       existingIconUrl: el.ikona ? (document.getElementById(el.ikona.id + 'Existing')?.value || '') : ''
     }; 
     
@@ -1473,6 +1500,8 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     } 
     if (el.sadrziAlkohol) el.sadrziAlkohol.checked = false;
     if (el.specijalnaPonuda) el.specijalnaPonuda.checked = false;
+    if (el.primijeniAlkohol) el.primijeniAlkohol.checked = false;
+    if (el.primijeniPromo) el.primijeniPromo.checked = false;
     if (el.ikona) { const ef = document.getElementById(el.ikona.id + 'Existing'); if (ef) ef.value = ''; }
   }
 
