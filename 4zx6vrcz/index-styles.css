@@ -109,6 +109,14 @@ body {
 }
 .lang-toggle:hover { transform: translateY(-1px) scale(1.05); box-shadow: 0 5px 14px rgba(198,166,100,.55); }
 
+/* Manje dugme i bliže ivici na mobilnom — sprječava preklapanje sa zaobljenim uglom kartice */
+@media (max-width: 600px) {
+  .language-switcher { top: 10px !important; right: 10px !important; }
+  .lang-toggle { width: 34px; height: 34px; font-size: 14px; border-width: 1.5px; }
+  .lang-inline.show { max-width: 150px; padding: 4px 7px; gap: 3px; }
+  .lang-inline .language-btn { font-size: .64rem !important; padding: 3px 5px !important; min-width: 24px !important; }
+}
+
 /* Traka sa jezicima — sakrivena (širine 0) dok se ne otvori, tad se širi ulijevo od ikone */
 .lang-inline {
   display: flex; align-items: center; gap: 6px;
