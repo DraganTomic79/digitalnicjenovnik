@@ -720,7 +720,8 @@ body {
   align-items: center; 
   justify-content: center; 
   z-index: 2; 
-  box-shadow: 0 3px 10px rgba(139, 92, 246, 0.4); 
+  border: 2px solid #fff; 
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5); 
   animation: star-shine 1.5s ease-in-out infinite;
 }
 
@@ -878,12 +879,13 @@ body {
   min-width: 65px; 
 }
 
-/* Cijena artikla u promociji */
+/* Cijena artikla u promociji — tamna pozadina umjesto zlatne (zlatni tekst na
+   zlatnoj pozadini je bio nečitljiv), zlatna boja ostaje samo na tekstu i obrubu */
 .promocija-group .item-price { 
-  color: var(--gold-accent); 
-  background: var(--promocija-gradient) !important; 
-  border: 2px solid rgba(255, 255, 255, 0.3) !important; 
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4) !important; 
+  color: #FFD700; 
+  background: #1a1a1a !important; 
+  border: 2px solid var(--gold-accent) !important; 
+  box-shadow: 0 4px 15px rgba(198, 166, 100, 0.4) !important; 
   font-weight: 800 !important; 
   animation: glowingPrice 3s infinite alternate; 
 }
