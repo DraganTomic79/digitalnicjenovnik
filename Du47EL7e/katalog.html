@@ -31,6 +31,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#111;color:var(--beige);
 #priceModal .pm-box{background:#1e1e2e;border:2px solid var(--gold);border-radius:14px;padding:32px 28px;max-width:320px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.6)}
 #priceModal h3{color:var(--gold);font-size:1.1rem;font-weight:800;margin-bottom:8px}
 #priceModal p{color:var(--muted);font-size:.85rem;margin-bottom:24px}
+#promoModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center}
+#promoModal .pm-box{background:#1e1e2e;border:2px solid var(--gold);border-radius:14px;padding:32px 28px;max-width:320px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+#promoModal h3{color:var(--gold);font-size:1.1rem;font-weight:800;margin-bottom:8px}
+#promoModal p{color:var(--muted);font-size:.85rem;margin-bottom:24px}
 .pm-btn{display:block;width:100%;font-weight:800;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:.9rem;margin-bottom:10px;text-decoration:none}
 .pm-btn-yes{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a1a}
 .pm-btn-no{background:#2a2a3e;color:var(--gold);border:2px solid var(--gold)!important}
@@ -194,6 +198,16 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#111;color:var(--beige);
   </div>
 </div>
 
+<!-- Promo choice modal — pojavljuje se nakon izbora cijena -->
+<div id="promoModal" style="display:none">
+  <div class="pm-box">
+    <h3><i class="fas fa-star"></i> Specijalna ponuda</h3>
+    <p>Da li da uključim Specijalnu ponudu u katalog?</p>
+    <button class="pm-btn pm-btn-yes" onclick="initPromo(1)"><i class="fas fa-star"></i> Sa Specijalnom ponudom</button>
+    <button class="pm-btn pm-btn-no" onclick="initPromo(0)"><i class="fas fa-eye-slash"></i> Bez Specijalne ponude</button>
+  </div>
+</div>
+
 <div id="loading"><i class="fas fa-spinner"></i><p>Učitavanje kataloga…</p></div>
 <div id="book"></div>
 
@@ -201,14 +215,37 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#111;color:var(--beige);
 // Price toggle — reads ?cijene=1 or ?cijene=0 from URL
 // If param absent, shows the modal
 let _showPrices = null;
+let _showPromo = null;
 
 function initCijene(val) {
   _showPrices = val;
   document.getElementById('priceModal').style.display = 'none';
   if (!val) document.getElementById('book').classList.add('hide-prices');
   else document.getElementById('book').classList.remove('hide-prices');
-  // Update PDF filename
-  window._pdfName = val ? 'Katalog-pica-Du47EL7e.pdf' : 'Katalog-pica-Du47EL7e-bezcijena.pdf';
+
+  const pPromo = new URLSearchParams(window.location.search).get('promo');
+  if (pPromo !== null) {
+    initPromo(parseInt(pPromo));
+  } else {
+    document.getElementById('promoModal').style.display = 'flex';
+  }
+}
+
+function initPromo(val) {
+  _showPromo = val;
+  document.getElementById('promoModal').style.display = 'none';
+  updatePdfName();
+  const tryStart = () => {
+    if (window._startBuild) window._startBuild();
+    else setTimeout(tryStart, 50);
+  };
+  tryStart();
+}
+
+function updatePdfName() {
+  const cijeneDio = _showPrices ? '' : '-bezcijena';
+  const promoDio = _showPromo ? '' : '-bezpromo';
+  window._pdfName = `Katalog-pica-Du47EL7e${cijeneDio}${promoDio}.pdf`;
 }
 
 (function() {
@@ -314,6 +351,21 @@ function buildBlocks(gk,kat,pod,items){
   return B;
 }
 
+/* Uklanja promotivne sekcije (i naslove kategorija koji bi ostali bez sadržaja) kad
+   korisnik izabere "Bez Specijalne ponude" — radi se PRIJE raspoređivanja po stranicama,
+   da PDF ne ostavi prazan prostor tamo gdje je sekcija izbačena */
+function filterPromo(blocks, showPromo){
+  if(showPromo) return blocks;
+  const result=[]; let pendingMain=null;
+  for(const b of blocks){
+    if(b.type==='main'){ pendingMain=b; continue; }
+    if(b.promo) continue;
+    if(pendingMain){ result.push(pendingMain); pendingMain=null; }
+    result.push(b);
+  }
+  return result;
+}
+
 /* ── PIXEL-BUDGET PACKING ── */
 function packPages(blocks){
   const pages=[];
@@ -397,7 +449,7 @@ function renderPage(data){
     }
     const sb=c;
     const blk=document.createElement('div');blk.className='cat-block';
-    const lblClass = sb.promo ? ' promo-lbl' : (sb.alcoholic ? ' alcohol-lbl' : '');
+    const lblClass = sb.alcoholic ? ' alcohol-lbl' : (sb.promo ? ' promo-lbl' : '');
     const age = sb.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
     const star = sb.promo ? '<span class="promo-star">⭐</span>' : '';
     const dashIdx = sb.label.indexOf(' – ');
@@ -439,7 +491,7 @@ async function build(){
     let sub='';
     pSnap.forEach(d=>{const x=d.data();gLogo=x.logoURL||'';gCur=x.currencyCode||'KM';sub=x.heroSubtitle||'';});
 
-    const blocks=buildBlocks(gk,kat,pod,meni);
+    const blocks=filterPromo(buildBlocks(gk,kat,pod,meni), _showPromo);
     const pages=packPages(blocks);
     gTotal=pages.length; gNum=0;
 
@@ -508,7 +560,7 @@ window._pdfStart=async function(){
   }
 };
 
-build();
+window._startBuild = build;
 </script>
 </body>
 </html>

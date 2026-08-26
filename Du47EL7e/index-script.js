@@ -322,7 +322,7 @@ class MenuApp {
       const age = s.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
       const star = s.promo ? '<span class="promo-star">⭐</span>' : '';
       const name = this.buildSectionTitle(s.naziv, s.parentNaziv, age, star);
-      const wrapClass = s.promo ? ' promo-frame' : (s.alcoholic ? ' alcohol-frame' : '');
+      const wrapClass = s.alcoholic ? ' alcohol-frame' : (s.promo ? ' promo-frame' : '');
       return `<div class="grid-section${wrapClass}"><h2 class="grid-title">${name}</h2><div class="items-grid">${this.createItemsHTML(s.items)}</div></div>`;
     }).join('');
   }
@@ -358,7 +358,7 @@ class MenuApp {
     const age = node.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
     const star = node.promo ? '<span class="promo-star">⭐</span>' : '';
     const name = this.buildSectionTitle(node.naziv, node.parentNaziv, age, star);
-    const wrapClass = node.promo ? ' promo-frame' : (node.alcoholic ? ' alcohol-frame' : '');
+    const wrapClass = node.alcoholic ? ' alcohol-frame' : (node.promo ? ' promo-frame' : '');
     container.innerHTML = `<div class="grid-section${wrapClass}"><h2 class="grid-title">${name}</h2><div class="items-grid">${this.createItemsHTML(items)}</div></div>`;
   }
 
