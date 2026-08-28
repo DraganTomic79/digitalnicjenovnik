@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Upravljanje Menijem</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="admin-styles.css?v=20260828">
+  <style>
+    .size-recommendation { background: #e7f3ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #17a2b8; font-size: 0.8rem; line-height: 1.4; margin-top: 8px; }
+    .size-recommendation strong { color: #0c5460; }
+    .size-recommendation i { margin-right: 6px; }
+    
+    /* === DUGMAD ZA PREVOĐENJE === */
+    .language-switcher {
+      position: absolute !important;
+      top: 15px !important;
+      right: 15px !important;
+      display: flex !important;
+      gap: 5px !important;
+      z-index: 1000 !important;
+      flex-wrap: wrap;
+    }
+    
+    .language-btn {
+      padding: 8px 10px !important;
+      border: 2px solid #ddd !important;
+      background: white !important;
+      color: #333 !important;
+      border-radius: 8px !important;
+      cursor: pointer !important;
+      font-size: 16px !important;
+      transition: all 0.3s ease !important;
+      min-width: 40px !important;
+      height: 40px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .language-btn:hover {
+      border-color: #9E8344 !important;
+      background: #f8f9fa !important;
+      transform: translateY(-1px) !important;
+    }
+    
+    .language-btn.active {
+      border-color: #9E8344 !important;
+      background: linear-gradient(135deg, #C6A664, #9E8344) !important;
+      color: white !important;
+      box-shadow: 0 4px 8px rgba(158, 131, 68, 0.3) !important;
+    }
+    
+    /* Responsive za dugmad */
+    @media (max-width: 768px) {
+      .language-switcher {
+        top: 8px !important;
+        right: 8px !important;
+        flex-direction: column !important;
+        gap: 3px !important;
+      }
+      
+      .language-btn {
+        min-width: 32px !important;
+        height: 32px !important;
+        font-size: 13px !important;
+        padding: 4px 6px !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .language-switcher {
+        top: 5px !important;
+        right: 5px !important;
+        flex-direction: column !important;
+        gap: 2px !important;
+      }
+      
+      .language-btn {
+        min-width: 28px !important;
+        height: 28px !important;
+        font-size: 12px !important;
+        padding: 3px 5px !important;
+      }
+    }
+    
+    @media (max-width: 360px) {
+      .language-switcher {
+        flex-direction: column !important;
+        gap: 2px !important;
+        top: 3px !important;
+        right: 3px !important;
+      }
+      
+      .language-btn {
+        min-width: 25px !important;
+        height: 25px !important;
+        font-size: 11px !important;
+        padding: 2px 4px !important;
+      }
+    }
+
+    /* ══════════ SIDEBAR RASPORED (dosljedno sa zlatnom paletom brenda) ══════════ */
+    html, body { height: 100%; }
+    body { background: #141414 !important; }
+
+    /* Poništava staro pravilo (admin-styles.css) koje je na širim ekranima
+       silom prikazivalo SVE sekcije odjednom — sad se sekcije uvijek
+       ponašaju kao odvojene stranice, i na desktopu i na mobilnom. */
+    @media (min-width: 992px) {
+      .tab-content { display: none !important; }
+      .tab-content.active { display: block !important; }
+    }
+
+    .admin-shell { display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 260px; flex-shrink: 0; background: linear-gradient(180deg, #181818, #101010);
+      border-right: 2px solid #C6A664; display: flex; flex-direction: column;
+      position: sticky; top: 0; height: 100vh; height: 100dvh; overflow-y: auto; z-index: 100;
+    }
+    .sidebar-brand {
+      display: flex; align-items: center; gap: 12px; padding: 20px 18px;
+      border-bottom: 1px solid rgba(198,166,100,.25);
+    }
+    .sidebar-brand .icon {
+      width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0;
+      background: linear-gradient(135deg,#C6A664,#9E8344); color: #1a1a1a;
+      display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+    }
+    .sidebar-brand h1 { font-size: .98rem; font-weight: 800; color: #F2E9D8; margin: 0; }
+    .sidebar-brand span { display: block; font-size: .68rem; color: #9E8344; letter-spacing: .3px; }
+
+    .sidebar-section-label {
+      padding: 16px 18px 6px; font-size: .65rem; font-weight: 700; letter-spacing: .8px;
+      text-transform: uppercase; color: #8f887a;
+    }
+    .sidebar-nav { display: flex; flex-direction: column; padding: 6px 10px; gap: 3px; }
+    .sidebar-nav .tab-btn, .sidebar-tools a {
+      display: flex !important; flex-direction: row !important; align-items: center; gap: 12px; width: 100%;
+      background: transparent !important; border: none !important; border-radius: 9px;
+      padding: 10px 12px !important; color: #c9c2b3 !important; font-size: .84rem !important;
+      font-weight: 600; cursor: pointer; text-align: left; text-decoration: none;
+      transition: background .15s, color .15s;
+    }
+    .sidebar-nav .tab-btn i, .sidebar-tools a i { width: 18px; text-align: center; font-size: .9rem; flex-shrink: 0; }
+    .sidebar-nav .tab-btn span, .sidebar-tools a span { flex: 1; }
+    .sidebar-nav .tab-btn:hover, .sidebar-tools a:hover { background: rgba(198,166,100,.1) !important; color: #F2E9D8 !important; }
+    .sidebar-nav .tab-btn.active {
+      background: linear-gradient(135deg,#C6A664,#9E8344) !important; color: #1a1a1a !important;
+      box-shadow: 0 3px 10px rgba(198,166,100,.3);
+    }
+    .sidebar-tools { display: flex; flex-direction: column; padding: 6px 10px; gap: 3px; }
+
+    .sidebar-foot {
+      margin-top: auto; padding: 14px 18px; border-top: 1px solid rgba(198,166,100,.25);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sidebar-foot a {
+      display: flex; align-items: center; gap: 8px; color: #c9c2b3; text-decoration: none;
+      font-size: .78rem; font-weight: 600; padding: 7px 10px; border-radius: 8px; flex: 1;
+    }
+    .sidebar-foot a:hover { background: rgba(248,113,113,.1); color: #f87171; }
+
+    /* ── MAIN AREA ── */
+    .main-area { flex: 1; min-width: 0; background: var(--primary-gradient); }
+    .main-topbar {
+      display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+      padding: 14px 20px; position: relative; min-height: 30px;
+    }
+    .main-topbar .language-switcher { position: static !important; }
+    .main-inner { padding: 0 clamp(10px, 2vw, 24px) 30px; }
+
+    /* ── DASHBOARD ── */
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .dash-card {
+      background: var(--glass-bg); backdrop-filter: blur(10px); border-radius: var(--border-radius-large);
+      padding: 18px 20px; box-shadow: var(--shadow-light); display: flex; align-items: center; gap: 14px;
+    }
+    .dash-card .dc-icon {
+      width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0; display: flex;
+      align-items: center; justify-content: center; font-size: 1.1rem;
+      background: linear-gradient(135deg,#C6A664,#9E8344); color: #1a1a1a;
+    }
+    .dash-card.warn .dc-icon { background: linear-gradient(135deg,#fbbf24,#f59e0b); }
+    .dash-card.bad .dc-icon { background: linear-gradient(135deg,#f87171,#ef4444); }
+    .dash-card .dc-num { font-size: 1.7rem; font-weight: 800; color: #333; line-height: 1; }
+    .dash-card .dc-lbl { font-size: .72rem; color: #888; text-transform: uppercase; letter-spacing: .3px; margin-top: 3px; }
+
+    /* ── RESPONSIVE: hamburger + fioka (drawer) sa strane ── */
+    .mobile-topbar { display: none; }
+    #sidebarBackdrop { display: none; }
+
+    @media (max-width: 900px) {
+      .admin-shell { flex-direction: column; }
+
+      .mobile-topbar {
+        display: flex; align-items: center; gap: 12px;
+        background: linear-gradient(135deg, #181818, #101010); border-bottom: 2px solid #C6A664;
+        padding: 12px 16px; position: sticky; top: 0; z-index: 250;
+      }
+      .mobile-topbar .hamburger {
+        background: transparent; border: 1.5px solid rgba(198,166,100,.4); color: #C6A664;
+        width: 38px; height: 38px; border-radius: 8px; font-size: 1.05rem; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      }
+      .mobile-topbar .mt-brand h1 { font-size: .82rem; font-weight: 800; color: #F2E9D8; margin: 0; }
+      .mobile-topbar .mt-brand span { display: block; font-size: .6rem; color: #9E8344; }
+      .mobile-topbar .language-switcher {
+        margin-left: auto !important; position: static !important; display: flex !important;
+        flex-direction: row !important; gap: 5px !important; top: auto !important; right: auto !important;
+        flex-wrap: nowrap !important;
+      }
+      .mobile-topbar .language-btn { min-width: 30px !important; height: 30px !important; font-size: 13px !important; padding: 0 !important; }
+
+      .sidebar {
+        position: fixed !important; top: 0; left: -280px; width: 260px; height: 100vh; height: 100dvh; z-index: 300;
+        transition: left .25s ease; flex-direction: column !important; flex-wrap: nowrap !important;
+        overflow-y: auto;
+      }
+      .sidebar.open { left: 0; box-shadow: 10px 0 40px rgba(0,0,0,.6); }
+      .sidebar-brand { display: none; } /* već prikazano u mobilnoj traci */
+      .sidebar-section-label { display: block !important; }
+      .sidebar-nav, .sidebar-tools { flex-direction: column !important; padding: 6px 10px; }
+      .sidebar-nav .tab-btn span, .sidebar-tools a span { display: inline !important; }
+      .sidebar-nav .tab-btn, .sidebar-tools a { width: 100% !important; padding: 10px 12px !important; }
+      /* Logout ide odmah nakon Alata (ne gura se na dno) — na mobilnom je tako uvijek vidljiv bez skrolanja */
+      .sidebar-foot { border-left: none; border-top: 1px solid rgba(198,166,100,.25); margin-top: 10px !important; }
+      .sidebar-foot a span { display: inline !important; }
+
+      #sidebarBackdrop.show {
+        display: block; position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 290;
+      }
+
+      /* Jezički prekidač se sad prikazuje u mobilnoj traci (mt-brand), pa je ova traka na mobilnom suvišna */
+      .main-topbar { display: none; }
+
+      /* Kartice na Dashboard-u — manje, jer nema puno sadržaja u njima */
+      .dashboard-grid { grid-template-columns: repeat(auto-fit, minmax(122px, 1fr)); gap: 8px; }
+      .dash-card { padding: 10px 12px; gap: 8px; }
+      .dash-card .dc-icon { width: 32px; height: 32px; font-size: .85rem; border-radius: 8px; }
+      .dash-card .dc-num { font-size: 1.15rem; }
+      .dash-card .dc-lbl { font-size: .6rem; margin-top: 1px; }
+    }
+
+
+  </style>
+</head>
+<body>
+  <div class="admin-shell">
+    <!-- MOBILNA TRAKA (hamburger) — vidljivo samo na uskim ekranima -->
+    <div class="mobile-topbar">
+      <button class="hamburger" id="hamburgerBtn" aria-label="Otvori meni"><i class="fas fa-bars"></i></button>
+      <div class="mt-brand">
+        <h1>Admin Panel</h1>
+        <span class="brand-subtitle" data-code="c2AsDKLC">Digitalni Cjenovnik · c2AsDKLC</span>
+      </div>
+    </div>
+    <div id="sidebarBackdrop"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="icon"><i class="fas fa-crown"></i></div>
+        <div>
+          <h1>Admin Panel</h1>
+          <span class="brand-subtitle" data-code="c2AsDKLC">Digitalni Cjenovnik · c2AsDKLC</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section-label" id="lblMeni">Meni</div>
+      <div class="sidebar-nav" id="categoryTabs">
+        <button class="tab-btn active" data-tab="dashboard"><i class="fas fa-chart-pie"></i><span>Dashboard</span></button>
+        <button class="tab-btn" data-tab="glavne-kategorije"><i class="fas fa-layer-group"></i><span>Glavne kategorije</span></button>
+        <button class="tab-btn" data-tab="kategorije"><i class="fas fa-folder"></i><span>Kategorije</span></button>
+        <button class="tab-btn" data-tab="podkategorije"><i class="fas fa-tags"></i><span>Podkategorije</span></button>
+        <button class="tab-btn" data-tab="artikli"><i class="fas fa-shopping-cart"></i><span>Artikli</span></button>
+        <button class="tab-btn" data-tab="postavke"><i class="fas fa-cog"></i><span>Postavke</span></button>
+      </div>
+
+      <div class="sidebar-section-label" id="lblAlati">Alati</div>
+      <div class="sidebar-tools">
+        <a href="index.html" target="_blank"><i class="fas fa-external-link-alt"></i><span id="toolPogledajSajt">Pogledaj sajt</span></a>
+        <a href="firebase-export-tool.html" target="_blank"><i class="fas fa-download"></i><span id="toolExportArtikala">Export Artikala</span></a>
+        <a href="#" onclick="otвориKatalogModal();return false;"><i class="fas fa-book-open"></i><span id="toolKatalogPica">Katalog Pića</span></a>
+        <a href="#" onclick="otvoriSimpleCjenovnikModal();return false;"><i class="fas fa-receipt"></i><span id="toolSimpleCjenovnik">Simple Cjenovnik</span></a>
+      </div>
+
+      <div class="sidebar-foot">
+        <a href="login.html"><i class="fas fa-sign-out-alt"></i><span id="lblOdjava">Odjavi se</span></a>
+      </div>
+    </aside>
+
+    <!-- MAIN AREA -->
+    <div class="main-area">
+      <div class="main-topbar"></div>
+      <div class="main-inner">
+
+    <!-- DASHBOARD -->
+    <div id="dashboard-tab" class="tab-content active">
+      <div class="main-content full-width">
+        <div class="card">
+          <h3><i class="fas fa-chart-pie"></i> Dashboard</h3>
+          <p style="margin:-6px 0 16px;color:#888;font-size:.82rem;font-weight:600;">
+            <i class="fas fa-globe" style="color:#C6A664;margin-right:5px;"></i><span id="lblKodSajta">Kod sajta:</span> <b style="color:#333">c2AsDKLC</b>
+            &nbsp;&nbsp;·&nbsp;&nbsp;
+            <i class="fas fa-signature" style="color:#C6A664;margin-right:5px;"></i><span id="lblNazivKafica">Naziv:</span> <b id="valNazivKafica" style="color:#333">–</b>
+          </p>
+          <div class="dashboard-grid">
+            <div class="dash-card"><div class="dc-icon"><i class="fas fa-layer-group"></i></div><div><div class="dc-num" id="statGlavneKategorije">–</div><div class="dc-lbl" id="lblGlavneKategorije">Glavne kategorije</div></div></div>
+            <div class="dash-card"><div class="dc-icon"><i class="fas fa-folder"></i></div><div><div class="dc-num" id="statKategorije">–</div><div class="dc-lbl" id="lblKategorije">Kategorije</div></div></div>
+            <div class="dash-card"><div class="dc-icon"><i class="fas fa-tags"></i></div><div><div class="dc-num" id="statPodkategorije">–</div><div class="dc-lbl" id="lblPodkategorije">Podkategorije</div></div></div>
+            <div class="dash-card"><div class="dc-icon"><i class="fas fa-shopping-cart"></i></div><div><div class="dc-num" id="statArtikliUkupno">–</div><div class="dc-lbl" id="lblArtikliUkupno">Artikli ukupno</div></div></div>
+            <div class="dash-card"><div class="dc-icon"><i class="fas fa-eye"></i></div><div><div class="dc-num" id="statArtikliAktivni">–</div><div class="dc-lbl" id="lblArtikliAktivni">Aktivni artikli</div></div></div>
+            <div class="dash-card warn"><div class="dc-icon"><i class="fas fa-eye-slash"></i></div><div><div class="dc-num" id="statArtikliSakriveni">–</div><div class="dc-lbl" id="lblArtikliSakriveni">Sakriveni artikli</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GLAVNE KATEGORIJE -->
+    <div id="glavne-kategorije-tab" class="tab-content">
+      <div class="main-content">
+        <div class="card">
+          <h3><i class="fas fa-layer-group"></i> Nova Glavna Kategorija</h3>
+          <div class="form-section">
+            <div class="form-group">
+              <label for="novaGlavnaKategorija"><i class="fas fa-tag"></i> Naziv *</label>
+              <input type="text" class="form-control" id="novaGlavnaKategorija" placeholder="Unesite naziv glavne kategorije">
+            </div>
+            <div class="form-group">
+              <label for="ikonaGlavneKategorije"><i class="fas fa-image"></i> Ikona</label>
+              <input type="file" class="form-control" id="ikonaGlavneKategorije" accept="image/*">
+              <div class="size-recommendation"><i class="fas fa-info-circle" style="color: #17a2b8;"></i> <strong>Preporučena veličina:</strong> 64x64px | Format: PNG, JPG | Max: 2MB</div>
+              <input type="hidden" id="ikonaGlavneKategorijeExisting">
+              <button type="button" class="btn btn-sm" style="margin-top:8px;background:#2a2a3e;color:#C6A664;border:1.5px solid #C6A664;" onclick="window.adminController && window.adminController.openIconPicker('glavnaKategorija')"><i class="fas fa-icons"></i> Izaberi postojeću ikonu</button>
+            </div>
+            <div class="form-group">
+              <label>Pregled ikone:</label>
+              <div id="glavnaIkonaPreview" class="icon-preview"><p>Ikona nije odabrana</p></div>
+            </div>
+            <div class="form-group">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
+                <input type="checkbox" id="specijalnaPonudaGlavnaKategorija" style="width:auto;height:18px;">
+                <span>⭐ Specijalna ponuda</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
+                <input type="checkbox" id="sadrziAlkoholGlavnaKategorija" style="width:auto;height:18px;">
+                <span>🔞 Sadrži alkohol/cigarete (18+)</span>
+              </label>
+            </div>
+            <div class="form-group" style="background:rgba(198,166,100,.08);border-radius:8px;padding:10px 12px;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;margin-bottom:6px;">
+                <input type="checkbox" id="primijeniAlkoholGlavnaKategorija" style="width:auto;height:18px;">
+                <span style="font-size:.85rem;">↳ Primijeni "Sadrži alkohol" i na SVE kategorije/podkategorije ispod ove</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
+                <input type="checkbox" id="primijeniPromoGlavnaKategorija" style="width:auto;height:18px;">
+                <span style="font-size:.85rem;">↳ Primijeni "Specijalna ponuda" i na SVE kategorije/podkategorije ispod ove</span>
+              </label>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-primary" id="dodajGlavnuKategorijuBtn"><i class="fas fa-plus"></i> Dodaj</button>
+              <button type="button" class="btn btn-success d-none" id="sacuvajGlavnuKategorijuBtn"><i class="fas fa-save"></i> Sačuvaj</button>
+              <button type="button" class="btn btn-secondary d-none" id="otkaziGlavnuKategorijuBtn"><i class="fas fa-times"></i> Otkaži</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-list"></i> Lista Glavnih Kategorija</h3>
+          <div id="listaGlavnihKategorija" class="list-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KATEGORIJE -->
+    <div id="kategorije-tab" class="tab-content">
+      <div class="main-content">
+        <div class="card">
+          <h3><i class="fas fa-folder"></i> Nova Kategorija</h3>
+          <div class="form-section">
+            <div class="form-group">
+              <label for="selectGlavnaKategorija"><i class="fas fa-layer-group"></i> Glavna kategorija</label>
+              <select class="form-control" id="selectGlavnaKategorija"><option value="">Odaberite glavnu kategoriju (opciono)</option></select>
+            </div>
+            <div class="form-group">
+              <label for="novaKategorija"><i class="fas fa-tag"></i> Naziv *</label>
+              <input type="text" class="form-control" id="novaKategorija" placeholder="Unesite naziv kategorije">
+            </div>
+            <div class="form-group">
+              <label for="ikonaKategorije"><i class="fas fa-image"></i> Ikona</label>
+              <input type="file" class="form-control" id="ikonaKategorije" accept="image/*">
+              <div class="size-recommendation"><i class="fas fa-info-circle" style="color: #17a2b8;"></i> <strong>Preporučena veličina:</strong> 64x64px | Format: PNG, JPG | Max: 2MB</div>
+              <input type="hidden" id="ikonaKategorijeExisting">
+              <button type="button" class="btn btn-sm" style="margin-top:8px;background:#2a2a3e;color:#C6A664;border:1.5px solid #C6A664;" onclick="window.adminController && window.adminController.openIconPicker('kategorija')"><i class="fas fa-icons"></i> Izaberi postojeću ikonu</button>
+            </div>
+            <div class="form-group">
+              <label>Pregled ikone:</label>
+              <div id="ikonaPreview" class="icon-preview"><p>Ikona nije odabrana</p></div>
+            </div>
+            <div class="form-group">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
+                <input type="checkbox" id="specijalnaPonudaKategorija" style="width:auto;height:18px;">
+                <span>⭐ Specijalna ponuda</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
+                <input type="checkbox" id="sadrziAlkoholKategorija" style="width:auto;height:18px;">
+                <span>🔞 Sadrži alkohol/cigarete (18+)</span>
+              </label>
+            </div>
+            <div class="form-group" style="background:rgba(198,166,100,.08);border-radius:8px;padding:10px 12px;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;margin-bottom:6px;">
+                <input type="checkbox" id="primijeniAlkoholKategorija" style="width:auto;height:18px;">
+                <span style="font-size:.85rem;">↳ Primijeni "Sadrži alkohol" i na SVE podkategorije ispod ove</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
+                <input type="checkbox" id="primijeniPromoKategorija" style="width:auto;height:18px;">
+                <span style="font-size:.85rem;">↳ Primijeni "Specijalna ponuda" i na SVE podkategorije ispod ove</span>
+              </label>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-primary" id="dodajKategorijuBtn"><i class="fas fa-plus"></i> Dodaj</button>
+              <button type="button" class="btn btn-success d-none" id="sacuvajKategorijuBtn"><i class="fas fa-save"></i> Sačuvaj</button>
+              <button type="button" class="btn btn-secondary d-none" id="otkaziKategorijuBtn"><i class="fas fa-times"></i> Otkaži</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-list"></i> Lista Kategorija</h3>
+          <div id="listaKategorija" class="list-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PODKATEGORIJE -->
+    <div id="podkategorije-tab" class="tab-content">
+      <div class="main-content">
+        <div class="card">
+          <h3><i class="fas fa-tags"></i> Nova Podkategorija</h3>
+          <div class="form-section">
+            <div class="form-group">
+              <label for="selectKategorijaPodkategorija"><i class="fas fa-folder"></i> Kategorija *</label>
+              <select class="form-control" id="selectKategorijaPodkategorija"><option value="">Odaberite kategoriju</option></select>
+            </div>
+            <div class="form-group">
+              <label for="novaPodkategorija"><i class="fas fa-tag"></i> Naziv *</label>
+              <input type="text" class="form-control" id="novaPodkategorija" placeholder="npr. Žestoka pića, Gazirane vode...">
+            </div>
+            <div class="form-group">
+              <label for="ikonaPodkategorije"><i class="fas fa-image"></i> Ikona</label>
+              <input type="file" class="form-control" id="ikonaPodkategorije" accept="image/*">
+              <div class="size-recommendation"><i class="fas fa-info-circle" style="color: #17a2b8;"></i> <strong>Preporučena veličina:</strong> 64x64px | Format: PNG, JPG | Max: 2MB</div>
+              <input type="hidden" id="ikonaPodkategorijeExisting">
+              <button type="button" class="btn btn-sm" style="margin-top:8px;background:#2a2a3e;color:#C6A664;border:1.5px solid #C6A664;" onclick="window.adminController && window.adminController.openIconPicker('podkategorija')"><i class="fas fa-icons"></i> Izaberi postojeću ikonu</button>
+            </div>
+            <div class="form-group">
+              <label>Pregled ikone:</label>
+              <div id="podkategorijaIkonaPreview" class="icon-preview"><p>Ikona nije odabrana</p></div>
+            </div>
+            <div class="form-group">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
+                <input type="checkbox" id="specijalnaPonudaPodkategorija" style="width:auto;height:18px;">
+                <span>⭐ Specijalna ponuda</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
+                <input type="checkbox" id="sadrziAlkoholPodkategorija" style="width:auto;height:18px;">
+                <span>🔞 Sadrži alkohol/cigarete (18+)</span>
+              </label>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-primary" id="dodajPodkategorijuBtn"><i class="fas fa-plus"></i> Dodaj</button>
+              <button type="button" class="btn btn-success d-none" id="sacuvajPodkategorijuBtn"><i class="fas fa-save"></i> Sačuvaj</button>
+              <button type="button" class="btn btn-secondary d-none" id="otkaziPodkategorijuBtn"><i class="fas fa-times"></i> Otkaži</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-list"></i> Lista Podkategorija</h3>
+          <div id="listaPodkategorija" class="list-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARTIKLI -->
+    <div id="artikli-tab" class="tab-content">
+      <div class="main-content full-width">
+        <div class="card">
+          <h3><i class="fas fa-shopping-cart"></i> Upravljanje Artiklima</h3>
+          
+          <div class="form-section">
+            <h4><i class="fas fa-plus-circle"></i> Novi Artikal</h4>
+            <div class="artikal-form-grid">
+              <div>
+                <div class="form-group">
+                  <label for="selectPodkategorija"><i class="fas fa-tags"></i> Podkategorija *</label>
+                  <select class="form-control" id="selectPodkategorija"><option value="">Odaberite podkategoriju</option></select>
+                </div>
+                <div class="form-group">
+                  <label for="nazivArtikla"><i class="fas fa-tag"></i> Naziv * <small class="text-muted">(ako postoji artikal sa istim nazivom, automatski se popune slika/opis/link)</small></label>
+                  <input type="text" class="form-control" id="nazivArtikla" list="artikalNazivDatalist" placeholder="Unesite naziv artikla — ili izaberite postojeći iz liste">
+                  <datalist id="artikalNazivDatalist"></datalist>
+                </div>
+                <div class="form-group">
+                  <label for="cijenaArtikla"><i class="fas fa-euro-sign"></i> Cijena *</label>
+                  <div class="currency-input-container">
+                    <input type="text" class="form-control" id="cijenaArtikla" placeholder="0.00">
+                    <span class="currency-suffix"></span>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="form-group">
+                  <label for="opisArtikla"><i class="fas fa-info-circle"></i> Opis 1</label>
+                  <input type="text" class="form-control" id="opisArtikla" placeholder="Kratki opis artikla (opciono)">
+                </div>
+                <div class="mb-3">
+                  <label for="opisArtikla2"><i class="fas fa-info-circle"></i> <span id="lblOpis2">Opis 2</span> <small class="text-muted" id="lblOpis2Hint">(dodatni opis, manji font)</small></label>
+                  <input type="text" class="form-control" id="opisArtikla2" placeholder="Drugi opis (opciono)">
+                </div>
+                <div class="form-group">
+                  <label for="slikaArtikla"><i class="fas fa-image"></i> Slika</label>
+                  <input type="file" class="form-control" id="slikaArtikla" accept="image/*">
+                  <div class="size-recommendation"><i class="fas fa-info-circle" style="color: #17a2b8;"></i> <strong>Preporučena veličina:</strong> 300x300px | Format: PNG, JPG | Max: 3MB</div>
+                </div>
+                <div class="form-group">
+                  <label for="slikaArtiklaUrl"><i class="fas fa-link"></i> ILI nalijepi postojeći link slike <small class="text-muted">(ako je ista slika već negdje uploadovana — štedi prostor na ImgBB)</small></label>
+                  <input type="text" class="form-control" id="slikaArtiklaUrl" placeholder="https://i.ibb.co/...">
+                  <button type="button" class="btn btn-sm" style="margin-top:8px;background:#2a2a3e;color:#C6A664;border:1.5px solid #C6A664;" onclick="window.adminController && window.adminController.openArtikalImagePicker()"><i class="fas fa-images"></i> Izaberi iz galerije postojećih slika</button>
+                </div>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-primary" id="dodajArtikalBtn"><i class="fas fa-plus"></i> Dodaj Artikal</button>
+              <button type="button" class="btn btn-success d-none" id="sacuvajIzmjenuBtn"><i class="fas fa-save"></i> Sačuvaj</button>
+              <button type="button" class="btn btn-secondary d-none" id="otkaziIzmjenuBtn"><i class="fas fa-times"></i> Otkaži</button>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+              <h4 style="margin:0"><i class="fas fa-list"></i> Lista Artikala</h4>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button type="button" onclick="window.adminController && window.adminController.sakrijSveArtikle()" class="btn btn-sm" style="background:#2a2a3e;color:#f87171;border:1.5px solid #f87171;font-weight:700"><i class="fas fa-eye-slash"></i> Sakrij sve artikle</button>
+                <button type="button" onclick="window.adminController && window.adminController.objaviSveArtikle()" class="btn btn-sm" style="background:#2a2a3e;color:#4ade80;border:1.5px solid #4ade80;font-weight:700"><i class="fas fa-eye"></i> Objavi sve artikle</button>
+              </div>
+            </div>
+            <div id="listaArtikala" class="list-container" style="max-height: 500px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POSTAVKE -->
+    <div id="postavke-tab" class="tab-content">
+      <div class="main-content full-width">
+        <div class="card">
+          <h3><i class="fas fa-cog"></i> Postavke Sajta</h3>
+          
+          <div class="postavke-grid">
+            <!-- LOGO -->
+            <div class="form-section">
+              <h4><i class="fas fa-image"></i> Logo</h4>
+              <div class="form-group">
+                <input type="file" class="form-control" id="logoInput" accept="image/*">
+                <div class="size-recommendation"><i class="fas fa-info-circle" style="color: #17a2b8;"></i> <strong>Preporučena veličina:</strong> 300x120px (horizontalni format) | Format: PNG, JPG | max: 3MB</div>
+              </div>
+              <div id="logoPreview" class="logo-preview"><p>Logo trenutno nije postavljen</p></div>
+              <div class="form-actions">
+                <button type="button" class="btn btn-primary" id="uploadLogoBtn">Upload</button>
+                <button type="button" class="btn btn-danger d-none" id="ukloniLogoBtn">Ukloni</button>
+              </div>
+            </div>
+
+            <!-- VALUTA -->
+            <div class="form-section">
+              <h4><i class="fas fa-coins"></i> Valuta</h4>
+              <div class="form-group">
+                <label for="currencyCode">Kod valute (opciono)</label>
+                <input type="text" class="form-control" id="currencyCode" placeholder="npr. KM, EUR, USD... (ostaviti prazno za bez valute)" maxlength="5">
+                <small class="form-text text-muted">Ostavite prazno ako ne želite prikazati valutu pored cijena</small>
+              </div>
+              <div class="form-actions">
+                <button type="button" class="btn btn-primary" id="saveCurrencyBtn"><i class="fas fa-save"></i> Sačuvaj</button>
+                <button type="button" class="btn btn-secondary" id="resetCurrencyBtn"><i class="fas fa-eraser"></i> Ukloni valute</button>
+              </div>
+            </div>
+
+            <!-- NAZIV KAFIĆA -->
+            <div class="form-section">
+              <h4 id="siteNameHeader"><i class="fas fa-signature"></i> Naziv Kafića</h4>
+              <div class="form-group">
+                <label for="pageTitle">Naziv <small class="text-muted" id="siteNameHint">(prikazuje se u Dashboard-u i kao naslov stranice u browseru)</small></label>
+                <input type="text" class="form-control" id="pageTitle" placeholder="npr. Casa Loca Borik">
+              </div>
+              <div class="form-actions">
+                <button type="button" class="btn btn-primary" id="sacuvajNazivBtn"><i class="fas fa-save"></i> Sačuvaj</button>
+                <button type="button" class="btn btn-secondary" id="resetNazivBtn"><i class="fas fa-eraser"></i> Reset</button>
+              </div>
+            </div>
+
+            <!-- HERO -->
+            <div class="form-section">
+              <h4><i class="fas fa-home"></i> Hero Sekcija</h4>
+              <div class="form-group">
+                <label for="heroTitle">Naslov</label>
+                <input type="text" class="form-control" id="heroTitle" placeholder="Our Menu">
+              </div>
+              <div class="form-group">
+                <label for="heroSubtitle">Podnaslov</label>
+                <input type="text" class="form-control" id="heroSubtitle" placeholder="Podnaslov...">
+              </div>
+              <div class="form-actions">
+                <button type="button" class="btn btn-primary" id="sacuvajHeroBtn">Sačuvaj</button>
+                <button type="button" class="btn btn-secondary" id="resetHeroBtn">Reset</button>
+              </div>
+            </div>
+
+            <!-- FOOTER -->
+            <div class="form-section">
+              <h4><i class="fas fa-layer-group"></i> Footer & Društvene Mreže</h4>
+              <div class="form-group">
+                <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;background:#f0f4ff;border-radius:10px;border:2px solid #d0d8f0;">
+                  <label class="toggle-switch" style="position:relative;display:inline-block;width:52px;height:28px;flex-shrink:0;margin:0">
+                    <input type="checkbox" id="footerEnabled" style="opacity:0;width:0;height:0;position:absolute">
+                    <span style="
+                      position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;
+                      background:#ccc;border-radius:28px;transition:.3s;
+                    " id="footerToggleTrack"></span>
+                    <span style="
+                      position:absolute;content:'';height:20px;width:20px;left:4px;bottom:4px;
+                      background:white;border-radius:50%;transition:.3s;box-shadow:0 2px 4px rgba(0,0,0,.3);
+                    " id="footerToggleThumb"></span>
+                  </label>
+                  <div>
+                    <div style="font-weight:700;font-size:.95rem;color:#333" id="footerToggleLabel">Footer je ISKLJUČEN</div>
+                    <div style="font-size:.78rem;color:#888" id="footerToggleHint">Uključi da bi footer bio vidljiv na sajtu</div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="footerText">Footer tekst <small class="text-muted">(npr. Wifi podaci)</small></label>
+                <input type="text" class="form-control" id="footerText" placeholder="npr. 🛜 Wifi: MojaMreza / Lozinka: 12345678">
+              </div>
+              
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <h6><i class="fab fa-instagram" style="color: #E4405F;"></i> Instagram</h6>
+                <input type="url" class="form-control" id="instagramUrl" placeholder="https://instagram.com/username">
+              </div>
+              
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <h6><i class="fab fa-facebook" style="color: #1877F2;"></i> Facebook</h6>
+                <input type="url" class="form-control" id="facebookUrl" placeholder="https://facebook.com/username">
+              </div>
+              
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <h6><i class="fab fa-youtube" style="color: #FF0000;"></i> YouTube</h6>
+                <input type="url" class="form-control" id="youtubeUrl" placeholder="https://youtube.com/channel/username">
+              </div>
+              
+<div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+  <h6><i class="fab fa-x" style="color: #000000;"></i> X</h6>
+  <input type="url" class="form-control" id="twitterUrl" placeholder="https://x.com/username">
+</div>
+
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <h6><i class="fab fa-tiktok" style="color: #000000;"></i> TikTok</h6>
+                <input type="url" class="form-control" id="tiktokUrl" placeholder="https://tiktok.com/@username">
+              </div>
+              
+              <div class="form-actions">
+                <button type="button" class="btn btn-primary" id="sacuvajFooterBtn">Sačuvaj Footer</button>
+                <button type="button" class="btn btn-secondary" id="resetFooterBtn">Reset</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section" style="text-align: center; margin-top: 30px;">
+            <button type="button" class="btn btn-success" id="sacuvajPostavkeBtn" style="padding: 15px 30px; font-size: 1.1rem;">
+              <i class="fas fa-save"></i> Sačuvaj Sve Postavke
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="notificationToast" class="toast position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+    <div class="toast-header">
+      <strong class="me-auto" id="toastTitle">Obavještenje</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+    </div>
+    <div class="toast-body" id="toastMessage"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Include Translation Manager -->
+  <script src="translation-manager.js?v=20260828"></script>
+  <script type="module" src="js/admin-controller.js?v=20260828"></script>
+<script>
+// Hamburger meni (fioka sa strane) — samo na mobilnom
+(function () {
+  function init() {
+    const btn = document.getElementById('hamburgerBtn');
+    const sidebar = document.querySelector('.sidebar');
+    const backdrop = document.getElementById('sidebarBackdrop');
+    if (!btn || !sidebar || !backdrop) return;
+
+    const closeDrawer = () => { sidebar.classList.remove('open'); backdrop.classList.remove('show'); };
+    const openDrawer  = () => { sidebar.classList.add('open'); backdrop.classList.add('show'); };
+
+    btn.addEventListener('click', () => sidebar.classList.contains('open') ? closeDrawer() : openDrawer());
+    backdrop.addEventListener('click', closeDrawer);
+    // Zatvori fioku čim se izabere stavka menija ili alat
+    document.querySelectorAll('.sidebar-nav .tab-btn, .sidebar-tools a, .sidebar-foot a').forEach(el => {
+      el.addEventListener('click', closeDrawer);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+<script>
+// Footer toggle switch visual logic
+(function() {
+  function initToggle() {
+    const cb    = document.getElementById('footerEnabled');
+    const track = document.getElementById('footerToggleTrack');
+    const thumb = document.getElementById('footerToggleThumb');
+    const lbl   = document.getElementById('footerToggleLabel');
+    if (!cb || !track || !thumb) return;
+
+    function update() {
+      const on = cb.checked;
+      track.style.background = on ? '#4CAF50' : '#ccc';
+      thumb.style.transform  = on ? 'translateX(24px)' : 'translateX(0)';
+      const tm = window.translationManager;
+      lbl.textContent = tm ? tm.t(on ? 'footerOn' : 'footerOff') : (on ? 'Footer je UKLJUČEN ✓' : 'Footer je ISKLJUČEN');
+      lbl.style.color = on ? '#2e7d32' : '#333';
+    }
+
+    cb.addEventListener('change', update);
+    window.refreshFooterToggleLabel = update;
+    // Run on load (after AdminController sets checked state)
+    const obs = new MutationObserver(update);
+    obs.observe(cb, { attributes: true, attributeFilter: ['checked'] });
+    // Also poll briefly since checkbox is set programmatically
+    let tries = 0;
+    const poll = setInterval(() => { update(); if (++tries > 20) clearInterval(poll); }, 200);
+  }
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', initToggle);
+  else
+    initToggle();
+})();
+</script>
+<script>
+function otвориKatalogModal() {
+  var old = document.getElementById('katalogModalBody');
+  if (old) old.remove();
+  var m = document.createElement('div');
+  m.id = 'katalogModalBody';
+  m.style.cssText = ['position:fixed','top:0','left:0','width:100%','height:100%',
+    'background:rgba(0,0,0,.8)','z-index:2147483647',
+    'display:flex','align-items:center','justify-content:center','padding:20px',
+    'box-sizing:border-box'].join(';');
+  m.innerHTML = `
+    <div style="background:#1e1e2e;border:2px solid #C6A664;border-radius:14px;
+      padding:32px 28px;max-width:340px;width:100%;text-align:center;
+      box-shadow:0 8px 40px rgba(0,0,0,.8);">
+      <h3 style="color:#C6A664;font-size:1.1rem;font-weight:800;margin:0 0 8px">
+        📖 Katalog Pića
+      </h3>
+      <p style="color:#94a3b8;font-size:.85rem;margin:0 0 24px">
+        Kako želiš otvoriti katalog?
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <a href="katalog.html?cijene=1" target="_blank"
+          onclick="document.getElementById('katalogModalBody').remove()"
+          style="background:linear-gradient(135deg,#C6A664,#9E8344);color:#1a1a1a;
+            font-weight:800;padding:12px;border-radius:8px;text-decoration:none;
+            font-size:.9rem;display:block">
+          🏷️ Sa cijenama
+        </a>
+        <a href="katalog.html?cijene=0" target="_blank"
+          onclick="document.getElementById('katalogModalBody').remove()"
+          style="background:#2a2a3e;color:#C6A664;border:2px solid #C6A664;
+            font-weight:800;padding:12px;border-radius:8px;text-decoration:none;
+            font-size:.9rem;display:block">
+          🚫 Bez cijena
+        </a>
+        <button onclick="document.getElementById('katalogModalBody').remove()"
+          style="background:transparent;color:#64748b;border:none;font-size:.8rem;
+            cursor:pointer;padding:6px;margin-top:4px">
+          Otkaži
+        </button>
+      </div>
+    </div>`;
+  m.addEventListener('click', function(e){ if(e.target===m) m.remove(); });
+  document.body.appendChild(m);
+}
+
+function otvoriSimpleCjenovnikModal() {
+  var old = document.getElementById('simpleCjenovnikModalBody');
+  if (old) old.remove();
+  var m = document.createElement('div');
+  m.id = 'simpleCjenovnikModalBody';
+  m.style.cssText = ['position:fixed','top:0','left:0','width:100%','height:100%',
+    'background:rgba(0,0,0,.8)','z-index:2147483647',
+    'display:flex','align-items:center','justify-content:center','padding:20px',
+    'box-sizing:border-box'].join(';');
+  m.innerHTML = `
+    <div style="background:#1e1e2e;border:2px solid #C6A664;border-radius:14px;
+      padding:32px 28px;max-width:340px;width:100%;text-align:center;
+      box-shadow:0 8px 40px rgba(0,0,0,.8);">
+      <h3 style="color:#C6A664;font-size:1.1rem;font-weight:800;margin:0 0 8px">
+        🧾 Simple Cjenovnik
+      </h3>
+      <p style="color:#94a3b8;font-size:.85rem;margin:0 0 24px">
+        Kako želiš otvoriti cjenovnik?
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <a href="simplecjenovnik.html?cijene=1" target="_blank"
+          onclick="document.getElementById('simpleCjenovnikModalBody').remove()"
+          style="background:linear-gradient(135deg,#C6A664,#9E8344);color:#1a1a1a;
+            font-weight:800;padding:12px;border-radius:8px;text-decoration:none;
+            font-size:.9rem;display:block">
+          🏷️ Sa cijenama
+        </a>
+        <a href="simplecjenovnik.html?cijene=0" target="_blank"
+          onclick="document.getElementById('simpleCjenovnikModalBody').remove()"
+          style="background:#2a2a3e;color:#C6A664;border:2px solid #C6A664;
+            font-weight:800;padding:12px;border-radius:8px;text-decoration:none;
+            font-size:.9rem;display:block">
+          🚫 Bez cijena
+        </a>
+        <button onclick="document.getElementById('simpleCjenovnikModalBody').remove()"
+          style="background:transparent;color:#64748b;border:none;font-size:.8rem;
+            cursor:pointer;padding:6px;margin-top:4px">
+          Otkaži
+        </button>
+      </div>
+    </div>`;
+  m.addEventListener('click', function(e){ if(e.target===m) m.remove(); });
+  document.body.appendChild(m);
+}
+</script>
+
+<!-- Galerija za izbor postojeće ikone/slike (dijeljena za kategorije, podkategorije i artikle) -->
+<div id="iconPickerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:5000;align-items:flex-start;justify-content:center;padding:30px 16px;overflow-y:auto;">
+  <div style="background:#1a1a1a;border:1px solid rgba(198,166,100,.3);border-radius:16px;max-width:640px;width:100%;padding:24px;">
+    <h2 style="font-family:'Playfair Display',serif;color:#C6A664;font-size:1.15rem;margin-bottom:16px;display:flex;align-items:center;gap:9px;"><i class="fas fa-icons"></i> <span id="iconPickerTitle">Izaberi postojeću ikonu</span></h2>
+    <input type="text" id="iconPickerSearch" class="form-control" placeholder="Pretraži po nazivu...">
+    <div id="iconPickerStatus" style="color:#8f887a;font-size:.8rem;margin-top:8px;">Učitavanje...</div>
+    <div id="iconPickerGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;max-height:420px;overflow-y:auto;margin-top:12px;"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:18px;">
+      <button type="button" class="btn btn-secondary" onclick="window.adminController && window.adminController.closeIconPicker()">Zatvori</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+</html>
