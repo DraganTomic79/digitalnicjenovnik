@@ -670,6 +670,17 @@ class MenuApp {
         root.setProperty('--glass-bg-light', `rgba(${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b}, 0.75)`);
       }
     }
+
+    // Čuva primijenjenu temu u browseru — sledeći put se primjenjuje ODMAH
+    // (sinhrono, prije prikaza stranice), bez čekanja na odgovor sa Firebase-a
+    try {
+      localStorage.setItem('brandTheme_c5ta4ywk', JSON.stringify({
+        brandColor: webPostavke.brandColor || '',
+        brandFont: webPostavke.brandFont || '',
+        backgroundMode: webPostavke.backgroundMode || 'dark',
+        backgroundColor: webPostavke.backgroundColor || ''
+      }));
+    } catch (e) { /* localStorage nedostupan (npr. privatni režim) — nije kritično */ }
   }
 
   /* Pretvara HEX boju (#rrggbb) u {r,g,b} objekat */
