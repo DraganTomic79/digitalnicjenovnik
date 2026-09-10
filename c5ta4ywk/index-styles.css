@@ -22,11 +22,11 @@
   /* DARK TEMA - FORSIRANO UVEK */
   --glass-bg: rgba(28, 28, 28, 0.85); 
   --glass-bg-light: rgba(28, 28, 28, 0.75); 
-  --glass-border: rgba(198, 166, 100, 0.2); 
+  --glass-border: rgba(var(--gold-accent-rgb), 0.2); 
   
   --shadow-light: 0 8px 32px rgba(0, 0, 0, 0.15); 
   --shadow-medium: 0 12px 40px rgba(0, 0, 0, 0.2); 
-  --promocija-shadow: 0 8px 25px rgba(198, 166, 100, 0.25); 
+  --promocija-shadow: 0 8px 25px rgba(var(--gold-accent-rgb), 0.25); 
   --border-radius: 10px; 
   --border-radius-large: 15px; 
   --border-radius-xl: 20px; 
@@ -43,7 +43,7 @@
   --text-light: #C6A664; 
   
   --bg-light: #2C2C2C; 
-  --border-color: rgba(198, 166, 100, 0.3); 
+  --border-color: rgba(var(--gold-accent-rgb), 0.3); 
   --spacing-xs: clamp(4px, 1vw, 8px); 
   --spacing-sm: clamp(8px, 2vw, 12px); 
   --spacing-md: clamp(12px, 2.8vw, 18px); 
@@ -73,7 +73,7 @@
 /* Stiliziranje body elementa */
 body { 
   font-family: var(--font-family-base); 
-  background: linear-gradient(135deg, #1C1C1C 0%, #2C2C2C 100%); 
+  background: linear-gradient(135deg, var(--background-dark) 0%, var(--bg-light) 100%); 
   min-height: 100vh; 
   color: var(--text-color); 
   -webkit-font-smoothing: antialiased; 
@@ -488,7 +488,7 @@ body {
 
 /* Zvjezdice za promocijske podkategorije */
 .accordion-item.promocija-subcategory::after { 
-  background: #1C1C1C; 
+  background: var(--background-dark); 
   content: '⭐⭐⭐⭐⭐'; 
   position: absolute; 
   top: -6px; 
@@ -886,7 +886,7 @@ body {
   position: relative; 
   z-index: 1; 
   padding: var(--spacing-xs) var(--spacing-sm); 
-  background: #1C1C1C; 
+  background: var(--background-dark); 
   border-radius: 20px; 
   border: 1px solid rgba(102, 126, 234, 0.2); 
   flex-shrink: 0; 

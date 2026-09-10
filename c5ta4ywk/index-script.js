@@ -614,7 +614,7 @@ class MenuApp {
     else { this.elements.siteFooter.style.display = 'none'; document.body.style.paddingBottom = ''; }
   }
 
-  /* Primjenjuje prilagođenu boju i/ili font ako su postavljeni u Admin panelu.
+  /* Primjenjuje prilagođenu boju, font i pozadinu ako su postavljeni u Admin panelu.
      Ako nisu postavljeni (prazno/nepostojeće), ostaju podrazumijevane vrijednosti
      iz index-styles.css — ništa se ne mijenja. */
   applyBrandTheme(webPostavke) {
@@ -645,6 +645,30 @@ class MenuApp {
       const fontName = webPostavke.brandFont.trim();
       this.ensureGoogleFontLoaded(fontName);
       root.setProperty('--font-family-base', `'${fontName}', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`);
+    }
+
+    // Pozadina — bira se između DVA unaprijed dizajnirana, bezbjedna seta varijabli
+    // (tamni/svijetli), umjesto slobodnog miješanja, da tekst uvijek ostane čitljiv.
+    if (webPostavke.backgroundColor && /^#[0-9A-Fa-f]{6}$/.test(webPostavke.backgroundColor)) {
+      const bgHex = webPostavke.backgroundColor;
+      const bgRgb = this.hexToRgb(bgHex);
+      const isLight = webPostavke.backgroundMode === 'light';
+
+      root.setProperty('--background-dark', bgHex);
+
+      if (isLight) {
+        root.setProperty('--bg-light', this.shadeColor(bgHex, -6));
+        root.setProperty('--text-color', '#2C2C2C');
+        root.setProperty('--text-muted', '#5a5a5a');
+        root.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.85)');
+        root.setProperty('--glass-bg-light', 'rgba(255, 255, 255, 0.7)');
+      } else {
+        root.setProperty('--bg-light', this.shadeColor(bgHex, 12));
+        root.setProperty('--text-color', '#F2E9D8');
+        root.setProperty('--text-muted', '#E6D5B8');
+        root.setProperty('--glass-bg', `rgba(${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b}, 0.85)`);
+        root.setProperty('--glass-bg-light', `rgba(${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b}, 0.75)`);
+      }
     }
   }
 

@@ -226,7 +226,8 @@ class AdminController {
         'footerEnabled', 'footerPreview', 'sacuvajFooter', 'resetFooter',
         'currencyCode', 'saveCurrency', 'resetCurrency',
         'pageTitle', 'sacuvajNaziv', 'resetNaziv',
-        'brandColor', 'brandColorHex', 'brandFont', 'sacuvajIzgled', 'resetIzgled'
+        'brandColor', 'brandColorHex', 'brandFont', 'sacuvajIzgled', 'resetIzgled',
+        'backgroundMode', 'backgroundColor', 'backgroundColorHex'
       ] 
     };
     
@@ -315,6 +316,9 @@ class AdminController {
         brandFont: 'brandFont',
         sacuvajIzgled: 'sacuvajIzgledBtn',
         resetIzgled: 'resetIzgledBtn',
+        backgroundMode: 'backgroundMode',
+        backgroundColor: 'backgroundColor',
+        backgroundColorHex: 'backgroundColorHex',
         footerText: 'footerText', 
         instagramUrl: 'instagramUrl', 
         facebookUrl: 'facebookUrl', 
@@ -395,6 +399,26 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     this.addHandler(p.brandColorHex, 'change', () => {
       const val = p.brandColorHex.value.trim();
       if (/^#[0-9A-Fa-f]{6}$/.test(val) && p.brandColor) p.brandColor.value = val;
+    });
+    this.addHandler(p.backgroundColor, 'input', () => {
+      if (p.backgroundColorHex) p.backgroundColorHex.value = p.backgroundColor.value.toUpperCase();
+    });
+    this.addHandler(p.backgroundColorHex, 'change', () => {
+      const val = p.backgroundColorHex.value.trim();
+      if (/^#[0-9A-Fa-f]{6}$/.test(val) && p.backgroundColor) p.backgroundColor.value = val;
+    });
+    this.addHandler(p.backgroundMode, 'change', () => {
+      // Pri promjeni režima, ako je nijansa još uvijek na podrazumijevanoj vrijednosti
+      // za PRETHODNI režim, automatski predloži razuman default za NOVI režim
+      const isDefaultDark = p.backgroundColor?.value.toUpperCase() === '#1C1C1C';
+      const isDefaultLight = p.backgroundColor?.value.toUpperCase() === '#F5F1E8';
+      if (p.backgroundMode.value === 'light' && isDefaultDark) {
+        p.backgroundColor.value = '#F5F1E8';
+        if (p.backgroundColorHex) p.backgroundColorHex.value = '#F5F1E8';
+      } else if (p.backgroundMode.value === 'dark' && isDefaultLight) {
+        p.backgroundColor.value = '#1C1C1C';
+        if (p.backgroundColorHex) p.backgroundColorHex.value = '#1C1C1C';
+      }
     });
     this.addHandler(p.sacuvajFooter, 'click', () => this.saveFooterSettings());
     this.addHandler(p.resetFooter, 'click', () => this.resetFooterSettings());
@@ -1942,6 +1966,15 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
       if (this.elements.postavke.brandFont)
         this.elements.postavke.brandFont.value = postavke.brandFont || "";
 
+      if (this.elements.postavke.backgroundMode)
+        this.elements.postavke.backgroundMode.value = postavke.backgroundMode === 'light' ? 'light' : 'dark';
+      if (this.elements.postavke.backgroundColor) {
+        const defaultBg = postavke.backgroundMode === 'light' ? '#F5F1E8' : '#1C1C1C';
+        const bgBoja = (postavke.backgroundColor && /^#[0-9A-Fa-f]{6}$/.test(postavke.backgroundColor)) ? postavke.backgroundColor : defaultBg;
+        this.elements.postavke.backgroundColor.value = bgBoja;
+        if (this.elements.postavke.backgroundColorHex) this.elements.postavke.backgroundColorHex.value = bgBoja.toUpperCase();
+      }
+
       const footerFields = { 
         footerText: postavke.footerText || "", 
         instagramUrl: postavke.instagramUrl || "", 
@@ -2274,12 +2307,15 @@ async removeLogo() {
     }
   }
 
-  /** Vraća boju/font na podrazumijevano (samo u formi — treba kliknuti Sačuvaj da se stvarno primijeni) */
+  /** Vraća boju/font/pozadinu na podrazumijevano (samo u formi — treba kliknuti Sačuvaj da se stvarno primijeni) */
   resetBrandTheme() {
-    const { brandColor, brandColorHex, brandFont } = this.elements.postavke;
+    const { brandColor, brandColorHex, brandFont, backgroundMode, backgroundColor, backgroundColorHex } = this.elements.postavke;
     if (brandColor) brandColor.value = "#C6A664";
     if (brandColorHex) brandColorHex.value = "#C6A664";
     if (brandFont) brandFont.value = "";
+    if (backgroundMode) backgroundMode.value = "dark";
+    if (backgroundColor) backgroundColor.value = "#1C1C1C";
+    if (backgroundColorHex) backgroundColorHex.value = "#1C1C1C";
   }
 
   /** Ažurira prikaz naziva kafića u Dashboard-u i u sidebar/mobilnoj traci */
@@ -2418,7 +2454,9 @@ async removeLogo() {
       heroSubtitle: el.heroSubtitle?.value.trim() || "",
       pageTitle: el.pageTitle?.value.trim() || "",
       brandColor: el.brandColor?.value || "",
-      brandFont: el.brandFont?.value || ""
+      brandFont: el.brandFont?.value || "",
+      backgroundMode: el.backgroundMode?.value || "dark",
+      backgroundColor: el.backgroundColor?.value || ""
     };
   }
 }
