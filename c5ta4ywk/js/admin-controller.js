@@ -225,7 +225,8 @@ class AdminController {
         'facebookUrl', 'youtubeUrl', 'twitterUrl', 'tiktokUrl',
         'footerEnabled', 'footerPreview', 'sacuvajFooter', 'resetFooter',
         'currencyCode', 'saveCurrency', 'resetCurrency',
-        'pageTitle', 'sacuvajNaziv', 'resetNaziv'
+        'pageTitle', 'sacuvajNaziv', 'resetNaziv',
+        'brandColor', 'brandColorHex', 'brandFont', 'sacuvajIzgled', 'resetIzgled'
       ] 
     };
     
@@ -309,6 +310,11 @@ class AdminController {
         pageTitle: 'pageTitle',
         sacuvajNaziv: 'sacuvajNazivBtn',
         resetNaziv: 'resetNazivBtn',
+        brandColor: 'brandColor',
+        brandColorHex: 'brandColorHex',
+        brandFont: 'brandFont',
+        sacuvajIzgled: 'sacuvajIzgledBtn',
+        resetIzgled: 'resetIzgledBtn',
         footerText: 'footerText', 
         instagramUrl: 'instagramUrl', 
         facebookUrl: 'facebookUrl', 
@@ -381,6 +387,15 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     this.addHandler(p.resetHero, 'click', () => this.resetHeroSection());
     this.addHandler(p.sacuvajNaziv, 'click', () => this.saveSiteName());
     this.addHandler(p.resetNaziv, 'click', () => this.resetSiteName());
+    this.addHandler(p.sacuvajIzgled, 'click', () => this.saveBrandTheme());
+    this.addHandler(p.resetIzgled, 'click', () => this.resetBrandTheme());
+    this.addHandler(p.brandColor, 'input', () => {
+      if (p.brandColorHex) p.brandColorHex.value = p.brandColor.value.toUpperCase();
+    });
+    this.addHandler(p.brandColorHex, 'change', () => {
+      const val = p.brandColorHex.value.trim();
+      if (/^#[0-9A-Fa-f]{6}$/.test(val) && p.brandColor) p.brandColor.value = val;
+    });
     this.addHandler(p.sacuvajFooter, 'click', () => this.saveFooterSettings());
     this.addHandler(p.resetFooter, 'click', () => this.resetFooterSettings());
     this.addHandler(p.sacuvajPostavke, 'click', () => this.saveWebSettings());
@@ -1919,6 +1934,14 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
         this.elements.postavke.pageTitle.value = postavke.pageTitle || "";
       this.updateBrandDisplay(postavke.pageTitle || "");
 
+      if (this.elements.postavke.brandColor) {
+        const boja = (postavke.brandColor && /^#[0-9A-Fa-f]{6}$/.test(postavke.brandColor)) ? postavke.brandColor : "#C6A664";
+        this.elements.postavke.brandColor.value = boja;
+        if (this.elements.postavke.brandColorHex) this.elements.postavke.brandColorHex.value = boja.toUpperCase();
+      }
+      if (this.elements.postavke.brandFont)
+        this.elements.postavke.brandFont.value = postavke.brandFont || "";
+
       const footerFields = { 
         footerText: postavke.footerText || "", 
         instagramUrl: postavke.instagramUrl || "", 
@@ -2230,6 +2253,35 @@ async removeLogo() {
     if (pageTitle) pageTitle.value = "";
   }
 
+  /** Čuva izabranu brend boju i font */
+  async saveBrandTheme() {
+    const { brandColor, brandColorHex, sacuvajIzgled } = this.elements.postavke;
+    const hexVrijednost = brandColorHex?.value.trim() || brandColor?.value || "";
+    if (hexVrijednost && !/^#[0-9A-Fa-f]{6}$/.test(hexVrijednost)) {
+      Utils.prikaziPoruku('Neispravan format boje — koristi format #RRGGBB (npr. #C6A664)', 'error');
+      return;
+    }
+    try {
+      Utils.setLoadingState(sacuvajIzgled, true);
+      const data = this.collectAllWebSettings();
+      await FirebaseService.sacuvajWebPostavke(data);
+      Utils.prikaziPoruku('Izgled sajta je uspješno sačuvan', 'success');
+    } catch (error) {
+      Utils.debug.error('Greška čuvanja izgleda sajta:', error);
+      Utils.prikaziPoruku('Greška čuvanja izgleda sajta', 'error');
+    } finally {
+      Utils.setLoadingState(sacuvajIzgled, false);
+    }
+  }
+
+  /** Vraća boju/font na podrazumijevano (samo u formi — treba kliknuti Sačuvaj da se stvarno primijeni) */
+  resetBrandTheme() {
+    const { brandColor, brandColorHex, brandFont } = this.elements.postavke;
+    if (brandColor) brandColor.value = "#C6A664";
+    if (brandColorHex) brandColorHex.value = "#C6A664";
+    if (brandFont) brandFont.value = "";
+  }
+
   /** Ažurira prikaz naziva kafića u Dashboard-u i u sidebar/mobilnoj traci */
   updateBrandDisplay(naziv) {
     const val = document.getElementById('valNazivKafica');
@@ -2364,7 +2416,9 @@ async removeLogo() {
       footerEnabled: el.footerEnabled?.checked || false,
       heroTitle: el.heroTitle?.value.trim() || "",
       heroSubtitle: el.heroSubtitle?.value.trim() || "",
-      pageTitle: el.pageTitle?.value.trim() || ""
+      pageTitle: el.pageTitle?.value.trim() || "",
+      brandColor: el.brandColor?.value || "",
+      brandFont: el.brandFont?.value || ""
     };
   }
 }

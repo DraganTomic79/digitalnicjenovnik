@@ -12,12 +12,12 @@
   --beige-white: #F9F6F1;          /* Svijetla nijansa bež bijele */
   
   /* Gradijenti bazirani na novoj paleti */
-  --primary-gradient: linear-gradient(135deg, #C6A664, #9E8344); 
-  --success-gradient: linear-gradient(135deg, #9E8344, #F2E9D8); 
-  --warning-gradient: linear-gradient(135deg, #E6C78B, #C6A664); 
-  --danger-gradient: linear-gradient(135deg, #A88C50, #785B1B); 
-  --promocija-gradient: linear-gradient(135deg, #C6A664, #9E8344); 
-  --promocija-glow: linear-gradient(135deg, #D4B978, #C6A664); 
+  --primary-gradient: linear-gradient(135deg, var(--gold-accent), var(--gold-dark)); 
+  --success-gradient: linear-gradient(135deg, var(--gold-dark), var(--beige-light)); 
+  --warning-gradient: linear-gradient(135deg, var(--gold-light), var(--gold-accent)); 
+  --danger-gradient: linear-gradient(135deg, var(--gold-medium-dark), var(--gold-darker)); 
+  --promocija-gradient: linear-gradient(135deg, var(--gold-accent), var(--gold-dark)); 
+  --promocija-glow: linear-gradient(135deg, var(--gold-lighter), var(--gold-accent)); 
   
   /* DARK TEMA - FORSIRANO UVEK */
   --glass-bg: rgba(28, 28, 28, 0.85); 

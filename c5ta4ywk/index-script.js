@@ -536,6 +536,7 @@ class MenuApp {
         if (webPostavke.pageTitle && webPostavke.pageTitle.trim() !== '') {
           document.title = webPostavke.pageTitle.trim();
         }
+        this.applyBrandTheme(webPostavke);
         await Promise.all([
           this.loadLogo(webPostavke.logoURL), 
           Promise.resolve(this.loadHeroContent(webPostavke)), 
@@ -613,6 +614,76 @@ class MenuApp {
     else { this.elements.siteFooter.style.display = 'none'; document.body.style.paddingBottom = ''; }
   }
 
+  /* Primjenjuje prilagođenu boju i/ili font ako su postavljeni u Admin panelu.
+     Ako nisu postavljeni (prazno/nepostojeće), ostaju podrazumijevane vrijednosti
+     iz index-styles.css — ništa se ne mijenja. */
+  applyBrandTheme(webPostavke) {
+    if (!webPostavke) return;
+    const root = document.documentElement.style;
+
+    if (webPostavke.brandColor && /^#[0-9A-Fa-f]{6}$/.test(webPostavke.brandColor)) {
+      const hex = webPostavke.brandColor;
+      const rgb = this.hexToRgb(hex);
+      root.setProperty('--gold-accent', hex);
+      root.setProperty('--gold-accent-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
+      root.setProperty('--gold-dark', this.shadeColor(hex, -22));
+      root.setProperty('--gold-darker', this.shadeColor(hex, -42));
+      root.setProperty('--gold-medium-dark', this.shadeColor(hex, -12));
+      root.setProperty('--gold-light', this.shadeColor(hex, 20));
+      root.setProperty('--gold-lighter', this.shadeColor(hex, 15));
+      root.setProperty('--gold-pale', this.shadeColor(hex, 55));
+      root.setProperty('--gold-pale-lighter', this.shadeColor(hex, 85));
+      root.setProperty('--gold-text-price', this.shadeColor(hex, -25));
+      root.setProperty('--primary-color', hex);
+      root.setProperty('--accent-color', this.shadeColor(hex, -22));
+      root.setProperty('--text-light', hex);
+      // Napomena: --gold-star i crvene (18+) boje se NAMJERNO ne diraju —
+      // ostaju fiksne bez obzira na izabranu brend boju.
+    }
+
+    if (webPostavke.brandFont && webPostavke.brandFont.trim() !== '') {
+      const fontName = webPostavke.brandFont.trim();
+      this.ensureGoogleFontLoaded(fontName);
+      root.setProperty('--font-family-base', `'${fontName}', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`);
+    }
+  }
+
+  /* Pretvara HEX boju (#rrggbb) u {r,g,b} objekat */
+  hexToRgb(hex) {
+    const clean = hex.replace('#', '');
+    return {
+      r: parseInt(clean.substring(0, 2), 16),
+      g: parseInt(clean.substring(2, 4), 16),
+      b: parseInt(clean.substring(4, 6), 16)
+    };
+  }
+
+  /* Posvjetljuje (pozitivan procenat) ili potamnjuje (negativan procenat) HEX boju */
+  shadeColor(hex, percent) {
+    const clean = hex.replace('#', '');
+    let r = parseInt(clean.substring(0, 2), 16);
+    let g = parseInt(clean.substring(2, 4), 16);
+    let b = parseInt(clean.substring(4, 6), 16);
+    const adjust = (c) => {
+      const delta = percent < 0 ? c : (255 - c);
+      const val = Math.round(c + delta * percent / 100);
+      return Math.min(255, Math.max(0, val));
+    };
+    r = adjust(r); g = adjust(g); b = adjust(b);
+    return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+  }
+
+  /* Učitava Google Font preko <link> taga, samo jednom po fontu (provjerava da li već postoji) */
+  ensureGoogleFontLoaded(fontName) {
+    const id = 'brand-google-font-' + fontName.replace(/\s+/g, '-').toLowerCase();
+    if (document.getElementById(id)) return;
+    const link = document.createElement('link');
+    link.id = id;
+    link.rel = 'stylesheet';
+    link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontName)}:wght@400;600;700;800&display=swap`;
+    document.head.appendChild(link);
+  }
+
   /* Prikazuje footer sa socijalnim linkovima */
   displayFooter(postavke) {
     const text = (postavke.footerText || '').trim();
@@ -685,6 +756,7 @@ class MenuApp {
         if (postavke.pageTitle && postavke.pageTitle.trim() !== '') {
           document.title = postavke.pageTitle.trim();
         }
+        this.applyBrandTheme(postavke);
         Promise.all([
           this.loadLogo(postavke.logoURL), 
           Promise.resolve(this.loadHeroContent(postavke)), 
