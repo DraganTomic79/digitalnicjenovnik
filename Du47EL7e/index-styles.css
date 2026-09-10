@@ -331,7 +331,7 @@ body {
   background: var(--promocija-gradient) !important; 
   color: #fff !important; 
   font-weight: 700 !important; 
-  border: 2px solid rgba(139, 92, 246, 0.4) !important; 
+  border: 2px solid rgba(198, 166, 100, 0.5) !important; 
   box-shadow: var(--promocija-shadow) !important; 
   position: relative; 
 }
@@ -342,8 +342,8 @@ body {
   position: absolute; 
   top: -6px; 
   right: -6px; 
-  background: #8b5cf6; 
-  color: white; 
+  background: var(--primary-gradient); 
+  color: #1a1a1a; 
   border-radius: 50%; 
   width: 20px; 
   height: 20px; 
@@ -352,21 +352,21 @@ body {
   align-items: center; 
   justify-content: center; 
   z-index: 2; 
-  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4); 
+  box-shadow: 0 2px 8px rgba(198, 166, 100, 0.4); 
 }
 
 /* Hover efekat na promocijskom tabu */
 .tab-button.promocija-tab:hover { 
   background: var(--promocija-glow) !important; 
-  box-shadow: 0 10px 35px rgba(139, 92, 246, 0.4) !important; 
+  box-shadow: 0 10px 35px rgba(198, 166, 100, 0.4) !important; 
   transform: translateY(-3px); 
 }
 
 /* Aktivni promocijski tab */
 .tab-button.promocija-tab.active { 
-  background: linear-gradient(135deg, #7c3aed, #6366f1) !important; 
-  border-color: #6366f1 !important; 
-  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.5) !important; 
+  background: linear-gradient(135deg, #9E8344, #C6A664) !important; 
+  border-color: var(--gold-accent) !important; 
+  box-shadow: 0 12px 40px rgba(198, 166, 100, 0.5) !important; 
 }
 
 /* Ikone za glavne kategorije i kategorije */
@@ -461,7 +461,7 @@ body {
 /* Specijalno stiliziranje za promocijske podkategorije */
 .accordion-item.promocija-subcategory { 
   border: 2px solid #C6A664 !important; 
-  background: rgba(139, 92, 246, 0.08) !important; 
+  background: rgba(198, 166, 100, 0.1) !important; 
   box-shadow: var(--promocija-shadow) !important; 
   position: relative; 
 }
@@ -641,7 +641,7 @@ body {
 .promocija-group { 
   position: relative; 
   padding: var(--spacing-md); 
-  background: rgba(139, 92, 246, 0.05); 
+  background: rgba(198, 166, 100, 0.06); 
   border-radius: var(--border-radius-large); 
   border: 1px solid var(--gold-accent); 
   box-shadow: var(--promocija-shadow);
@@ -694,9 +694,9 @@ body {
 
 /* Stiliziranje kartica za promocijske artikle */
 .promocija-group .item-card { 
-  border: 2px solid #8b5cf6 !important; 
+  border: 2px solid var(--gold-accent) !important; 
   background: rgba(71, 85, 105, 0.85) !important; 
-  box-shadow: 0 6px 25px rgba(139, 92, 246, 0.2) !important; 
+  box-shadow: 0 6px 25px rgba(198, 166, 100, 0.25) !important; 
   position: relative; 
 }
 
@@ -713,8 +713,8 @@ body {
   position: absolute; 
   top: -6px; 
   right: -6px; 
-  background: #8b5cf6; 
-  color: #FFD700; 
+  background: var(--primary-gradient); 
+  color: #1a1a1a; 
   border-radius: 50%; 
   width: 22px; 
   height: 22px; 
@@ -723,7 +723,8 @@ body {
   align-items: center; 
   justify-content: center; 
   z-index: 2; 
-  box-shadow: 0 3px 10px rgba(139, 92, 246, 0.4); 
+  border: 2px solid #fff; 
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5); 
   animation: star-shine 1.5s ease-in-out infinite;
 }
 
@@ -731,7 +732,7 @@ body {
 @keyframes star-shine {
   0%, 100% { 
     transform: scale(1);
-    box-shadow: 0 3px 10px rgba(139, 92, 246, 0.4);
+    box-shadow: 0 3px 10px rgba(198, 166, 100, 0.4);
   }
   50% { 
     transform: scale(1.2);
@@ -741,8 +742,8 @@ body {
 
 /* Hover efekat na promocijskoj kartici */
 .promocija-group .item-card:hover { 
-  border-color: #7c3aed !important; 
-  box-shadow: 0 8px 35px rgba(139, 92, 246, 0.3) !important; 
+  border-color: #9E8344 !important; 
+  box-shadow: 0 8px 35px rgba(198, 166, 100, 0.35) !important; 
   transform: translateY(-2px); 
 }
 
@@ -881,20 +882,21 @@ body {
   min-width: 65px; 
 }
 
-/* Cijena artikla u promociji */
+/* Cijena artikla u promociji — tamna pozadina umjesto zlatne (zlatni tekst na
+   zlatnoj pozadini je bio nečitljiv), zlatna boja ostaje samo na tekstu i obrubu */
 .promocija-group .item-price { 
-  color: var(--gold-accent); 
-  background: var(--promocija-gradient) !important; 
-  border: 2px solid rgba(255, 255, 255, 0.3) !important; 
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4) !important; 
+  color: #FFD700; 
+  background: #1a1a1a !important; 
+  border: 2px solid var(--gold-accent) !important; 
+  box-shadow: 0 4px 15px rgba(198, 166, 100, 0.4) !important; 
   font-weight: 800 !important; 
   animation: glowingPrice 3s infinite alternate; 
 }
 
 /* Animacija za suptilni sjaj cijene u promociji */
 @keyframes subtle-glow { 
-  0%, 100% { box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); } 
-  50% { box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6); } 
+  0%, 100% { box-shadow: 0 4px 15px rgba(198, 166, 100, 0.4); } 
+  50% { box-shadow: 0 6px 20px rgba(198, 166, 100, 0.6); } 
 }
 
 /* Stiliziranje stanja učitavanja i praznog stanja */
