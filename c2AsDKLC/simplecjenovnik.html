@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Cjenovnik</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --bg:#1c1c1c;--beige:#f2ede4;
+  --gold:#C6A664;--gold2:#9E8344;
+  --muted:#8f887a;--line:rgba(242,237,228,.15);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Poppins',Arial,sans-serif;background:#0c0c0c;color:var(--beige);-webkit-font-smoothing:antialiased}
+
+#topbar{display:none;position:sticky;top:0;z-index:300;background:linear-gradient(135deg,#202020,#141414);border-bottom:2px solid var(--gold);padding:8px 20px;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.tb-btns{display:flex;gap:8px;margin-left:auto}
+.tb-label{font-family:'Playfair Display',serif;font-size:.8rem;font-weight:700;color:var(--gold);letter-spacing:2px}
+.btn-pdf{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a1a;border:none;padding:9px 16px;border-radius:7px;font-size:.8rem;font-weight:800;cursor:pointer;white-space:nowrap;transition:filter .2s,transform .2s;flex-shrink:0}
+.btn-pdf:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-pdf.busy{opacity:.6;pointer-events:none}
+.btn-pdf.secondary{background:#242424;color:var(--gold);border:1.5px solid var(--gold)}
+
+#loading{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--muted)}
+#loading i{font-size:2.4rem;color:var(--gold);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Prikaz bez cijena */
+.hide-prices .row-price{display:none}
+.hide-prices .row{grid-template-columns:1fr auto}
+
+/* Modal — izbor sa/bez cijena */
+#priceModal{display:flex;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center}
+#priceModal .pm-box{background:#1e1e2e;border:2px solid var(--gold);border-radius:14px;padding:32px 28px;max-width:320px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+#priceModal h3{color:var(--gold);font-size:1.1rem;font-weight:800;margin-bottom:8px;font-family:'Playfair Display',serif}
+#priceModal p{color:var(--muted);font-size:.85rem;margin-bottom:24px}
+#promoModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center}
+#promoModal .pm-box{background:#1e1e2e;border:2px solid var(--gold);border-radius:14px;padding:32px 28px;max-width:320px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+#promoModal h3{color:var(--gold);font-size:1.1rem;font-weight:800;margin-bottom:8px;font-family:'Playfair Display',serif}
+#promoModal p{color:var(--muted);font-size:.85rem;margin-bottom:24px}
+.pm-btn{display:block;width:100%;font-weight:800;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:.9rem;margin-bottom:10px}
+.pm-btn-yes{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a1a}
+.pm-btn-no{background:#2a2a3e;color:var(--gold);border:2px solid var(--gold)!important}
+
+/* ══════════ NA EKRANU — jedan neprekidan "list" (bez umjetnog loma stranica) ══════════
+   Nema fiksne visine niti isjecanja sadržaja — stranica se jednostavno skroluje kao
+   normalna web stranica, pa se preklapanje sa footerom strukturno ne može desiti. */
+#book{display:none;justify-content:center;padding:24px 12px 60px}
+.sheet{width:794px;max-width:100%;background:var(--bg);box-shadow:0 6px 36px rgba(0,0,0,.7);padding:26px 40px 22px}
+
+.sheet-header{display:flex;align-items:center;justify-content:center;padding-bottom:16px;margin-bottom:20px;border-bottom:1px solid var(--gold);position:relative}
+.sheet-logo{max-height:52px;max-width:200px;object-fit:contain;display:block}
+
+.lbl-main-full{text-align:center;font-family:'Playfair Display',serif;font-weight:800;font-size:1.35rem;letter-spacing:.3px;color:var(--gold);margin-bottom:10px}
+.cols{column-count:2;column-gap:34px}
+
+.cat-block{break-inside:avoid;-webkit-column-break-inside:avoid;display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.lbl-sub{font-size:.82rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);opacity:.85;display:flex;align-items:center;gap:6px}
+.cat-block.promo-frame{border:2px solid var(--gold);border-radius:8px;padding:10px;background:rgba(198,166,100,.05)}
+.cat-block.alcohol-frame{border:2px solid #dc2626;border-radius:8px;padding:10px;background:rgba(220,38,38,.05)}
+.age-restrictor{display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;font-size:.42rem;font-weight:800;width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,255,255,.8);flex-shrink:0}
+.promo-star{font-size:.78rem;flex-shrink:0}
+
+.divider{display:flex;align-items:center;gap:8px;color:var(--gold);opacity:.5;margin:6px 0 16px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--line)}
+.divider i{font-size:.6rem}
+
+.row-wrap{padding:2px 0;break-inside:avoid}
+.row{display:grid;grid-template-columns:1fr auto 3.4em;column-gap:10px;align-items:baseline}
+.row-name{font-family:'Poppins',sans-serif;font-weight:600;font-size:.62rem;color:var(--beige);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-unit{font-style:italic;font-size:.6rem;color:var(--muted);white-space:nowrap}
+.row-price{font-family:'Playfair Display',serif;font-weight:700;color:var(--gold);font-size:.72rem;white-space:nowrap;text-align:right}
+.row-price-cur{font-weight:400;color:var(--muted);font-size:.85em;margin-right:2px}
+.row-price-num{font-weight:800}
+.row-desc{font-size:.58rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3}
+
+.sheet-footer{margin-top:20px;padding-top:14px;border-top:1px solid rgba(198,166,100,.25);display:flex;align-items:center;justify-content:center}
+.sheet-footer span{font-size:.6rem;color:var(--muted);letter-spacing:.5px}
+
+@media(max-width:830px){
+  .sheet{width:100%;padding:18px 20px 20px}
+  .cols{column-count:1}
+}
+
+/* ══════════ ZA PDF — skriveni kontejner sa "pravim" stranicama fiksne veličine,
+   grade se samo u trenutku izvoza (nikad se ne prikazuju na ekranu) ══════════ */
+#pdfBook{position:fixed;left:-99999px;top:-99999px;display:flex;flex-direction:column;align-items:center;gap:0;pointer-events:none}
+.pg{width:794px;height:1123px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;flex-shrink:0}
+.ph{flex-shrink:0;min-height:64px;display:flex;align-items:center;justify-content:center;padding:12px 40px;position:relative}
+.ph::after{content:'';position:absolute;left:40px;right:40px;bottom:0;height:1px;background:var(--gold);opacity:.4}
+.ph-logo{max-height:48px;max-width:190px;object-fit:contain;display:block}
+.pb{flex:1;padding:20px 40px 14px;display:grid;grid-template-columns:1fr 1fr;column-gap:34px;overflow:hidden;min-height:0}
+.pb .lbl-main-full{grid-column:1/-1}
+.pb .divider{grid-column:1/-1;margin:2px 0}
+.pcol{display:flex;flex-direction:column;gap:12px;min-width:0}
+.pf{flex-shrink:0;height:30px;border-top:1px solid rgba(198,166,100,.25);display:flex;align-items:center;justify-content:space-between;padding:0 40px}
+.pf-num{font-size:.58rem;color:var(--muted);white-space:nowrap}
+.pf-num b{color:var(--gold)}
+.pf-url{font-size:.54rem;color:var(--muted);white-space:nowrap;letter-spacing:.5px}
+
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body{background:var(--bg)}
+  #topbar{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- Modal — izbor sa/bez cijena, prikazuje se odmah pri otvaranju -->
+<div id="priceModal">
+  <div class="pm-box">
+    <h3><i class="fas fa-receipt"></i> Cjenovnik</h3>
+    <p>Kako želiš prikazati cjenovnik?</p>
+    <button class="pm-btn pm-btn-yes" onclick="initCijene(1)"><i class="fas fa-tag"></i> Sa cijenama</button>
+    <button class="pm-btn pm-btn-no" onclick="initCijene(0)"><i class="fas fa-eye-slash"></i> Bez cijena</button>
+  </div>
+</div>
+
+<!-- Modal — izbor sa/bez Specijalne ponude, pojavljuje se nakon izbora cijena -->
+<div id="promoModal" style="display:none">
+  <div class="pm-box">
+    <h3><i class="fas fa-star"></i> Specijalna ponuda</h3>
+    <p>Da li da uključim Specijalnu ponudu u cjenovnik?</p>
+    <button class="pm-btn pm-btn-yes" onclick="initPromo(1)"><i class="fas fa-star"></i> Sa Specijalnom ponudom</button>
+    <button class="pm-btn pm-btn-no" onclick="initPromo(0)"><i class="fas fa-eye-slash"></i> Bez Specijalne ponude</button>
+  </div>
+</div>
+
+<div id="topbar">
+  <span class="tb-label">Cjenovnik</span>
+  <div class="tb-btns">
+    <button class="btn-pdf" id="btnPdfA4" onclick="window._pdfStart&&window._pdfStart('A4')">
+      <i class="fas fa-download"></i> PDF A4
+    </button>
+    <button class="btn-pdf secondary" id="btnPdfA5" onclick="window._pdfStart&&window._pdfStart('A5')">
+      <i class="fas fa-download"></i> PDF A5
+    </button>
+  </div>
+</div>
+
+<div id="loading"><i class="fas fa-spinner"></i><p>Učitavanje cjenovnika…</p></div>
+<div id="book"></div>
+<div id="pdfBook"></div>
+
+<script>
+// Prikaz sa/bez cijena — čita ?cijene=1 ili ?cijene=0 iz URL-a; ako nije zadano, prikazuje modal
+let _showPrices=null;
+let _showPromo=null;
+function initCijene(val){
+  _showPrices=val;
+  const modal=document.getElementById('priceModal');
+  const book=document.getElementById('book');
+  if(modal)modal.style.display='none';
+  if(book){
+    if(!val)book.classList.add('hide-prices');
+    else book.classList.remove('hide-prices');
+  }
+
+  const pPromo=new URLSearchParams(window.location.search).get('promo');
+  if(pPromo!==null){ initPromo(parseInt(pPromo)); }
+  else{ const pm=document.getElementById('promoModal'); if(pm)pm.style.display='flex'; }
+}
+function initPromo(val){
+  _showPromo=val;
+  const modal=document.getElementById('promoModal');
+  if(modal)modal.style.display='none';
+  window._pdfNameSuffix=(_showPrices?'':'-bezcijena')+(val?'':'-bezpromo');
+  const tryStart=()=>{ if(window._startBuild)window._startBuild(); else setTimeout(tryStart,50); };
+  tryStart();
+}
+function _initCijeneFromUrl(){
+  const p=new URLSearchParams(window.location.search).get('cijene');
+  if(p!==null)initCijene(parseInt(p));
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',_initCijeneFromUrl);
+else _initCijeneFromUrl();
+</script>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+import{getFirestore,collection,getDocs,query,orderBy}from"https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
+
+const QR_URL="https://digitalnicjenovnik.com/c2AsDKLC";
+
+/* ── FIREBASE ── */
+const db=getFirestore(initializeApp({
+  apiKey: "AIzaSyCpPLBwAzPSrszYpjsl39dz0wq5WhaCuc4",
+  authDomain: "digitalnicjenovnik-kafic5.firebaseapp.com",
+  projectId: "digitalnicjenovnik-kafic5",
+  storageBucket: "digitalnicjenovnik-kafic5.firebasestorage.app",
+  messagingSenderId: "93520732804",
+  appId: "1:93520732804:web:574922e70636681dfe53e0"
+}));
+
+async function loadCol(name){
+  try{const s=await getDocs(query(collection(db,name),orderBy("sortOrder","asc")));
+    return s.docs.map(d=>({id:d.id,...d.data(),sortOrder:d.data().sortOrder||999}));}
+  catch{try{const s=await getDocs(collection(db,name));
+    return s.docs.map(d=>({id:d.id,...d.data(),sortOrder:d.data().sortOrder||999}));}
+    catch{return[];}}
+}
+
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const srt=a=>[...a].sort((x,y)=>(x.sortOrder||999)-(y.sortOrder||999));
+
+/* ── BUILD BLOCKS (ista logika kao katalog.html) ── */
+function buildBlocks(gk,kat,pod,items){
+  const active=items.filter(i=>i.aktivna!==false);
+  const getI=name=>srt(active.filter(i=>i.podkategorija===name||i.kategorija===name));
+  const B=[];
+  if(gk.length){
+    for(const g of srt(gk)){
+      let added=false;
+      for(const k of srt(kat.filter(k=>k.glavnaKategorijaId===g.id))){
+        const kPromo=!!k.specijalnaPonuda;
+        const kAlc=!!k.sadrziAlkohol;
+        const pods=srt(pod.filter(p=>p.kategorijaId===k.id));
+        if(pods.length){
+          for(const p of pods){
+            const its=getI(p.naziv);if(!its.length)continue;
+            if(!added){B.push({type:'main',label:g.naziv});added=true;}
+            const pAlc=!!p.sadrziAlkohol, pPromo=!!p.specijalnaPonuda;
+            B.push({type:'sub',label:`${k.naziv} – ${p.naziv}`,items:its,alcoholic:pAlc,promo:pPromo});
+          }
+        }else{
+          const its=getI(k.naziv);if(!its.length)continue;
+          if(!added){B.push({type:'main',label:g.naziv});added=true;}
+          B.push({type:'sub',label:k.naziv,items:its,alcoholic:kAlc,promo:kPromo});
+        }
+      }
+      const di=getI(g.naziv);
+      if(di.length){
+        if(!added){B.push({type:'main',label:g.naziv});added=true;}
+        B.push({type:'sub',label:g.naziv,items:di,alcoholic:!!g.sadrziAlkohol,promo:!!g.specijalnaPonuda});
+      }
+    }
+  }else if(kat.length){
+    for(const k of srt(kat)){
+      let added=false;
+      const kPromo=!!k.specijalnaPonuda;
+      const kAlc=!!k.sadrziAlkohol;
+      for(const p of srt(pod.filter(p=>p.kategorijaId===k.id))){
+        const its=getI(p.naziv);if(!its.length)continue;
+        if(!added){B.push({type:'main',label:k.naziv});added=true;}
+        const pAlc=!!p.sadrziAlkohol, pPromo=!!p.specijalnaPonuda;
+        B.push({type:'sub',label:p.naziv,items:its,alcoholic:pAlc,promo:pPromo});
+      }
+      const di=getI(k.naziv);
+      if(di.length){
+        if(!added)B.push({type:'main',label:k.naziv});
+        B.push({type:'sub',label:k.naziv,items:di,alcoholic:kAlc,promo:kPromo});
+      }
+    }
+  }else if(active.length){B.push({type:'main',label:'Ponuda'});B.push({type:'sub',label:'Svi artikli',items:active});}
+  return B;
+}
+
+/* Uklanja promotivne sekcije (i naslove kategorija koji bi ostali bez sadržaja) kad
+   korisnik izabere "Bez Specijalne ponude" */
+function filterPromo(blocks, showPromo){
+  if(showPromo) return blocks;
+  const result=[]; let pendingMain=null;
+  for(const b of blocks){
+    if(b.type==='main'){ pendingMain=b; continue; }
+    if(b.promo) continue;
+    if(pendingMain){ result.push(pendingMain); pendingMain=null; }
+    result.push(b);
+  }
+  return result;
+}
+
+let gLogo='',gCur='KM';
+
+function rowHTML(item){
+  const has=(item.cijena!==undefined&&item.cijena!=='');
+  const price=has?`${gCur?`<span class="row-price-cur">${gCur}</span>`:''}<span class="row-price-num">${parseFloat(item.cijena).toFixed(2)}</span>`:'';
+  const unit=item.jedinicaMjere?esc(item.jedinicaMjere):'';
+  return `<div class="row-wrap">
+    <div class="row"><span class="row-name">${esc(item.naziv)}</span><span class="row-unit">${unit}</span><span class="row-price">${price}</span></div>
+    ${item.opis?`<div class="row-desc">${esc(item.opis)}</div>`:''}
+    ${item.opis2?`<div class="row-desc">${esc(item.opis2)}</div>`:''}
+  </div>`;
+}
+
+/* ══════════ NA EKRANU — jedan neprekidan tok, prirodni CSS multi-column
+   (browser sam balansira/lomi kolone, nikad ne siječe red na pola i nikad
+   ne dolazi u sukob sa footerom jer footer stoji NAKON svega, u normalnom
+   toku dokumenta — nema fiksne visine koju bilo šta može "procuriti" preko). ══════════ */
+function bodyHTML(blocks){
+  let out='';
+  let open=false;
+  let firstMain=true;
+  for(const b of blocks){
+    if(b.type==='main'){
+      if(open)out+='</div>';
+      if(!firstMain)out+=`<div class="divider"><i class="fas fa-gem"></i></div>`;
+      firstMain=false;
+      out+=`<div class="lbl-main-full">${esc(b.label)}</div>`;
+      out+='<div class="cols">';
+      open=true;
+    }else{
+      const frameClass = b.alcoholic ? ' alcohol-frame' : (b.promo ? ' promo-frame' : '');
+      const age = b.alcoholic ? '<span class="age-restrictor">18+</span>' : '';
+      const star = b.promo ? '<span class="promo-star">⭐</span>' : '';
+      const dashIdx = b.label.indexOf(' – ');
+      const labelHtml = dashIdx>-1
+        ? `${esc(b.label.slice(0,dashIdx))}${star}${age} – ${esc(b.label.slice(dashIdx+3))}`
+        : `${star}${esc(b.label)}${age}`;
+      out+=`<div class="cat-block${frameClass}"><div class="lbl-sub">${labelHtml}</div>${b.items.map(rowHTML).join('')}</div>`;
+    }
+  }
+  if(open)out+='</div>';
+  return out;
+}
+
+function renderContinuous(blocks){
+  const book=document.getElementById('book');
+  book.innerHTML='';
+  const sheet=document.createElement('div');sheet.className='sheet';
+
+  const hd=document.createElement('div');hd.className='sheet-header';
+  if(gLogo)hd.innerHTML=`<img src="${esc(gLogo)}" class="sheet-logo" alt=""/>`;
+  sheet.appendChild(hd);
+
+  const bd=document.createElement('div');bd.innerHTML=bodyHTML(blocks);
+  while(bd.firstChild)sheet.appendChild(bd.firstChild);
+
+  const ft=document.createElement('div');ft.className='sheet-footer';
+  ft.innerHTML=`<span>${esc(QR_URL.replace('https://',''))}</span>`;
+  sheet.appendChild(ft);
+
+  book.appendChild(sheet);
+  book.style.display='flex';
+}
+
+/* ══════════ ZA PDF — prave stranice fiksne veličine, grade se red po red
+   direktno u DOM-u i nakon svakog dodavanja se STVARNO mjeri da li stane
+   (scrollHeight vs raspoloživa visina). Ovo se radi SAMO u skrivenom
+   #pdfBook kontejneru, u trenutku klika na "PDF" — nikad na ekranu. ══════════ */
+let pdfGNum=0, pdfPages=[], pdfCurPb, pdfCurCol1, pdfCurCol2, pdfActive, pdfBookEl;
+
+function elFromHTML(html){ const d=document.createElement('div'); d.innerHTML=html; return d.firstElementChild; }
+
+function pdfNewPage(titleLabel,showDivider){
+  pdfGNum++;
+  const pg=document.createElement('div');pg.className='pg';
+
+  const hd=document.createElement('div');hd.className='ph';
+  if(gLogo)hd.innerHTML=`<img src="${esc(gLogo)}" class="ph-logo" alt=""/>`;
+  pg.appendChild(hd);
+
+  const pb=document.createElement('div');pb.className='pb';
+  if(showDivider)pb.appendChild(elFromHTML(`<div class="divider"><i class="fas fa-gem"></i></div>`));
+  if(titleLabel)pb.appendChild(elFromHTML(`<div class="lbl-main-full">${esc(titleLabel)}</div>`));
+  const c1=document.createElement('div');c1.className='pcol';
+  const c2=document.createElement('div');c2.className='pcol';
+  pb.appendChild(c1);pb.appendChild(c2);
+  pg.appendChild(pb);
+
+  const pf=document.createElement('div');pf.className='pf';
+  pf.innerHTML=`<span class="pf-num">Stranica <b>${pdfGNum}</b> / <b>__TOTAL__</b></span><span class="pf-url">${esc(QR_URL.replace('https://',''))}</span>`;
+  pg.appendChild(pf);
+
+  pdfBookEl.appendChild(pg);
+  pdfCurPb=pb;pdfCurCol1=c1;pdfCurCol2=c2;pdfActive=c1;
+  pdfPages.push(pg);
+}
+
+const PDF_SAFETY=24; // rezerva protiv sitnih razlika u renderovanju html2canvas klona
+function pdfFits(){ return pdfActive.scrollHeight<=pdfCurPb.clientHeight-PDF_SAFETY; }
+
+function pdfPlaceSubBlock(label,items,alcoholic,promo){
+  let idx=0,first=true;
+  const frameClass = alcoholic ? ' alcohol-frame' : (promo ? ' promo-frame' : '');
+  const age = alcoholic ? '<span class="age-restrictor">18+</span>' : '';
+  const star = promo ? '<span class="promo-star">⭐</span>' : '';
+  while(idx<items.length){
+    const headerText=first?label:`${label} (nastavak)`;
+    const block=document.createElement('div');block.className='cat-block'+frameClass;
+    const dashIdx = headerText.indexOf(' – ');
+    const labelHtml = dashIdx>-1
+      ? `${esc(headerText.slice(0,dashIdx))}${star}${age} – ${esc(headerText.slice(dashIdx+3))}`
+      : `${star}${esc(headerText)}${age}`;
+    const hdr=elFromHTML(`<div class="lbl-sub">${labelHtml}</div>`);
+    block.appendChild(hdr);
+    pdfActive.appendChild(block);
+    if(!pdfFits()){
+      pdfActive.removeChild(block);
+      if(pdfActive===pdfCurCol1){pdfActive=pdfCurCol2;}
+      else{pdfNewPage(null,false);}
+      continue;
+    }
+    let addedAny=false;
+    while(idx<items.length){
+      const rowEl=elFromHTML(rowHTML(items[idx]));
+      block.appendChild(rowEl);
+      if(pdfFits()){idx++;addedAny=true;first=false;}
+      else{block.removeChild(rowEl);break;}
+    }
+    if(!addedAny){
+      pdfActive.removeChild(block);
+      if(pdfActive===pdfCurCol1){pdfActive=pdfCurCol2;}
+      else{pdfNewPage(null,false);}
+      continue;
+    }
+    if(idx<items.length){
+      if(pdfActive===pdfCurCol1){pdfActive=pdfCurCol2;}
+      else{pdfNewPage(null,false);}
+    }
+  }
+}
+
+async function buildPdfPages(blocks){
+  pdfBookEl=document.getElementById('pdfBook');
+  pdfBookEl.innerHTML='';
+  pdfPages=[];pdfGNum=0;
+  if(document.fonts&&document.fonts.ready){try{await document.fonts.ready;}catch{}}
+
+  let firstMainSeen=false;
+  for(const b of blocks){
+    if(b.type==='main'){
+      const divider=firstMainSeen;firstMainSeen=true;
+      pdfNewPage(b.label,divider);
+      continue;
+    }
+    pdfPlaceSubBlock(b.label,b.items,b.alcoholic,b.promo);
+  }
+  const total=pdfPages.length;
+  pdfPages.forEach(pg=>{
+    const b=pg.querySelector('.pf-num b:last-child');
+    if(b)b.textContent=String(total);
+  });
+}
+
+/* ── MAIN ── */
+let gBlocks=[];
+async function build(){
+  try{
+    const[pSnap,gk,kat,pod,meni]=await Promise.all([
+      getDocs(collection(db,"web-postavke")),
+      loadCol("glavne-kategorije"),loadCol("kategorije"),loadCol("podkategorije"),loadCol("meni")
+    ]);
+    pSnap.forEach(d=>{const x=d.data();gLogo=x.logoURL||'';gCur=x.currencyCode||'KM';});
+
+    gBlocks=filterPromo(buildBlocks(gk,kat,pod,meni), _showPromo);
+    renderContinuous(gBlocks);
+
+    if(_showPrices===0)document.getElementById('book').classList.add('hide-prices');
+
+    document.getElementById('loading').style.display='none';
+    document.getElementById('topbar').style.display='flex';
+  }catch(err){
+    console.error(err);
+    document.getElementById('loading').innerHTML=`<div style="text-align:center;color:#8f887a;padding:20px"><i class="fas fa-exclamation-triangle" style="font-size:2rem;color:#f87171;display:block;margin-bottom:10px"></i><p>Greška: ${err.message}</p></div>`;
+  }
+}
+
+/* ── PDF (A4 puna veličina, A5 = ista slika smanjena na A5 dimenzije) ── */
+async function fetchDU(url){
+  try{const r=await fetch(url,{mode:'cors',cache:'force-cache'});if(!r.ok)throw 0;
+    const b=await r.blob();return await new Promise((rs,rj)=>{const fr=new FileReader();fr.onload=()=>rs(fr.result);fr.onerror=rj;fr.readAsDataURL(b);});}
+  catch{return null;}
+}
+
+window._pdfStart=async function(format){
+  const btnId=format==='A5'?'btnPdfA5':'btnPdfA4';
+  const otherBtnId=format==='A5'?'btnPdfA4':'btnPdfA5';
+  const btn=document.getElementById(btnId);
+  const otherBtn=document.getElementById(otherBtnId);
+  btn.classList.add('busy');otherBtn.classList.add('busy');
+  const{jsPDF}=window.jspdf;
+  const CW=794,CH=1123;
+  const outW=format==='A5'?559:794, outH=format==='A5'?794:1123;
+
+  const origHTML=btn.innerHTML;
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Pripremam…';
+
+  try{
+    await buildPdfPages(gBlocks);
+    if(document.getElementById('book').classList.contains('hide-prices')){
+      document.getElementById('pdfBook').classList.add('hide-prices');
+    }else{
+      document.getElementById('pdfBook').classList.remove('hide-prices');
+    }
+
+    const pgs=[...document.querySelectorAll('#pdfBook .pg')];
+
+    btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Učitavam slike…';
+    const imgs=pgs.flatMap(pg=>[...pg.querySelectorAll('img')]);
+    const orig=new Map();
+    await Promise.allSettled(imgs.map(async img=>{
+      const src=img.src;if(!src||src.startsWith('data:')||src.startsWith('blob:'))return;
+      orig.set(img,src);const d=await fetchDU(src);if(d)img.src=d;else img.style.visibility='hidden';
+    }));
+
+    const pdf=new jsPDF({unit:'px',format:[outW,outH],orientation:'portrait',compress:true});
+    for(let i=0;i<pgs.length;i++){
+      btn.innerHTML=`<i class="fas fa-spinner fa-spin"></i> ${i+1}/${pgs.length}…`;
+      await new Promise(r=>setTimeout(r,40));
+      const c=await html2canvas(pgs[i],{
+        scale:2,useCORS:false,allowTaint:false,backgroundColor:'#1c1c1c',
+        width:CW,height:CH,windowWidth:1200,windowHeight:CH,scrollX:0,scrollY:0,
+        logging:false,willReadFrequently:true,imageTimeout:0,
+        onclone:async(clonedDoc)=>{
+          // html2canvas klonira stranicu u zaseban dokument — fontovi se tu
+          // moraju ponovo učitati; bez ovog čekanja tekst zna ispasti veći
+          // nego što je izmjereno uživo, i "procuriti" preko dna stranice.
+          if(clonedDoc.fonts&&clonedDoc.fonts.ready){try{await clonedDoc.fonts.ready;}catch{}}
+        }
+      });
+      if(i>0)pdf.addPage([outW,outH],'portrait');
+      pdf.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,outW,outH,undefined,'FAST');
+    }
+    pdf.save(`Cjenovnik-c2AsDKLC${window._pdfNameSuffix||''}-${format}.pdf`);
+
+    orig.forEach((src,img)=>{img.src=src;img.style.visibility='';});
+    document.getElementById('pdfBook').innerHTML='';
+  }catch(e){alert('PDF greška: '+e.message);}
+  finally{
+    btn.classList.remove('busy');otherBtn.classList.remove('busy');
+    btn.innerHTML=origHTML;
+  }
+};
+
+window._startBuild=build;
+</script>
+</body>
+</html>
