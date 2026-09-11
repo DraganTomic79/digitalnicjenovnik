@@ -66,6 +66,7 @@
   /* === FONT (centralizovano) === */
   --font-family-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   --item-card-bg: rgba(51, 65, 85, 0.8); /* pozadina kartice artikla — prilagođava se temi */
+  --sidebar-bg: linear-gradient(180deg, rgba(31,31,31,.88), rgba(20,20,20,.88)); /* pozadina bočnog menija — prilagođava se temi */
 }
 
 /* Reset osnovnih stilova za sve elemente */
@@ -1622,7 +1623,7 @@ html, body { height: auto; }
 
 /* ── DESKTOP SIDEBAR ── */
 .sidebar {
-  width: 280px; flex-shrink: 0; background: linear-gradient(180deg, rgba(31,31,31,.88), rgba(20,20,20,.88));
+  width: 280px; flex-shrink: 0; background: var(--sidebar-bg);
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   border-right: 2px solid var(--gold-accent); position: sticky; top: 0;
   height: 100vh; height: 100dvh; overflow-y: auto; z-index: 100; padding: 18px 0 24px;

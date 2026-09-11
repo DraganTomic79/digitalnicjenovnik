@@ -25,7 +25,7 @@
   
   <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="index-styles.css?v=20260911a" />
+  <link rel="stylesheet" href="index-styles.css?v=20260911b" />
 
   <!-- Odmah primjenjuje POSLEDNJU SAČUVANU temu (boja/font/pozadina) iz browsera,
        prije nego što se stranica prikaže — sprječava "trepćanje" sa podrazumijevane
@@ -88,6 +88,7 @@
           root.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.85)');
           root.setProperty('--glass-bg-light', 'rgba(255, 255, 255, 0.7)');
           root.setProperty('--item-card-bg', 'rgba(240, 240, 245, 0.9)');
+          root.setProperty('--sidebar-bg', 'linear-gradient(180deg, rgba(250,247,240,.95), rgba(240,233,216,.95))');
         } else {
           root.setProperty('--bg-light', shade(bgHex, 12));
           root.setProperty('--text-color', '#F2E9D8');
@@ -95,6 +96,7 @@
           root.setProperty('--glass-bg', 'rgba(' + bgRgb.r + ', ' + bgRgb.g + ', ' + bgRgb.b + ', 0.85)');
           root.setProperty('--glass-bg-light', 'rgba(' + bgRgb.r + ', ' + bgRgb.g + ', ' + bgRgb.b + ', 0.75)');
           root.setProperty('--item-card-bg', 'rgba(51, 65, 85, 0.8)');
+          root.setProperty('--sidebar-bg', 'linear-gradient(180deg, rgba(31,31,31,.88), rgba(20,20,20,.88))');
         }
       }
     } catch (e) { /* tiho zanemari — koristi se podrazumijevana tema iz CSS-a */ }
@@ -246,7 +248,7 @@
   </script>
 
   <!-- Translation Manager MORA biti prije index-script.js -->
-  <script src="index-translation-manager.js?v=20260911a"></script>
-  <script type="module" src="index-script.js?v=20260911a"></script>
+  <script src="index-translation-manager.js?v=20260911b"></script>
+  <script type="module" src="index-script.js?v=20260911b"></script>
 </body>
 </html>

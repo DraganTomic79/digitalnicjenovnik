@@ -878,6 +878,7 @@ class MenuApp {
         root.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.85)');
         root.setProperty('--glass-bg-light', 'rgba(255, 255, 255, 0.7)');
         root.setProperty('--item-card-bg', 'rgba(240, 240, 245, 0.9)');
+        root.setProperty('--sidebar-bg', 'linear-gradient(180deg, rgba(250,247,240,.95), rgba(240,233,216,.95))');
       } else {
         root.setProperty('--bg-light', this.shadeColor(bgHex, 12));
         root.setProperty('--text-color', '#F2E9D8');
@@ -885,6 +886,7 @@ class MenuApp {
         root.setProperty('--glass-bg', `rgba(${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b}, 0.85)`);
         root.setProperty('--glass-bg-light', `rgba(${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b}, 0.75)`);
         root.setProperty('--item-card-bg', 'rgba(51, 65, 85, 0.8)');
+        root.setProperty('--sidebar-bg', 'linear-gradient(180deg, rgba(31,31,31,.88), rgba(20,20,20,.88))');
       }
     }
 
