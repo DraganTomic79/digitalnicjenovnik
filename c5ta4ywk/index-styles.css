@@ -65,6 +65,7 @@
 
   /* === FONT (centralizovano) === */
   --font-family-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --item-card-bg: rgba(51, 65, 85, 0.8); /* pozadina kartice artikla — prilagođava se temi */
 }
 
 /* Reset osnovnih stilova za sve elemente */
@@ -100,7 +101,7 @@ body {
 
 /* Stiliziranje kartice artikla */
 .item-card { 
-  background: rgba(51, 65, 85, 0.8); 
+  background: var(--item-card-bg); 
   backdrop-filter: blur(15px); 
   border: 1px solid var(--glass-border); 
   box-shadow: var(--shadow-light); 
@@ -319,7 +320,7 @@ body {
 .tab-button:hover { 
   box-shadow: var(--shadow-medium); 
   border-color: var(--primary-color); 
-  background: rgba(51, 65, 85, 0.9); 
+  background: var(--item-card-bg); 
 }
 
 /* Aktivno tab dugme */
@@ -648,7 +649,7 @@ body {
 
 /* Kartica stavke unutar accordion-a */
 .accordion-content .item-card { 
-  background: rgba(51, 65, 85, 0.9); 
+  background: var(--item-card-bg); 
 }
 
 /* === PROMOCIJA GRUPA - BEZ ZVEZDICA === */
@@ -710,7 +711,7 @@ body {
 /* Stiliziranje kartica za promocijske artikle */
 .promocija-group .item-card { 
   border: 2px solid var(--gold-accent) !important; 
-  background: rgba(71, 85, 105, 0.85) !important; 
+  background: var(--item-card-bg) !important; 
   box-shadow: 0 6px 25px rgba(var(--gold-accent-rgb), 0.25) !important; 
   position: relative; 
 }

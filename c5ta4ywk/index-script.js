@@ -662,12 +662,14 @@ class MenuApp {
         root.setProperty('--text-muted', '#5a5a5a');
         root.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.85)');
         root.setProperty('--glass-bg-light', 'rgba(255, 255, 255, 0.7)');
+        root.setProperty('--item-card-bg', 'rgba(240, 240, 245, 0.9)');
       } else {
         root.setProperty('--bg-light', this.shadeColor(bgHex, 12));
         root.setProperty('--text-color', '#F2E9D8');
         root.setProperty('--text-muted', '#E6D5B8');
         root.setProperty('--glass-bg', `rgba(${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b}, 0.85)`);
         root.setProperty('--glass-bg-light', `rgba(${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b}, 0.75)`);
+        root.setProperty('--item-card-bg', 'rgba(51, 65, 85, 0.8)');
       }
     }
 
