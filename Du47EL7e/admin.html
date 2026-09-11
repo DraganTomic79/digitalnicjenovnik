@@ -6,7 +6,7 @@
   <title>Admin Panel - Upravljanje Menijem</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="admin-styles.css?v=20260823d">
+  <link rel="stylesheet" href="admin-styles.css?v=20260911a">
   <style>
     .size-recommendation { background: #e7f3ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #17a2b8; font-size: 0.8rem; line-height: 1.4; margin-top: 8px; }
     .size-recommendation strong { color: #0c5460; }
@@ -590,6 +590,48 @@
               </div>
             </div>
 
+            <!-- IZGLED SAJTA (boja, font, pozadina) -->
+            <div class="form-section">
+              <h4><i class="fas fa-palette"></i> Izgled Sajta</h4>
+              <div class="form-group">
+                <label for="brandColor">Glavna boja <small class="text-muted">(zamjenjuje zlatnu boju svuda na sajtu — 18+ upozorenje ostaje uvijek crveno)</small></label>
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <input type="color" id="brandColor" value="#C6A664" style="width:60px;height:42px;padding:2px;border-radius:8px;border:1.5px solid rgba(198,166,100,.4);cursor:pointer;background:transparent;">
+                  <input type="text" class="form-control" id="brandColorHex" placeholder="#C6A664" style="max-width:130px;" maxlength="7">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="brandFont">Font <small class="text-muted">(mijenja font na cijelom sajtu)</small></label>
+                <select class="form-control" id="brandFont">
+                  <option value="">Podrazumijevani (Segoe UI)</option>
+                  <option value="Poppins">Poppins</option>
+                  <option value="Montserrat">Montserrat</option>
+                  <option value="Playfair Display">Playfair Display (elegantan)</option>
+                  <option value="Lato">Lato</option>
+                  <option value="Roboto">Roboto</option>
+                  <option value="Raleway">Raleway</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="backgroundMode">Pozadina <small class="text-muted">(tekst se automatski prilagođava da ostane čitljiv)</small></label>
+                <select class="form-control" id="backgroundMode">
+                  <option value="dark">Tamna (trenutno)</option>
+                  <option value="light">Svijetla</option>
+                </select>
+              </div>
+              <div class="form-group" id="backgroundColorGroup">
+                <label for="backgroundColor">Nijansa pozadine</label>
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <input type="color" id="backgroundColor" value="#1C1C1C" style="width:60px;height:42px;padding:2px;border-radius:8px;border:1.5px solid rgba(198,166,100,.4);cursor:pointer;background:transparent;">
+                  <input type="text" class="form-control" id="backgroundColorHex" placeholder="#1C1C1C" style="max-width:130px;" maxlength="7">
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="button" class="btn btn-primary" id="sacuvajIzgledBtn"><i class="fas fa-save"></i> Sačuvaj</button>
+                <button type="button" class="btn btn-secondary" id="resetIzgledBtn"><i class="fas fa-eraser"></i> Vrati na podrazumijevano</button>
+              </div>
+            </div>
+
             <!-- HERO -->
             <div class="form-section">
               <h4><i class="fas fa-home"></i> Hero Sekcija</h4>
@@ -690,8 +732,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Include Translation Manager -->
-  <script src="translation-manager.js?v=20260823d"></script>
-  <script type="module" src="js/admin-controller.js?v=20260823d"></script>
+  <script src="translation-manager.js?v=20260911a"></script>
+  <script type="module" src="js/admin-controller.js?v=20260911a"></script>
 <script>
 // Hamburger meni (fioka sa strane) — samo na mobilnom
 (function () {

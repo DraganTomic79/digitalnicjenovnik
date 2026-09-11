@@ -25,7 +25,81 @@
   
   <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="index-styles.css?v=20260910a" />
+  <link rel="stylesheet" href="index-styles.css?v=20260911a" />
+
+  <!-- Odmah primjenjuje POSLEDNJU SAČUVANU temu (boja/font/pozadina) iz browsera,
+       prije nego što se stranica prikaže — sprječava "trepćanje" sa podrazumijevane
+       na prilagođenu temu dok se čeka odgovor sa Firebase-a. Kad stigne svježi
+       odgovor, index-script.js ponovo primjenjuje (i ažurira ovaj keš) za sledeći put. -->
+  <script>
+  (function () {
+    try {
+      var cached = localStorage.getItem('brandTheme_Du47EL7e');
+      if (!cached) return;
+      var t = JSON.parse(cached);
+      var root = document.documentElement.style;
+
+      function hexToRgb(hex) {
+        hex = hex.replace('#', '');
+        return { r: parseInt(hex.substr(0, 2), 16), g: parseInt(hex.substr(2, 2), 16), b: parseInt(hex.substr(4, 2), 16) };
+      }
+      function shade(hex, percent) {
+        var c = hexToRgb(hex);
+        function adj(v) { var d = percent < 0 ? v : (255 - v); return Math.min(255, Math.max(0, Math.round(v + d * percent / 100))); }
+        var r = adj(c.r), g = adj(c.g), b = adj(c.b);
+        return '#' + [r, g, b].map(function (x) { return x.toString(16).padStart(2, '0'); }).join('');
+      }
+
+      if (t.brandColor && /^#[0-9A-Fa-f]{6}$/.test(t.brandColor)) {
+        var hex = t.brandColor, rgb = hexToRgb(hex);
+        root.setProperty('--gold-accent', hex);
+        root.setProperty('--gold-accent-rgb', rgb.r + ', ' + rgb.g + ', ' + rgb.b);
+        root.setProperty('--gold-dark', shade(hex, -22));
+        root.setProperty('--gold-darker', shade(hex, -42));
+        root.setProperty('--gold-medium-dark', shade(hex, -12));
+        root.setProperty('--gold-light', shade(hex, 20));
+        root.setProperty('--gold-lighter', shade(hex, 15));
+        root.setProperty('--gold-pale', shade(hex, 55));
+        root.setProperty('--gold-pale-lighter', shade(hex, 85));
+        root.setProperty('--gold-text-price', shade(hex, -25));
+        root.setProperty('--primary-color', hex);
+        root.setProperty('--accent-color', shade(hex, -22));
+        root.setProperty('--text-light', hex);
+      }
+
+      if (t.brandFont) {
+        root.setProperty('--font-family-base', "'" + t.brandFont + "', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif");
+        var linkId = 'brand-google-font-' + t.brandFont.replace(/\s+/g, '-').toLowerCase();
+        if (!document.getElementById(linkId)) {
+          var link = document.createElement('link');
+          link.id = linkId; link.rel = 'stylesheet';
+          link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(t.brandFont) + ':wght@400;600;700;800&display=swap';
+          document.head.appendChild(link);
+        }
+      }
+
+      if (t.backgroundColor && /^#[0-9A-Fa-f]{6}$/.test(t.backgroundColor)) {
+        var bgHex = t.backgroundColor, bgRgb = hexToRgb(bgHex), isLight = t.backgroundMode === 'light';
+        root.setProperty('--background-dark', bgHex);
+        if (isLight) {
+          root.setProperty('--bg-light', shade(bgHex, -6));
+          root.setProperty('--text-color', '#2C2C2C');
+          root.setProperty('--text-muted', '#5a5a5a');
+          root.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.85)');
+          root.setProperty('--glass-bg-light', 'rgba(255, 255, 255, 0.7)');
+          root.setProperty('--item-card-bg', 'rgba(240, 240, 245, 0.9)');
+        } else {
+          root.setProperty('--bg-light', shade(bgHex, 12));
+          root.setProperty('--text-color', '#F2E9D8');
+          root.setProperty('--text-muted', '#E6D5B8');
+          root.setProperty('--glass-bg', 'rgba(' + bgRgb.r + ', ' + bgRgb.g + ', ' + bgRgb.b + ', 0.85)');
+          root.setProperty('--glass-bg-light', 'rgba(' + bgRgb.r + ', ' + bgRgb.g + ', ' + bgRgb.b + ', 0.75)');
+          root.setProperty('--item-card-bg', 'rgba(51, 65, 85, 0.8)');
+        }
+      }
+    } catch (e) { /* tiho zanemari — koristi se podrazumijevana tema iz CSS-a */ }
+  })();
+  </script>
 </head>
 <body>
   <div id="sidebarBackdrop"></div>
@@ -172,7 +246,7 @@
   </script>
 
   <!-- Translation Manager MORA biti prije index-script.js -->
-  <script src="index-translation-manager.js?v=20260910a"></script>
-  <script type="module" src="index-script.js?v=20260910a"></script>
+  <script src="index-translation-manager.js?v=20260911a"></script>
+  <script type="module" src="index-script.js?v=20260911a"></script>
 </body>
 </html>

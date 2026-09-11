@@ -12,21 +12,21 @@
   --beige-white: #F9F6F1;          /* Svijetla nijansa bež bijele */
   
   /* Gradijenti bazirani na novoj paleti */
-  --primary-gradient: linear-gradient(135deg, #C6A664, #9E8344); 
-  --success-gradient: linear-gradient(135deg, #9E8344, #F2E9D8); 
-  --warning-gradient: linear-gradient(135deg, #E6C78B, #C6A664); 
-  --danger-gradient: linear-gradient(135deg, #A88C50, #785B1B); 
-  --promocija-gradient: linear-gradient(135deg, #C6A664, #9E8344); 
-  --promocija-glow: linear-gradient(135deg, #D4B978, #C6A664); 
+  --primary-gradient: linear-gradient(135deg, var(--gold-accent), var(--gold-dark)); 
+  --success-gradient: linear-gradient(135deg, var(--gold-dark), var(--beige-light)); 
+  --warning-gradient: linear-gradient(135deg, var(--gold-light), var(--gold-accent)); 
+  --danger-gradient: linear-gradient(135deg, var(--gold-medium-dark), var(--gold-darker)); 
+  --promocija-gradient: linear-gradient(135deg, var(--gold-accent), var(--gold-dark)); 
+  --promocija-glow: linear-gradient(135deg, var(--gold-lighter), var(--gold-accent)); 
   
   /* DARK TEMA - FORSIRANO UVEK */
   --glass-bg: rgba(28, 28, 28, 0.85); 
   --glass-bg-light: rgba(28, 28, 28, 0.75); 
-  --glass-border: rgba(198, 166, 100, 0.2); 
+  --glass-border: rgba(var(--gold-accent-rgb), 0.2); 
   
   --shadow-light: 0 8px 32px rgba(0, 0, 0, 0.15); 
   --shadow-medium: 0 12px 40px rgba(0, 0, 0, 0.2); 
-  --promocija-shadow: 0 8px 25px rgba(198, 166, 100, 0.25); 
+  --promocija-shadow: 0 8px 25px rgba(var(--gold-accent-rgb), 0.25); 
   --border-radius: 10px; 
   --border-radius-large: 15px; 
   --border-radius-xl: 20px; 
@@ -43,12 +43,29 @@
   --text-light: #C6A664; 
   
   --bg-light: #2C2C2C; 
-  --border-color: rgba(198, 166, 100, 0.3); 
+  --border-color: rgba(var(--gold-accent-rgb), 0.3); 
   --spacing-xs: clamp(4px, 1vw, 8px); 
   --spacing-sm: clamp(8px, 2vw, 12px); 
   --spacing-md: clamp(12px, 2.8vw, 18px); 
   --spacing-lg: clamp(18px, 3.5vw, 24px); 
   --spacing-xl: clamp(24px, 4.5vw, 32px); 
+
+  /* === CENTRALIZOVANA ZLATNA PALETA (za buduću promjenu boja kroz Admin panel) === */
+  --gold-accent-rgb: 198, 166, 100;    /* RGB trojka za rgba() upotrebu */
+  --gold-dark: #9E8344;                /* tamnija nijansa (gradijenti) */
+  --gold-darker: #785B1B;              /* najtamnija nijansa */
+  --gold-medium-dark: #A88C50;         /* srednje tamna nijansa */
+  --gold-light: #E6C78B;               /* svjetlija nijansa */
+  --gold-lighter: #D4B978;             /* još svjetlija nijansa (sjaj) */
+  --gold-pale: #F5E6C0;                /* blijeda nijansa (pozadine značaka) */
+  --gold-pale-lighter: #FDF6E3;        /* najblijeđa nijansa */
+  --gold-star: #FFD700;                /* čisto zlatna za zvjezdice */
+  --gold-text-price: #9E7A30;          /* tekst cijene u modalu za sliku */
+  --dark-text-on-light: #1a1a2e;       /* tamni tekst na svijetloj pozadini (modal) */
+
+  /* === FONT (centralizovano) === */
+  --font-family-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --item-card-bg: rgba(51, 65, 85, 0.8); /* pozadina kartice artikla — prilagođava se temi */
 }
 
 /* Reset osnovnih stilova za sve elemente */
@@ -56,8 +73,8 @@
 
 /* Stiliziranje body elementa */
 body { 
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-  background: linear-gradient(135deg, #1C1C1C 0%, #2C2C2C 100%); 
+  font-family: var(--font-family-base); 
+  background: linear-gradient(135deg, var(--background-dark) 0%, var(--bg-light) 100%); 
   min-height: 100vh; 
   color: var(--text-color); 
   -webkit-font-smoothing: antialiased; 
@@ -84,7 +101,7 @@ body {
 
 /* Stiliziranje kartice artikla */
 .item-card { 
-  background: rgba(51, 65, 85, 0.8); 
+  background: var(--item-card-bg); 
   backdrop-filter: blur(15px); 
   border: 1px solid var(--glass-border); 
   box-shadow: var(--shadow-light); 
@@ -104,10 +121,10 @@ body {
 .lang-toggle {
   border: 2px solid var(--gold-accent); background: var(--primary-gradient); color: #1a1a1a;
   border-radius: 50%; cursor: pointer; font-size: 19px; width: 45px; height: 45px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 10px rgba(198,166,100,.4);
+  display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 10px rgba(var(--gold-accent-rgb), .4);
   transition: all .3s ease;
 }
-.lang-toggle:hover { transform: translateY(-1px) scale(1.05); box-shadow: 0 5px 14px rgba(198,166,100,.55); }
+.lang-toggle:hover { transform: translateY(-1px) scale(1.05); box-shadow: 0 5px 14px rgba(var(--gold-accent-rgb), .55); }
 
 /* Traka sa jezicima — sakrivena (širine 0) dok se ne otvori, tad se širi ulijevo od ikone */
 .lang-inline {
@@ -128,7 +145,7 @@ body {
    jasno vidljive, bez obzira šta se tačno prikaže) */
 .lang-inline .language-btn {
   width: auto !important; min-width: 32px !important; height: auto !important;
-  background: transparent !important; border: 1.5px solid rgba(198,166,100,.4) !important; box-shadow: none !important;
+  background: transparent !important; border: 1.5px solid rgba(var(--gold-accent-rgb), .4) !important; box-shadow: none !important;
   border-radius: 8px !important; padding: 5px 9px !important; font-size: .78rem !important;
   font-weight: 700; line-height: 1; color: var(--beige-white) !important;
   transition: all .2s ease;
@@ -165,7 +182,7 @@ body {
 /* Hover efekat na jezičkim dugmadima */
 .language-btn:hover {
   border-color: var(--gold-accent) !important;
-  background: #F2E9D8 !important;
+  background: var(--beige-light) !important;
   transform: translateY(-1px) !important;
 }
 
@@ -174,15 +191,15 @@ body {
   border-color: var(--gold-accent) !important;
   background: var(--primary-gradient) !important;
   color: var(--beige-white) !important;
-  box-shadow: 0 4px 8px rgba(198, 166, 100, 0.3) !important;
+  box-shadow: 0 4px 8px rgba(var(--gold-accent-rgb), 0.3) !important;
 }
 
 /* Intenzivnija pulsirajuća animacija na hamburger dugmetu — skreće pažnju da se meni može otvoriti;
    nestaje čim ga neko klikne, ili sama nakon nekog vremena */
 @keyframes hamburgerPulse {
-  0% { box-shadow: 0 0 0 0 rgba(198, 166, 100, .8); transform: scale(1); }
-  50% { box-shadow: 0 0 0 14px rgba(198, 166, 100, 0); transform: scale(1.12); }
-  100% { box-shadow: 0 0 0 0 rgba(198, 166, 100, 0); transform: scale(1); }
+  0% { box-shadow: 0 0 0 0 rgba(var(--gold-accent-rgb), .8); transform: scale(1); }
+  50% { box-shadow: 0 0 0 14px rgba(var(--gold-accent-rgb), 0); transform: scale(1.12); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--gold-accent-rgb), 0); transform: scale(1); }
 }
 .hamburger.hint { animation: hamburgerPulse 1.3s ease-in-out infinite; }
 
@@ -240,7 +257,7 @@ body {
   object-fit: contain; 
   border-radius: var(--border-radius); 
   box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2); 
-  filter: drop-shadow(0 2px 10px rgba(198, 166, 100, 0.2)); 
+  filter: drop-shadow(0 2px 10px rgba(var(--gold-accent-rgb), 0.2)); 
 }
 
 /* Naslov u hero sekciji */
@@ -306,7 +323,7 @@ body {
 .tab-button:hover { 
   box-shadow: var(--shadow-medium); 
   border-color: var(--primary-color); 
-  background: rgba(51, 65, 85, 0.9); 
+  background: var(--item-card-bg); 
 }
 
 /* Aktivno tab dugme */
@@ -314,7 +331,7 @@ body {
   background: var(--primary-gradient); 
   color: var(--beige-white); 
   border-color: var(--primary-color); 
-  box-shadow: 0 8px 30px rgba(198, 166, 100, 0.3); 
+  box-shadow: 0 8px 30px rgba(var(--gold-accent-rgb), 0.3); 
   position: relative; 
   z-index: 1; 
 }
@@ -331,7 +348,7 @@ body {
   background: var(--promocija-gradient) !important; 
   color: #fff !important; 
   font-weight: 700 !important; 
-  border: 2px solid rgba(198, 166, 100, 0.5) !important; 
+  border: 2px solid rgba(var(--gold-accent-rgb), 0.5) !important; 
   box-shadow: var(--promocija-shadow) !important; 
   position: relative; 
 }
@@ -352,21 +369,21 @@ body {
   align-items: center; 
   justify-content: center; 
   z-index: 2; 
-  box-shadow: 0 2px 8px rgba(198, 166, 100, 0.4); 
+  box-shadow: 0 2px 8px rgba(var(--gold-accent-rgb), 0.4); 
 }
 
 /* Hover efekat na promocijskom tabu */
 .tab-button.promocija-tab:hover { 
   background: var(--promocija-glow) !important; 
-  box-shadow: 0 10px 35px rgba(198, 166, 100, 0.4) !important; 
+  box-shadow: 0 10px 35px rgba(var(--gold-accent-rgb), 0.4) !important; 
   transform: translateY(-3px); 
 }
 
 /* Aktivni promocijski tab */
 .tab-button.promocija-tab.active { 
-  background: linear-gradient(135deg, #9E8344, #C6A664) !important; 
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold-accent)) !important; 
   border-color: var(--gold-accent) !important; 
-  box-shadow: 0 12px 40px rgba(198, 166, 100, 0.5) !important; 
+  box-shadow: 0 12px 40px rgba(var(--gold-accent-rgb), 0.5) !important; 
 }
 
 /* Ikone za glavne kategorije i kategorije */
@@ -379,6 +396,7 @@ body {
   border-radius: var(--border-radius); 
   vertical-align: middle; 
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
+  background: rgba(30, 30, 30, 0.55); 
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.1)); 
   margin-right: 0 !important; 
 }
@@ -392,6 +410,7 @@ body {
   margin-right: 0 !important; 
   object-fit: cover !important; 
   border-radius: var(--border-radius) !important; 
+  background: rgba(30, 30, 30, 0.55); 
   display: inline-block !important; 
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.1)); 
@@ -460,8 +479,8 @@ body {
 /* === PROMOCIJA ACCORDION - ZVEZDICE SAMO NA VRHU === */
 /* Specijalno stiliziranje za promocijske podkategorije */
 .accordion-item.promocija-subcategory { 
-  border: 2px solid #C6A664 !important; 
-  background: rgba(198, 166, 100, 0.1) !important; 
+  border: 2px solid var(--gold-accent) !important; 
+  background: rgba(var(--gold-accent-rgb), 0.1) !important; 
   box-shadow: var(--promocija-shadow) !important; 
   position: relative; 
 }
@@ -475,7 +494,7 @@ body {
 
 /* Zvjezdice za promocijske podkategorije */
 .accordion-item.promocija-subcategory::after { 
-  background: #1C1C1C; 
+  background: var(--background-dark); 
   content: '⭐⭐⭐⭐⭐'; 
   position: absolute; 
   top: -6px; 
@@ -488,7 +507,7 @@ body {
   font-size: clamp(0.65rem, 1.4vw, 0.75rem); 
   font-weight: 700; 
   z-index: 5; 
-  box-shadow: 0 4px 10px rgba(198, 166, 100, 0.3); 
+  box-shadow: 0 4px 10px rgba(var(--gold-accent-rgb), 0.3); 
   border: 1px solid rgba(255, 255, 255, 0.3); 
   white-space: nowrap; 
   animation: stars-twinkle 2s ease-in-out infinite;
@@ -633,7 +652,7 @@ body {
 
 /* Kartica stavke unutar accordion-a */
 .accordion-content .item-card { 
-  background: rgba(51, 65, 85, 0.9); 
+  background: var(--item-card-bg); 
 }
 
 /* === PROMOCIJA GRUPA - BEZ ZVEZDICA === */
@@ -641,7 +660,7 @@ body {
 .promocija-group { 
   position: relative; 
   padding: var(--spacing-md); 
-  background: rgba(198, 166, 100, 0.06); 
+  background: rgba(var(--gold-accent-rgb), 0.06); 
   border-radius: var(--border-radius-large); 
   border: 1px solid var(--gold-accent); 
   box-shadow: var(--promocija-shadow);
@@ -695,8 +714,8 @@ body {
 /* Stiliziranje kartica za promocijske artikle */
 .promocija-group .item-card { 
   border: 2px solid var(--gold-accent) !important; 
-  background: rgba(71, 85, 105, 0.85) !important; 
-  box-shadow: 0 6px 25px rgba(198, 166, 100, 0.25) !important; 
+  background: var(--item-card-bg) !important; 
+  box-shadow: 0 6px 25px rgba(var(--gold-accent-rgb), 0.25) !important; 
   position: relative; 
 }
 
@@ -732,7 +751,7 @@ body {
 @keyframes star-shine {
   0%, 100% { 
     transform: scale(1);
-    box-shadow: 0 3px 10px rgba(198, 166, 100, 0.4);
+    box-shadow: 0 3px 10px rgba(var(--gold-accent-rgb), 0.4);
   }
   50% { 
     transform: scale(1.2);
@@ -742,21 +761,20 @@ body {
 
 /* Hover efekat na promocijskoj kartici */
 .promocija-group .item-card:hover { 
-  border-color: #9E8344 !important; 
-  box-shadow: 0 8px 35px rgba(198, 166, 100, 0.35) !important; 
+  border-color: var(--gold-dark) !important; 
+  box-shadow: 0 8px 35px rgba(var(--gold-accent-rgb), 0.35) !important; 
   transform: translateY(-2px); 
 }
 
 /* Naziv artikla u promociji */
 .promocija-group .item-card .item-name { 
-  color: #e2e8f0 !important; 
+  color: var(--text-color) !important; 
   font-weight: 700 !important; 
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important; 
 }
 
 /* Opis artikla u promociji */
 .promocija-group .item-card .item-description { 
-  color: #cbd5e1 !important; 
+  color: var(--text-muted) !important; 
   font-weight: 500 !important; 
 }
 
@@ -873,11 +891,11 @@ body {
   position: relative; 
   z-index: 1; 
   padding: var(--spacing-xs) var(--spacing-sm); 
-  background: #1C1C1C; 
+  background: var(--background-dark); 
   border-radius: 20px; 
   border: 1px solid rgba(102, 126, 234, 0.2); 
   flex-shrink: 0; 
-  box-shadow: 0 4px 15px rgba(198, 166, 100, 0.3); 
+  box-shadow: 0 4px 15px rgba(var(--gold-accent-rgb), 0.3); 
   text-align: center; 
   min-width: 65px; 
 }
@@ -885,18 +903,18 @@ body {
 /* Cijena artikla u promociji — tamna pozadina umjesto zlatne (zlatni tekst na
    zlatnoj pozadini je bio nečitljiv), zlatna boja ostaje samo na tekstu i obrubu */
 .promocija-group .item-price { 
-  color: #FFD700; 
+  color: var(--gold-star); 
   background: #1a1a1a !important; 
   border: 2px solid var(--gold-accent) !important; 
-  box-shadow: 0 4px 15px rgba(198, 166, 100, 0.4) !important; 
+  box-shadow: 0 4px 15px rgba(var(--gold-accent-rgb), 0.4) !important; 
   font-weight: 800 !important; 
   animation: glowingPrice 3s infinite alternate; 
 }
 
 /* Animacija za suptilni sjaj cijene u promociji */
 @keyframes subtle-glow { 
-  0%, 100% { box-shadow: 0 4px 15px rgba(198, 166, 100, 0.4); } 
-  50% { box-shadow: 0 6px 20px rgba(198, 166, 100, 0.6); } 
+  0%, 100% { box-shadow: 0 4px 15px rgba(var(--gold-accent-rgb), 0.4); } 
+  50% { box-shadow: 0 6px 20px rgba(var(--gold-accent-rgb), 0.6); } 
 }
 
 /* Stiliziranje stanja učitavanja i praznog stanja */
@@ -997,7 +1015,7 @@ body {
 /* Hover efekat na dugmetu za vraćanje na vrh */
 .scroll-to-top:hover { 
   box-shadow: 0 8px 35px rgba(102, 126, 234, 0.4); 
-  background: #C6A664;
+  background: var(--gold-accent);
   transform: translateY(-3px); 
 }
 
@@ -1048,7 +1066,7 @@ body {
   margin: 0; 
   font-size: var(--font-size-small); 
   color: var(--text-color); 
-  background: rgba(198, 166, 100, 0.12); 
+  background: rgba(var(--gold-accent-rgb), 0.12); 
   border: 1px solid var(--glass-border); 
   padding: 7px 16px; 
   border-radius: var(--border-radius-xl); 
@@ -1093,7 +1111,7 @@ body {
 
 /* Hover efekat na link za društvene mreže */
 .social-link:hover { 
-  background: rgba(198, 166, 100, 0.15); 
+  background: rgba(var(--gold-accent-rgb), 0.15); 
   border-color: var(--gold-accent); 
   color: var(--gold-accent);  
   box-shadow: var(--shadow-light); 
@@ -1229,18 +1247,18 @@ body {
 .modal-info-naziv {
   font-size: 1.1rem !important;
   font-weight: 600 !important;
-  color: #1a1a2e !important;
+  color: var(--dark-text-on-light) !important;
   margin-bottom: 6px !important;
 }
 
 .modal-info-cijena {
   font-size: 1.15rem !important;
   font-weight: 800 !important;
-  color: #9E7A30 !important;
+  color: var(--gold-text-price) !important;
   margin-bottom: 6px !important;
   letter-spacing: 0.5px !important;
-  background: linear-gradient(135deg, #f5e6c0, #fdf6e3) !important;
-  border: 1.5px solid #C6A664 !important;
+  background: linear-gradient(135deg, var(--gold-pale), var(--gold-pale-lighter)) !important;
+  border: 1.5px solid var(--gold-accent) !important;
   border-radius: 20px !important;
   padding: 4px 16px !important;
   display: inline-block !important;
@@ -1610,7 +1628,7 @@ html, body { height: auto; }
   height: 100vh; height: 100dvh; overflow-y: auto; z-index: 100; padding: 18px 0 24px;
 }
 .sidebar::-webkit-scrollbar { width: 6px; }
-.sidebar::-webkit-scrollbar-thumb { background: rgba(198,166,100,.35); border-radius: 6px; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(var(--gold-accent-rgb), .35); border-radius: 6px; }
 
 .side-item {
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
@@ -1621,8 +1639,8 @@ html, body { height: auto; }
 .side-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .side-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .side-item i.fas, .side-item i.fab { width: 18px; text-align: center; color: var(--gold-accent); flex-shrink: 0; }
-.side-icon { width: 20px; height: 20px; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
-.side-item:hover { background: rgba(198,166,100,.08); }
+.side-icon { width: 20px; height: 20px; object-fit: contain; border-radius: 4px; flex-shrink: 0; background: rgba(30, 30, 30, 0.55); padding: 2px; box-sizing: content-box; }
+.side-item:hover { background: rgba(var(--gold-accent-rgb), .08); }
 
 /* Oznaka 18+ i zvjezdica promocije — smanjene za red u sidebar-u (bile su
    dimenzionisane za stariju, širu harmoniku) */
@@ -1632,12 +1650,12 @@ html, body { height: auto; }
 }
 .side-item .promo-star {
   flex-shrink: 0; font-size: .8rem; line-height: 1;
-  filter: drop-shadow(0 0 3px rgba(198,166,100,.6));
+  filter: drop-shadow(0 0 3px rgba(var(--gold-accent-rgb), .6));
 }
 
 .side-item .item-count {
   flex-shrink: 0; font-size: .66rem; padding: 2px 8px; min-width: 22px;
-  background: rgba(198,166,100,.14); color: var(--gold-accent); border: 1px solid rgba(198,166,100,.3);
+  background: rgba(var(--gold-accent-rgb), .14); color: var(--gold-accent); border: 1px solid rgba(var(--gold-accent-rgb), .3);
   box-shadow: none; margin: 0;
 }
 
@@ -1647,7 +1665,7 @@ html, body { height: auto; }
 .side-group.promo::before {
   content: '⭐⭐⭐⭐⭐'; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
   background: var(--primary-gradient); color: white; padding: 2px 10px; border-radius: 12px;
-  font-size: .6rem; font-weight: 700; z-index: 5; box-shadow: 0 4px 10px rgba(198,166,100,.3);
+  font-size: .6rem; font-weight: 700; z-index: 5; box-shadow: 0 4px 10px rgba(var(--gold-accent-rgb), .3);
   border: 1px solid rgba(255,255,255,.3); white-space: nowrap;
   animation: stars-twinkle 2s ease-in-out infinite;
 }
@@ -1681,11 +1699,11 @@ html, body { height: auto; }
    (zlatna lijeva traka + blaga pozadina, ne puna zlatna ispuna) — da se
    nikad ne pomiješaju/izgledaju kao ista stvar. */
 .side-item.leaf.active {
-  background: rgba(198,166,100,.16); color: var(--gold-accent); font-weight: 700;
+  background: rgba(var(--gold-accent-rgb), .16); color: var(--gold-accent); font-weight: 700;
   border-left: 3px solid var(--gold-accent);
 }
 .side-item.leaf.active i { color: var(--gold-accent); }
-.side-item.leaf.active .item-count { background: rgba(198,166,100,.22); color: var(--gold-accent); border-color: rgba(198,166,100,.4); }
+.side-item.leaf.active .item-count { background: rgba(var(--gold-accent-rgb), .22); color: var(--gold-accent); border-color: rgba(var(--gold-accent-rgb), .4); }
 
 /* Aktivna "Svi artikli" — jedini list koji SMIJE koristiti puno zlatno,
    pošto nema promo grupu sa kojom bi se pomiješala */
