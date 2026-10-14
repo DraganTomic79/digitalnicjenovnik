@@ -270,18 +270,12 @@ class MenuApp {
 
   /* Provjerava da li je kategorija alkoholna */
   isAlcoholicCategory(kategorija) {
-    if (!kategorija || !kategorija.naziv) return false;
-    const naziv = kategorija.naziv.toLowerCase();
-    if (naziv.includes('bez') || naziv.includes('non') || naziv.includes('zero') || naziv.includes('0%')) return false;
-    return naziv.includes('alkohol') && !naziv.includes('bezalkohol') || naziv === 'alkoholna pića' || naziv === 'alkoholna pica' || naziv.includes('vina') || naziv.includes('cigarete') || naziv.includes('piva') && !naziv.includes('bezalkohol') || naziv.includes('žestok') || naziv.includes('žestoka') || naziv.includes('žestice') || naziv.includes('rakije') || naziv.includes('whiskey') || naziv.includes('vodka') || naziv.includes('rum') || naziv.includes('gin') || naziv.includes('brandy') || naziv.includes('konjak') || naziv.includes('cocktail') || naziv.includes('koktel') || naziv.includes('vinjak') || naziv.includes('tequila') || naziv.includes('likeri-aperitivi');
+    return !!(kategorija && kategorija.sadrziAlkohol);
   }
 
   /* Provjerava da li je podkategorija alkoholna */
   isAlcoholicSubcategory(podkategorija) {
-    if (!podkategorija || !podkategorija.naziv) return false;
-    const naziv = podkategorija.naziv.toLowerCase();
-    if (naziv.includes('bez') || naziv.includes('non') || naziv.includes('zero') || naziv.includes('0%')) return false;
-    return naziv.includes('alkohol') && !naziv.includes('bezalkohol') || naziv === 'alkoholna pića' || naziv === 'alkoholna pica' || naziv.includes('vina') || naziv.includes('cigarete') || naziv.includes('piva') && !naziv.includes('bezalkohol') || naziv.includes('žestok') || naziv.includes('žestoka') || naziv.includes('žestice') || naziv.includes('rakije') || naziv.includes('whiskey') || naziv.includes('vodka') || naziv.includes('rum') || naziv.includes('gin') || naziv.includes('brandy') || naziv.includes('konjak') || naziv.includes('cocktail') || naziv.includes('koktel') || naziv.includes('vinjak') || naziv.includes('tequila') || naziv.includes('likeri-aperitivi');
+    return !!(podkategorija && podkategorija.sadrziAlkohol);
   }
 
   /* Kreira stavku u accordion meniju za kategoriju */
@@ -326,8 +320,7 @@ class MenuApp {
     const itemsHTML = this.createItemsHTML(artikli);
     const hasPromocijaItems = this.isPromotion(podkategorija);
     const isAlcoholic = this.isAlcoholicSubcategory(podkategorija);
-    const parentIsAlcoholic = parentCategory ? this.isAlcoholicCategory(parentCategory) : false;
-    const ageRestrictorHtml = (isAlcoholic && !parentIsAlcoholic) ? '<span class="age-restrictor">18+</span>' : '';
+    const ageRestrictorHtml = isAlcoholic ? '<span class="age-restrictor">18+</span>' : '';
     const itemsContainer = hasPromocijaItems ? `<div class="promocija-group"><div class="items-container">${itemsHTML}</div></div>` : `<div class="items-container">${itemsHTML}</div>`;
     
     // AŽURIRANO: PREVEDI podkategoriju
@@ -540,6 +533,9 @@ class MenuApp {
         } else { 
           this.currencyCode = ''; 
         }
+        if (webPostavke.pageTitle && webPostavke.pageTitle.trim() !== '') {
+          document.title = webPostavke.pageTitle.trim();
+        }
         await Promise.all([
           this.loadLogo(webPostavke.logoURL), 
           Promise.resolve(this.loadHeroContent(webPostavke)), 
@@ -614,12 +610,19 @@ class MenuApp {
   loadFooter(webPostavke) { 
     if (!this.elements.siteFooter) return; 
     if (webPostavke && webPostavke.footerEnabled) this.displayFooter(webPostavke); 
-    else this.elements.siteFooter.style.display = 'none'; 
+    else { this.elements.siteFooter.style.display = 'none'; document.body.style.paddingBottom = ''; }
   }
 
   /* Prikazuje footer sa socijalnim linkovima */
   displayFooter(postavke) {
-    if (this.elements.footerText) this.elements.footerText.textContent = postavke.footerText || '';
+    const text = (postavke.footerText || '').trim();
+    if (this.elements.footerText) {
+      this.elements.footerText.textContent = text;
+      this.elements.footerText.style.display = text ? 'inline-flex' : 'none';
+    }
+    if (this.elements.siteFooter) {
+      this.elements.siteFooter.classList.toggle('has-footer-text', !!text);
+    }
     const socialLinks = [ 
       { element: this.elements.instagramLink, url: postavke.instagramUrl, name: 'Instagram' }, 
       { element: this.elements.facebookLink, url: postavke.facebookUrl, name: 'Facebook' }, 
@@ -634,6 +637,12 @@ class MenuApp {
       } 
     });
     this.elements.siteFooter.style.display = 'block';
+    /* Uskladi razmak na dnu stranice sa stvarnom visinom footera
+       (npr. duži Wifi tekst koji se prelomi u 2 reda na uskom ekranu) */
+    requestAnimationFrame(() => {
+      const h = this.elements.siteFooter.offsetHeight;
+      if (h) document.body.style.paddingBottom = (h + 14) + 'px';
+    });
   }
 
   /* Postavlja real-time listenere za ažuriranje podataka */
@@ -672,6 +681,9 @@ class MenuApp {
         if (newCurrencyCode !== this.currencyCode) { 
           this.currencyCode = newCurrencyCode; 
           this.scheduleUpdate(); 
+        }
+        if (postavke.pageTitle && postavke.pageTitle.trim() !== '') {
+          document.title = postavke.pageTitle.trim();
         }
         Promise.all([
           this.loadLogo(postavke.logoURL), 
@@ -811,9 +823,7 @@ class MenuApp {
 
   /* Provjerava je li stavka promocija */
   isPromotion(item) { 
-    if (!item || !item.naziv) return false;
-    const naziv = item.naziv.toLowerCase();
-    return naziv.includes('promocija') || naziv.includes('promo') || naziv.includes('special') || naziv.includes('offer') || naziv.includes('akcija') || naziv.includes('specijalna ponuda');
+    return !!(item && item.specijalnaPonuda);
   }
 }
 

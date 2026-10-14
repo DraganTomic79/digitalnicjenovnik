@@ -1,6 +1,6 @@
 /* ===== ADMIN FIREBASE - SA IMPORTOM DEFAULT IKONA IZ UTILS ===== */
 import { db, auth } from "../firebase-config-kafic2.js";
-import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
+import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, where, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
 import { getDefaultGlavnaKategorijaIcon, getDefaultKategorijaIcon, getDefaultPodkategorijaIcon, debug } from './admin-utils.js';
 
@@ -73,6 +73,50 @@ export async function obrisiGlavnuKategorijuKaskadno(glavnaKategorijaId, nazivGl
     debug.log(`Kaskadno brisanje završeno uspješno!`);
     return { success: true, message: `Glavna kategorija "${nazivGlavneKategorije}" i sve povezane kategorije su obrisane. ${ukupnoArtikala} artikala je prebačeno u "Nepoznato".`, statistike: { glavnaKategorija: 1, kategorije: kategorijeZaBrisanje.length, podkategorije: ukupnoPodkategorija, artiklPrebaceno: ukupnoArtikala } };
   } catch (error) { debug.error('Greška u kaskadnom brisanju glavne kategorije:', error); throw new Error(`Greška kaskadnog brisanja: ${error.message}`); }
+}
+
+/* Jednokratno kopira oznake (18+/Specijalna ponuda) sa glavne kategorije na SVE njene
+   kategorije i podkategorije, ili sa kategorije na SVE njene podkategorije — NIJE trajno
+   nasljeđivanje, samo brzo popunjavanje pri čuvanju da se ne mora ručno čekirati svaka
+   podkategorija pojedinačno. Prima OBJEKAT sa poljima — piše SAMO ona koja su definisana,
+   ne prepisuje polje koje nije izabrano za primjenu. */
+export async function primijeniOznakeKaskadno(nivo, id, flags) {
+  try {
+    const podaci = {};
+    if (flags.sadrziAlkohol !== undefined) podaci.sadrziAlkohol = !!flags.sadrziAlkohol;
+    if (flags.specijalnaPonuda !== undefined) podaci.specijalnaPonuda = !!flags.specijalnaPonuda;
+    if (Object.keys(podaci).length === 0) return { success: true, brojKategorija: 0, brojPodkategorija: 0 };
+    let brojKategorija = 0, brojPodkategorija = 0;
+
+    if (nivo === 'glavnaKategorija') {
+      const q1 = query(services.kategorije.collection, where("glavnaKategorijaId", "==", id));
+      const kategorijeSnapshot = await getDocs(q1);
+      const kategorijeIds = [];
+      kategorijeSnapshot.forEach((doc) => { kategorijeIds.push(doc.id); });
+      brojKategorija = kategorijeIds.length;
+
+      for (const katId of kategorijeIds) {
+        await services.kategorije.update(katId, podaci);
+        const q2 = query(services.podkategorije.collection, where("kategorijaId", "==", katId));
+        const podkategorijeSnapshot = await getDocs(q2);
+        const podUpdates = [];
+        podkategorijeSnapshot.forEach((doc) => { podUpdates.push(services.podkategorije.update(doc.id, podaci)); brojPodkategorija++; });
+        if (podUpdates.length > 0) await Promise.all(podUpdates);
+      }
+    } else if (nivo === 'kategorija') {
+      const q2 = query(services.podkategorije.collection, where("kategorijaId", "==", id));
+      const podkategorijeSnapshot = await getDocs(q2);
+      const podUpdates = [];
+      podkategorijeSnapshot.forEach((doc) => { podUpdates.push(services.podkategorije.update(doc.id, podaci)); brojPodkategorija++; });
+      if (podUpdates.length > 0) await Promise.all(podUpdates);
+    }
+
+    debug.log(`Oznake primijenjene kaskadno: ${brojKategorija} kategorija, ${brojPodkategorija} podkategorija`);
+    return { success: true, brojKategorija, brojPodkategorija };
+  } catch (error) {
+    debug.error('Greška pri kaskadnom primjenjivanju oznaka:', error);
+    throw new Error(`Greška kaskadnog primjenjivanja oznaka: ${error.message}`);
+  }
 }
 
 export async function obrisiKategorijuKaskadno(kategorijaId, nazivKategorije) {
@@ -248,3 +292,33 @@ export async function toggleArtikalAktivnost(id, trenutnoAktivna) {
     throw new Error('Nije moguće promijeniti status artikla: ' + error.message);
   }
 }
+
+/* MASOVNA (NE)VIDLJIVOST SVIH ARTIKALA */
+/** Postavlja 'aktivna' status na SVIM artiklima odjednom (batch write, max 450 po grupi). */
+async function postaviAktivnostSvihArtikala(noviStatus) {
+  try {
+    const snapshot = await getDocs(collection(db, CONFIG.collections.artikli));
+    const docs = snapshot.docs;
+    if (docs.length === 0) return 0;
+
+    const CHUNK = 450; // Firestore dozvoljava max 500 operacija po batch-u — ostavljena rezerva
+    let izmijenjeno = 0;
+    for (let i = 0; i < docs.length; i += CHUNK) {
+      const batch = writeBatch(db);
+      const dio = docs.slice(i, i + CHUNK);
+      dio.forEach(d => {
+        batch.update(d.ref, { aktivna: noviStatus, azurirano: new Date() });
+      });
+      await batch.commit();
+      izmijenjeno += dio.length;
+    }
+    debug.log(`Masovna promjena statusa: ${izmijenjeno} artikala postavljeno na aktivna=${noviStatus}`);
+    return izmijenjeno;
+  } catch (error) {
+    debug.error('Greška masovne promjene statusa artikala:', error);
+    throw new Error('Nije moguće masovno promijeniti status artikala: ' + error.message);
+  }
+}
+
+export const sakrijSveArtikle = () => postaviAktivnostSvihArtikala(false);
+export const objaviSveArtikle = () => postaviAktivnostSvihArtikala(true);
