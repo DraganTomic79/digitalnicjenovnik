@@ -234,7 +234,7 @@ class MenuApp {
     
     const ikonaVal = item[ikonaField];
     const ikonaHTML = ikonaVal && ikonaVal.startsWith('http')
-      ? `<img src="${ikonaVal}" alt="${item.naziv}" class="${iconClass}" />`
+      ? `<img src="${ikonaVal}" alt="${item.naziv}" class="${iconClass}" loading="lazy" />`
       : `<i class="fas ${(ikonaVal && ikonaVal.startsWith('fa-')) ? ikonaVal : defaultIcon}"></i>`;
     
     // AŽURIRANO: Prevedi naziv (RADI ZA SVE - glavne kategorije, kategorije, podkategorije)
@@ -283,7 +283,7 @@ class MenuApp {
     // AŽURIRANO: Ikona kategorije može biti u 'ikonaKategorije' ili 'ikona' polju
     const _katIkonaVal = kategorija.ikonaKategorije || kategorija.ikona;
     const categoryIcon = _katIkonaVal && _katIkonaVal.startsWith('http')
-      ? `<img src="${_katIkonaVal}" alt="${kategorija.naziv}" class="category-icon" />`
+      ? `<img src="${_katIkonaVal}" alt="${kategorija.naziv}" class="category-icon" loading="lazy" />`
       : `<i class="fas ${(_katIkonaVal && _katIkonaVal.startsWith('fa-')) ? _katIkonaVal : 'fa-folder'}"></i>`;
         
     const totalItems = podkategorije.reduce((sum, podkat) => sum + this.getItemsForSubcategory(podkat.naziv).length, 0);
@@ -314,7 +314,7 @@ class MenuApp {
     // AŽURIRANO: Podkategorija može koristiti 'ikona' ili 'ikonaKategorije'
     const _podIkonaVal = podkategorija.ikona || podkategorija.ikonaKategorije;
     const subcategoryIcon = _podIkonaVal && _podIkonaVal.startsWith('http')
-      ? `<img src="${_podIkonaVal}" alt="${podkategorija.naziv}" class="subcategory-icon" />`
+      ? `<img src="${_podIkonaVal}" alt="${podkategorija.naziv}" class="subcategory-icon" loading="lazy" />`
       : `<i class="fas ${(_podIkonaVal && _podIkonaVal.startsWith('fa-')) ? _podIkonaVal : 'fa-tag'}"></i>`;
         
     const itemsHTML = this.createItemsHTML(artikli);
@@ -434,7 +434,7 @@ class MenuApp {
         });
       }
     }, 10);
-    return `<div class="item-image-wrapper"><img id="${imageId}" src="${item.slikaURL}" alt="${altText}" class="item-image clickable-image" style="cursor: pointer;" /><div class="item-placeholder" style="display: none;"><i class="fas fa-image"></i></div><span class="image-zoom-overlay"><i class="fas fa-expand"></i></span></div>`;
+    return `<div class="item-image-wrapper"><img id="${imageId}" src="${item.slikaURL}" alt="${altText}" class="item-image clickable-image" style="cursor: pointer;" loading="lazy" /><div class="item-placeholder" style="display: none;"><i class="fas fa-image"></i></div><span class="image-zoom-overlay"><i class="fas fa-expand"></i></span></div>`;
   }
 
   /* Otvara modalni prozor sa slikom */
@@ -536,7 +536,6 @@ class MenuApp {
         if (webPostavke.pageTitle && webPostavke.pageTitle.trim() !== '') {
           document.title = webPostavke.pageTitle.trim();
         }
-        this.applyBrandTheme(webPostavke);
         await Promise.all([
           this.loadLogo(webPostavke.logoURL), 
           Promise.resolve(this.loadHeroContent(webPostavke)), 
@@ -614,113 +613,6 @@ class MenuApp {
     else { this.elements.siteFooter.style.display = 'none'; document.body.style.paddingBottom = ''; }
   }
 
-  /* Primjenjuje prilagođenu boju, font i pozadinu ako su postavljeni u Admin panelu.
-     Ako nisu postavljeni (prazno/nepostojeće), ostaju podrazumijevane vrijednosti
-     iz index-styles.css — ništa se ne mijenja. */
-  applyBrandTheme(webPostavke) {
-    if (!webPostavke) return;
-    const root = document.documentElement.style;
-
-    if (webPostavke.brandColor && /^#[0-9A-Fa-f]{6}$/.test(webPostavke.brandColor)) {
-      const hex = webPostavke.brandColor;
-      const rgb = this.hexToRgb(hex);
-      root.setProperty('--gold-accent', hex);
-      root.setProperty('--gold-accent-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
-      root.setProperty('--gold-dark', this.shadeColor(hex, -22));
-      root.setProperty('--gold-darker', this.shadeColor(hex, -42));
-      root.setProperty('--gold-medium-dark', this.shadeColor(hex, -12));
-      root.setProperty('--gold-light', this.shadeColor(hex, 20));
-      root.setProperty('--gold-lighter', this.shadeColor(hex, 15));
-      root.setProperty('--gold-pale', this.shadeColor(hex, 55));
-      root.setProperty('--gold-pale-lighter', this.shadeColor(hex, 85));
-      root.setProperty('--gold-text-price', this.shadeColor(hex, -25));
-      root.setProperty('--primary-color', hex);
-      root.setProperty('--accent-color', this.shadeColor(hex, -22));
-      root.setProperty('--text-light', hex);
-      // Napomena: --gold-star i crvene (18+) boje se NAMJERNO ne diraju —
-      // ostaju fiksne bez obzira na izabranu brend boju.
-    }
-
-    if (webPostavke.brandFont && webPostavke.brandFont.trim() !== '') {
-      const fontName = webPostavke.brandFont.trim();
-      this.ensureGoogleFontLoaded(fontName);
-      root.setProperty('--font-family-base', `'${fontName}', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`);
-    }
-
-    // Pozadina — bira se između DVA unaprijed dizajnirana, bezbjedna seta varijabli
-    // (tamni/svijetli), umjesto slobodnog miješanja, da tekst uvijek ostane čitljiv.
-    if (webPostavke.backgroundColor && /^#[0-9A-Fa-f]{6}$/.test(webPostavke.backgroundColor)) {
-      const bgHex = webPostavke.backgroundColor;
-      const bgRgb = this.hexToRgb(bgHex);
-      const isLight = webPostavke.backgroundMode === 'light';
-
-      root.setProperty('--background-dark', bgHex);
-
-      if (isLight) {
-        root.setProperty('--bg-light', this.shadeColor(bgHex, -6));
-        root.setProperty('--text-color', '#2C2C2C');
-        root.setProperty('--text-muted', '#5a5a5a');
-        root.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.85)');
-        root.setProperty('--glass-bg-light', 'rgba(255, 255, 255, 0.7)');
-        root.setProperty('--item-card-bg', 'rgba(240, 240, 245, 0.9)');
-      } else {
-        root.setProperty('--bg-light', this.shadeColor(bgHex, 12));
-        root.setProperty('--text-color', '#F2E9D8');
-        root.setProperty('--text-muted', '#E6D5B8');
-        root.setProperty('--glass-bg', `rgba(${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b}, 0.85)`);
-        root.setProperty('--glass-bg-light', `rgba(${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b}, 0.75)`);
-        root.setProperty('--item-card-bg', 'rgba(51, 65, 85, 0.8)');
-      }
-    }
-
-    // Čuva primijenjenu temu u browseru — sledeći put se primjenjuje ODMAH
-    // (sinhrono, prije prikaza stranice), bez čekanja na odgovor sa Firebase-a
-    try {
-      localStorage.setItem('brandTheme_c2AsDKLC', JSON.stringify({
-        brandColor: webPostavke.brandColor || '',
-        brandFont: webPostavke.brandFont || '',
-        backgroundMode: webPostavke.backgroundMode || 'dark',
-        backgroundColor: webPostavke.backgroundColor || ''
-      }));
-    } catch (e) { /* localStorage nedostupan (npr. privatni režim) — nije kritično */ }
-  }
-
-  /* Pretvara HEX boju (#rrggbb) u {r,g,b} objekat */
-  hexToRgb(hex) {
-    const clean = hex.replace('#', '');
-    return {
-      r: parseInt(clean.substring(0, 2), 16),
-      g: parseInt(clean.substring(2, 4), 16),
-      b: parseInt(clean.substring(4, 6), 16)
-    };
-  }
-
-  /* Posvjetljuje (pozitivan procenat) ili potamnjuje (negativan procenat) HEX boju */
-  shadeColor(hex, percent) {
-    const clean = hex.replace('#', '');
-    let r = parseInt(clean.substring(0, 2), 16);
-    let g = parseInt(clean.substring(2, 4), 16);
-    let b = parseInt(clean.substring(4, 6), 16);
-    const adjust = (c) => {
-      const delta = percent < 0 ? c : (255 - c);
-      const val = Math.round(c + delta * percent / 100);
-      return Math.min(255, Math.max(0, val));
-    };
-    r = adjust(r); g = adjust(g); b = adjust(b);
-    return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
-  }
-
-  /* Učitava Google Font preko <link> taga, samo jednom po fontu (provjerava da li već postoji) */
-  ensureGoogleFontLoaded(fontName) {
-    const id = 'brand-google-font-' + fontName.replace(/\s+/g, '-').toLowerCase();
-    if (document.getElementById(id)) return;
-    const link = document.createElement('link');
-    link.id = id;
-    link.rel = 'stylesheet';
-    link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontName)}:wght@400;600;700;800&display=swap`;
-    document.head.appendChild(link);
-  }
-
   /* Prikazuje footer sa socijalnim linkovima */
   displayFooter(postavke) {
     const text = (postavke.footerText || '').trim();
@@ -793,7 +685,6 @@ class MenuApp {
         if (postavke.pageTitle && postavke.pageTitle.trim() !== '') {
           document.title = postavke.pageTitle.trim();
         }
-        this.applyBrandTheme(postavke);
         Promise.all([
           this.loadLogo(postavke.logoURL), 
           Promise.resolve(this.loadHeroContent(postavke)), 

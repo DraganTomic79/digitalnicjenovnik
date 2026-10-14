@@ -169,12 +169,45 @@ export async function azurirajRedoslijedArtikala(podkategorijaNaziv, newOrder) {
   } catch (error) { debug.error("Greška ažuriranja redosleda artikala:", error); throw new Error("Nije moguće ažurirati redosled artikala: " + error.message); }
 }
 
+/* IMAGE RESIZE/COMPRESS (smanjuje fajl prije slanja na ImgBB, radi brže prvo učitavanje u app-u) */
+function resizeImageFile(file, maxDimension = 500, quality = 0.85) {
+  return new Promise((resolve) => {
+    try {
+      if (!file || !file.type || !file.type.startsWith('image/') || file.type === 'image/gif' || file.type === 'image/svg+xml') {
+        return resolve(file); // ne diramo GIF/SVG, niti ne-slike
+      }
+      const img = new Image(); const objectUrl = URL.createObjectURL(file);
+      img.onload = () => {
+        try {
+          const { width, height } = img; const biggerSide = Math.max(width, height);
+          if (biggerSide <= maxDimension) { URL.revokeObjectURL(objectUrl); return resolve(file); } // već dovoljno mala
+          const scale = maxDimension / biggerSide; const newWidth = Math.round(width * scale); const newHeight = Math.round(height * scale);
+          const canvas = document.createElement('canvas'); canvas.width = newWidth; canvas.height = newHeight;
+          const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, newWidth, newHeight);
+          const outputType = file.type === 'image/png' ? 'image/png' : 'image/jpeg'; // PNG ostaje PNG (čuva providnost), ostalo -> JPEG
+          canvas.toBlob((blob) => {
+            URL.revokeObjectURL(objectUrl);
+            if (!blob) return resolve(file);
+            const resizedFile = new File([blob], file.name, { type: outputType });
+            debug.log(`Slika smanjena: ${width}x${height} (${(file.size/1024).toFixed(0)}KB) -> ${newWidth}x${newHeight} (${(blob.size/1024).toFixed(0)}KB)`);
+            resolve(resizedFile);
+          }, outputType, quality);
+        } catch (e) { URL.revokeObjectURL(objectUrl); debug.warn('Greška pri smanjivanju slike, šaljem original:', e); resolve(file); }
+      };
+      img.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(file); };
+      img.src = objectUrl;
+    } catch (e) { resolve(file); }
+  });
+}
+
 /* IMAGE UPLOAD SERVICE */
 export async function uploadSlika(file) {
   try {
     debug.log('Početak upload-a slike:', file.name, file.size, file.type); if (!file || file.size === 0) { throw new Error('Fajl nije valjan'); } if (file.size > 5 * 1024 * 1024) { throw new Error('Fajl je prevelik (max 5MB)'); }
-    
-    const formData = new FormData(); formData.append("image", file); debug.log('Šaljem na ImgBB:', CONFIG.imgbb.uploadUrl);
+
+    const optimizovanFajl = await resizeImageFile(file, 500, 0.85);
+
+    const formData = new FormData(); formData.append("image", optimizovanFajl); debug.log('Šaljem na ImgBB:', CONFIG.imgbb.uploadUrl);
     
     const response = await fetch(`${CONFIG.imgbb.uploadUrl}?key=${CONFIG.imgbb.apiKey}`, { method: "POST", body: formData }); if (!response.ok) { debug.error('HTTP greška:', response.status, response.statusText); throw new Error(`HTTP Error: ${response.status}`); }
     
