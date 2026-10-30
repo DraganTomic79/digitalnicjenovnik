@@ -1,11 +1,12 @@
 /* ===== ADMIN FIREBASE - SA IMPORTOM DEFAULT IKONA IZ UTILS ===== */
-import { db, auth } from "../firebase-config-kafic5.js";
+import { db, auth, storage } from "../firebase-config-kafic5.js";
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, where, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-storage.js";
 import { getDefaultGlavnaKategorijaIcon, getDefaultKategorijaIcon, getDefaultPodkategorijaIcon, debug } from './admin-utils.js';
 
 /* KONFIGURACIJA */
-const CONFIG = { imgbb: { apiKey: "601149311b1536ee89b01d92e3a22611", uploadUrl: "https://api.imgbb.com/1/upload" }, collections: { glavneKategorije: "glavne-kategorije", kategorije: "kategorije", podkategorije: "podkategorije", artikli: "meni", postavke: "postavke", webPostavke: "web-postavke" }, fallbackSortOrder: 999 };
+const CONFIG = { collections: { glavneKategorije: "glavne-kategorije", kategorije: "kategorije", podkategorije: "podkategorije", artikli: "meni", postavke: "postavke", webPostavke: "web-postavke" }, fallbackSortOrder: 999 };
 const NEPOZNATA_KATEGORIJA = { naziv: "Nepoznato", ikona: "fa-question-circle", id: "nepoznato-categoria-id" };
 
 /* AUTENTIFIKACIJA */
@@ -213,7 +214,7 @@ export async function azurirajRedoslijedArtikala(podkategorijaNaziv, newOrder) {
   } catch (error) { debug.error("Greška ažuriranja redosleda artikala:", error); throw new Error("Nije moguće ažurirati redosled artikala: " + error.message); }
 }
 
-/* IMAGE RESIZE/COMPRESS (smanjuje fajl prije slanja na ImgBB, radi brže prvo učitavanje u app-u) */
+/* IMAGE RESIZE/COMPRESS (smanjuje fajl prije slanja u Firebase Storage, radi brže prvo učitavanje u app-u) */
 function resizeImageFile(file, maxDimension = 500, quality = 0.85) {
   return new Promise((resolve) => {
     try {
@@ -244,22 +245,27 @@ function resizeImageFile(file, maxDimension = 500, quality = 0.85) {
   });
 }
 
-/* IMAGE UPLOAD SERVICE */
+/* IMAGE UPLOAD SERVICE (Firebase Storage) */
 export async function uploadSlika(file) {
   try {
-    debug.log('Početak upload-a slike:', file.name, file.size, file.type); if (!file || file.size === 0) { throw new Error('Fajl nije valjan'); } if (file.size > 5 * 1024 * 1024) { throw new Error('Fajl je prevelik (max 5MB)'); }
+    debug.log('Početak upload-a slike:', file?.name, file?.size, file?.type);
+    if (!file || file.size === 0) { throw new Error('Fajl nije valjan'); }
+    if (file.size > 20 * 1024 * 1024) { throw new Error('Fajl je prevelik (max 20MB)'); }
 
+    // Smanji sliku u browseru; tek poslije provjeri veličinu (velike fotografije sa telefona postaju male)
     const optimizovanFajl = await resizeImageFile(file, 500, 0.85);
+    if (optimizovanFajl.size > 5 * 1024 * 1024) { throw new Error('Slika je i nakon smanjivanja prevelika (max 5MB)'); }
 
-    const formData = new FormData(); formData.append("image", optimizovanFajl); debug.log('Šaljem na ImgBB:', CONFIG.imgbb.uploadUrl);
-    
-    const response = await fetch(`${CONFIG.imgbb.uploadUrl}?key=${CONFIG.imgbb.apiKey}`, { method: "POST", body: formData }); if (!response.ok) { debug.error('HTTP greška:', response.status, response.statusText); throw new Error(`HTTP Error: ${response.status}`); }
-    
-    const data = await response.json(); debug.log('ImgBB odgovor:', data);
-    
-    if (data.success && data.data && data.data.url) {
-      const imageUrl = data.data.url; debug.log('Uspješan upload, URL:', imageUrl); if (!imageUrl.startsWith('https://i.ibb.co/') && !imageUrl.startsWith('https://ibb.co/')) { debug.warn('Neočekivan format URL-a od ImgBB:', imageUrl); } return imageUrl;
-    } else { debug.error('ImgBB upload neuspješan:', data); throw new Error("ImgBB upload failed: " + (data.error?.message || JSON.stringify(data))); }
+    const ekstenzije = { 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' };
+    const ext = ekstenzije[optimizovanFajl.type] || 'jpg';
+    const putanja = `slike/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
+    const fileRef = ref(storage, putanja);
+
+    debug.log('Šaljem u Firebase Storage:', putanja);
+    await uploadBytes(fileRef, optimizovanFajl, { contentType: optimizovanFajl.type || 'image/jpeg', cacheControl: 'public, max-age=31536000' });
+    const imageUrl = await getDownloadURL(fileRef);
+    debug.log('Uspješan upload, URL:', imageUrl);
+    return imageUrl;
   } catch (error) { debug.error("Greška uploading image:", error); throw new Error("Cannot upload image: " + error.message); }
 }
 
