@@ -12,7 +12,7 @@ export const CONFIG = {
       podkategorija: { required: true }
     },
     slika: {
-      maxSize: 5 * 1024 * 1024,
+      maxSize: 20 * 1024 * 1024, // original; slika se prije uploada smanji na ~500px
       allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
     }
   },
@@ -325,7 +325,7 @@ export function validirajSliku(file) {
     return { isValid: true, errors: [] };
     
   if (file.size > config.maxSize) 
-    errors.push('Slika je prevelika. Maksimalna veličina je 5MB');
+    errors.push('Slika je prevelika. Maksimalna veličina je 20MB');
     
   if (!config.allowedTypes.includes(file.type)) 
     errors.push('Nepodržan format slike. Dozvoljeni formati: JPEG, PNG, GIF, WebP');
