@@ -645,6 +645,9 @@ class MenuApp {
       const fontName = webPostavke.brandFont.trim();
       this.ensureGoogleFontLoaded(fontName);
       root.setProperty('--font-family-base', `'${fontName}', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`);
+    } else {
+      // Font nije izabran (Podrazumijevani) — ukloni ranije primijenjeni font da se vrati Segoe UI iz CSS-a
+      root.removeProperty('--font-family-base');
     }
 
     // Pozadina — bira se između DVA unaprijed dizajnirana, bezbjedna seta varijabli
