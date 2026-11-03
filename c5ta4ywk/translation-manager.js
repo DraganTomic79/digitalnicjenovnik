@@ -242,6 +242,7 @@ class TranslationManager {
     this.updatePlaceholders();
     this.updateDropdownOptions();
     this.updateSpecialElements();
+    this.applyDataI18n();
 
     console.log(`Prevodi primenjeni za jezik: ${this.currentLanguage}`);
   }
@@ -461,23 +462,31 @@ class TranslationManager {
   // Ažuriraj size recommendation tekstove
   updateSizeRecommendations() {
     const sizeRecommendations = document.querySelectorAll('.size-recommendation');
-    
+
     sizeRecommendations.forEach(element => {
-      let currentText = element.innerHTML;
-      
-      // Zameni "Preporučena veličina" tekst
-      currentText = currentText.replace(
-        /<strong>.*?(veličina|size|Größe).*?<\/strong>/i,
-        `<strong>${this.t('recommendedSize')}:</strong>`
-      );
-      
-      // Zameni "Format" tekst
-      currentText = currentText.replace(/(Format|Formats|Formate):/gi, `${this.t('formats')}:`);
-      
-      // Zameni "Max" tekst  
-      currentText = currentText.replace(/(Max|Maximum):/gi, `${this.t('maxSize')}:`);
-      
+      // Original (srpski) tekst se pamti pri prvom pozivu, pa se prevod uvijek gradi iz njega
+      if (!element.dataset.orig) element.dataset.orig = element.innerHTML;
+      let currentText = element.dataset.orig;
+
+      currentText = currentText.replace(/<strong>[^<]*<\/strong>/i, `<strong>${this.t('recommendedSize')}:</strong>`);
+      currentText = currentText.replace(/Format:/g, `${this.t('formats')}:`);
+      currentText = currentText.replace(/Max:/g, `${this.t('maxSize')}:`);
+      currentText = currentText.replace('Slika se automatski smanjuje pri uploadu', this.t('autoResizeNote'));
+      currentText = currentText.replace('(horizontalni format)', this.t('horizontalFormat'));
+
       element.innerHTML = currentText;
+    });
+  }
+
+  // Generički prevod: elementi sa data-i18n (tekst) i data-i18n-ph (placeholder)
+  applyDataI18n() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const v = this.translations[this.currentLanguage]?.[el.getAttribute('data-i18n')];
+      if (v) el.textContent = v;
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+      const v = this.translations[this.currentLanguage]?.[el.getAttribute('data-i18n-ph')];
+      if (v) el.placeholder = v;
     });
   }
 

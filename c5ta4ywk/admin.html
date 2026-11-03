@@ -6,7 +6,7 @@
   <title>Admin Panel - Upravljanje Menijem</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="admin-styles.css?v=20261103a">
+  <link rel="stylesheet" href="admin-styles.css?v=20261103b">
   <style>
     .size-recommendation { background: #e7f3ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #17a2b8; font-size: 0.8rem; line-height: 1.4; margin-top: 8px; }
     .size-recommendation strong { color: #0c5460; }
@@ -307,7 +307,7 @@
           <p style="margin:-6px 0 16px;color:#888;font-size:.82rem;font-weight:600;">
             <i class="fas fa-globe" style="color:#C6A664;margin-right:5px;"></i><span id="lblKodSajta">Kod sajta:</span> <b style="color:#333">c5ta4ywk</b>
             &nbsp;&nbsp;·&nbsp;&nbsp;
-            <i class="fas fa-signature" style="color:#C6A664;margin-right:5px;"></i><span id="lblNazivKafica">Naziv:</span> <b id="valNazivKafica" style="color:#333">–</b>
+            <i class="fas fa-signature" style="color:#C6A664;margin-right:5px;"></i><span id="lblNazivKafica" data-i18n="nameColon">Naziv:</span> <b id="valNazivKafica" style="color:#333">–</b>
           </p>
           <div class="dashboard-grid">
             <div class="dash-card"><div class="dc-icon"><i class="fas fa-layer-group"></i></div><div><div class="dc-num" id="statGlavneKategorije">–</div><div class="dc-lbl" id="lblGlavneKategorije">Glavne kategorije</div></div></div>
@@ -336,7 +336,7 @@
               <input type="file" class="form-control" id="ikonaGlavneKategorije" accept="image/*">
               <div class="size-recommendation"><i class="fas fa-info-circle" style="color: #17a2b8;"></i> <strong>Preporučena veličina:</strong> 64x64px | Format: PNG, JPG | Slika se automatski smanjuje pri uploadu</div>
               <input type="hidden" id="ikonaGlavneKategorijeExisting">
-              <button type="button" class="btn btn-sm" style="margin-top:8px;background:#2a2a3e;color:#C6A664;border:1.5px solid #C6A664;" onclick="window.adminController && window.adminController.openIconPicker('glavnaKategorija')"><i class="fas fa-icons"></i> Izaberi postojeću ikonu</button>
+              <button type="button" class="btn btn-sm" style="margin-top:8px;background:#2a2a3e;color:#C6A664;border:1.5px solid #C6A664;" onclick="window.adminController && window.adminController.openIconPicker('glavnaKategorija')"><i class="fas fa-icons"></i> <span data-i18n="chooseExistingIcon">Izaberi postojeću ikonu</span></button>
             </div>
             <div class="form-group">
               <label>Pregled ikone:</label>
@@ -345,23 +345,23 @@
             <div class="form-group">
               <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
                 <input type="checkbox" id="specijalnaPonudaGlavnaKategorija" style="width:auto;height:18px;">
-                <span>⭐ Specijalna ponuda</span>
+                <span data-i18n="specialOffer">⭐ Specijalna ponuda</span>
               </label>
             </div>
             <div class="form-group">
               <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
                 <input type="checkbox" id="sadrziAlkoholGlavnaKategorija" style="width:auto;height:18px;">
-                <span>🔞 Sadrži alkohol/cigarete (18+)</span>
+                <span data-i18n="containsAlcohol">🔞 Sadrži alkohol/cigarete (18+)</span>
               </label>
             </div>
             <div class="form-group" style="background:rgba(198,166,100,.08);border-radius:8px;padding:10px 12px;">
               <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;margin-bottom:6px;">
                 <input type="checkbox" id="primijeniAlkoholGlavnaKategorija" style="width:auto;height:18px;">
-                <span style="font-size:.85rem;">↳ Primijeni "Sadrži alkohol" i na SVE kategorije/podkategorije ispod ove</span>
+                <span style="font-size:.85rem;" data-i18n="applyAlcoholAll">↳ Primijeni "Sadrži alkohol" i na SVE kategorije/podkategorije ispod ove</span>
               </label>
               <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
                 <input type="checkbox" id="primijeniPromoGlavnaKategorija" style="width:auto;height:18px;">
-                <span style="font-size:.85rem;">↳ Primijeni "Specijalna ponuda" i na SVE kategorije/podkategorije ispod ove</span>
+                <span style="font-size:.85rem;" data-i18n="applyPromoAll">↳ Primijeni "Specijalna ponuda" i na SVE kategorije/podkategorije ispod ove</span>
               </label>
             </div>
             <div class="form-actions">
@@ -398,7 +398,7 @@
               <input type="file" class="form-control" id="ikonaKategorije" accept="image/*">
               <div class="size-recommendation"><i class="fas fa-info-circle" style="color: #17a2b8;"></i> <strong>Preporučena veličina:</strong> 64x64px | Format: PNG, JPG | Slika se automatski smanjuje pri uploadu</div>
               <input type="hidden" id="ikonaKategorijeExisting">
-              <button type="button" class="btn btn-sm" style="margin-top:8px;background:#2a2a3e;color:#C6A664;border:1.5px solid #C6A664;" onclick="window.adminController && window.adminController.openIconPicker('kategorija')"><i class="fas fa-icons"></i> Izaberi postojeću ikonu</button>
+              <button type="button" class="btn btn-sm" style="margin-top:8px;background:#2a2a3e;color:#C6A664;border:1.5px solid #C6A664;" onclick="window.adminController && window.adminController.openIconPicker('kategorija')"><i class="fas fa-icons"></i> <span data-i18n="chooseExistingIcon">Izaberi postojeću ikonu</span></button>
             </div>
             <div class="form-group">
               <label>Pregled ikone:</label>
@@ -407,23 +407,23 @@
             <div class="form-group">
               <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
                 <input type="checkbox" id="specijalnaPonudaKategorija" style="width:auto;height:18px;">
-                <span>⭐ Specijalna ponuda</span>
+                <span data-i18n="specialOffer">⭐ Specijalna ponuda</span>
               </label>
             </div>
             <div class="form-group">
               <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
                 <input type="checkbox" id="sadrziAlkoholKategorija" style="width:auto;height:18px;">
-                <span>🔞 Sadrži alkohol/cigarete (18+)</span>
+                <span data-i18n="containsAlcohol">🔞 Sadrži alkohol/cigarete (18+)</span>
               </label>
             </div>
             <div class="form-group" style="background:rgba(198,166,100,.08);border-radius:8px;padding:10px 12px;">
               <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;margin-bottom:6px;">
                 <input type="checkbox" id="primijeniAlkoholKategorija" style="width:auto;height:18px;">
-                <span style="font-size:.85rem;">↳ Primijeni "Sadrži alkohol" i na SVE podkategorije ispod ove</span>
+                <span style="font-size:.85rem;" data-i18n="applyAlcoholSub">↳ Primijeni "Sadrži alkohol" i na SVE podkategorije ispod ove</span>
               </label>
               <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
                 <input type="checkbox" id="primijeniPromoKategorija" style="width:auto;height:18px;">
-                <span style="font-size:.85rem;">↳ Primijeni "Specijalna ponuda" i na SVE podkategorije ispod ove</span>
+                <span style="font-size:.85rem;" data-i18n="applyPromoSub">↳ Primijeni "Specijalna ponuda" i na SVE podkategorije ispod ove</span>
               </label>
             </div>
             <div class="form-actions">
@@ -460,7 +460,7 @@
               <input type="file" class="form-control" id="ikonaPodkategorije" accept="image/*">
               <div class="size-recommendation"><i class="fas fa-info-circle" style="color: #17a2b8;"></i> <strong>Preporučena veličina:</strong> 64x64px | Format: PNG, JPG | Slika se automatski smanjuje pri uploadu</div>
               <input type="hidden" id="ikonaPodkategorijeExisting">
-              <button type="button" class="btn btn-sm" style="margin-top:8px;background:#2a2a3e;color:#C6A664;border:1.5px solid #C6A664;" onclick="window.adminController && window.adminController.openIconPicker('podkategorija')"><i class="fas fa-icons"></i> Izaberi postojeću ikonu</button>
+              <button type="button" class="btn btn-sm" style="margin-top:8px;background:#2a2a3e;color:#C6A664;border:1.5px solid #C6A664;" onclick="window.adminController && window.adminController.openIconPicker('podkategorija')"><i class="fas fa-icons"></i> <span data-i18n="chooseExistingIcon">Izaberi postojeću ikonu</span></button>
             </div>
             <div class="form-group">
               <label>Pregled ikone:</label>
@@ -469,13 +469,13 @@
             <div class="form-group">
               <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
                 <input type="checkbox" id="specijalnaPonudaPodkategorija" style="width:auto;height:18px;">
-                <span>⭐ Specijalna ponuda</span>
+                <span data-i18n="specialOffer">⭐ Specijalna ponuda</span>
               </label>
             </div>
             <div class="form-group">
               <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
                 <input type="checkbox" id="sadrziAlkoholPodkategorija" style="width:auto;height:18px;">
-                <span>🔞 Sadrži alkohol/cigarete (18+)</span>
+                <span data-i18n="containsAlcohol">🔞 Sadrži alkohol/cigarete (18+)</span>
               </label>
             </div>
             <div class="form-actions">
@@ -535,9 +535,9 @@
                   <div class="size-recommendation"><i class="fas fa-info-circle" style="color: #17a2b8;"></i> <strong>Preporučena veličina:</strong> 300x300px | Format: PNG, JPG | Slika se automatski smanjuje pri uploadu</div>
                 </div>
                 <div class="form-group">
-                  <label for="slikaArtiklaUrl"><i class="fas fa-link"></i> ILI nalijepi postojeći link slike <small class="text-muted">(ako je ista slika već negdje uploadovana — štedi prostor)</small></label>
+                  <label for="slikaArtiklaUrl"><i class="fas fa-link"></i> <span data-i18n="orPasteImageLink">ILI nalijepi postojeći link slike</span> <small class="text-muted" data-i18n="orPasteImageLinkHint">(ako je ista slika već negdje uploadovana — štedi prostor)</small></label>
                   <input type="text" class="form-control" id="slikaArtiklaUrl" placeholder="https://...">
-                  <button type="button" class="btn btn-sm" style="margin-top:8px;background:#2a2a3e;color:#C6A664;border:1.5px solid #C6A664;" onclick="window.adminController && window.adminController.openArtikalImagePicker()"><i class="fas fa-images"></i> Izaberi iz galerije postojećih slika</button>
+                  <button type="button" class="btn btn-sm" style="margin-top:8px;background:#2a2a3e;color:#C6A664;border:1.5px solid #C6A664;" onclick="window.adminController && window.adminController.openArtikalImagePicker()"><i class="fas fa-images"></i> <span data-i18n="chooseFromGallery">Izaberi iz galerije postojećih slika</span></button>
                 </div>
               </div>
             </div>
@@ -552,8 +552,8 @@
             <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
               <h4 style="margin:0"><i class="fas fa-list"></i> Lista Artikala</h4>
               <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <button type="button" onclick="window.adminController && window.adminController.sakrijSveArtikle()" class="btn btn-sm" style="background:#2a2a3e;color:#f87171;border:1.5px solid #f87171;font-weight:700"><i class="fas fa-eye-slash"></i> Sakrij sve artikle</button>
-                <button type="button" onclick="window.adminController && window.adminController.objaviSveArtikle()" class="btn btn-sm" style="background:#2a2a3e;color:#4ade80;border:1.5px solid #4ade80;font-weight:700"><i class="fas fa-eye"></i> Objavi sve artikle</button>
+                <button type="button" onclick="window.adminController && window.adminController.sakrijSveArtikle()" class="btn btn-sm" style="background:#2a2a3e;color:#f87171;border:1.5px solid #f87171;font-weight:700"><i class="fas fa-eye-slash"></i> <span data-i18n="hideAllItems">Sakrij sve artikle</span></button>
+                <button type="button" onclick="window.adminController && window.adminController.objaviSveArtikle()" class="btn btn-sm" style="background:#2a2a3e;color:#4ade80;border:1.5px solid #4ade80;font-weight:700"><i class="fas fa-eye"></i> <span data-i18n="publishAllItems">Objavi sve artikle</span></button>
               </div>
             </div>
             <div id="listaArtikala" class="list-container" style="max-height: 500px;"></div>
@@ -601,8 +601,8 @@
             <div class="form-section">
               <h4 id="siteNameHeader"><i class="fas fa-signature"></i> Naziv Kafića</h4>
               <div class="form-group">
-                <label for="pageTitle">Naziv <small class="text-muted" id="siteNameHint">(prikazuje se u Dashboard-u i kao naslov stranice u browseru)</small></label>
-                <input type="text" class="form-control" id="pageTitle" placeholder="npr. Casa Loca Borik">
+                <label for="pageTitle"><span data-i18n="name">Naziv</span> <small class="text-muted" id="siteNameHint">(prikazuje se u Dashboard-u i kao naslov stranice u browseru)</small></label>
+                <input type="text" class="form-control" id="pageTitle" placeholder="npr. Casa Loca Borik" data-i18n-ph="placeholderSiteName">
               </div>
               <div class="form-actions">
                 <button type="button" class="btn btn-primary" id="sacuvajNazivBtn"><i class="fas fa-save"></i> Sačuvaj</button>
@@ -612,43 +612,43 @@
 
             <!-- IZGLED SAJTA (boja i font) -->
             <div class="form-section">
-              <h4><i class="fas fa-palette"></i> Izgled Sajta</h4>
+              <h4><i class="fas fa-palette"></i> <span data-i18n="siteAppearance">Izgled Sajta</span></h4>
               <div class="form-group">
-                <label for="brandColor">Glavna boja <small class="text-muted">(zamjenjuje zlatnu boju svuda na sajtu — 18+ upozorenje ostaje uvijek crveno)</small></label>
+                <label for="brandColor"><span data-i18n="mainColor">Glavna boja</span> <small class="text-muted" data-i18n="mainColorHint">(zamjenjuje zlatnu boju svuda na sajtu — 18+ upozorenje ostaje uvijek crveno)</small></label>
                 <div style="display:flex;align-items:center;gap:12px;">
                   <input type="color" id="brandColor" value="#C6A664" style="width:60px;height:42px;padding:2px;border-radius:8px;border:1.5px solid rgba(198,166,100,.4);cursor:pointer;background:transparent;">
                   <input type="text" class="form-control" id="brandColorHex" placeholder="#C6A664" style="max-width:130px;" maxlength="7">
                 </div>
               </div>
               <div class="form-group">
-                <label for="brandFont">Font <small class="text-muted">(mijenja font na cijelom sajtu)</small></label>
+                <label for="brandFont">Font <small class="text-muted" data-i18n="fontHint">(mijenja font na cijelom sajtu)</small></label>
                 <select class="form-control" id="brandFont">
-                  <option value="">Podrazumijevani (Segoe UI)</option>
+                  <option value="" data-i18n="fontDefault">Podrazumijevani (Segoe UI)</option>
                   <option value="Poppins">Poppins</option>
                   <option value="Montserrat">Montserrat</option>
-                  <option value="Playfair Display">Playfair Display (elegantan)</option>
+                  <option value="Playfair Display" data-i18n="fontPlayfair">Playfair Display (elegantan)</option>
                   <option value="Lato">Lato</option>
                   <option value="Roboto">Roboto</option>
                   <option value="Raleway">Raleway</option>
                 </select>
               </div>
               <div class="form-group">
-                <label for="backgroundMode">Pozadina <small class="text-muted">(tekst se automatski prilagođava da ostane čitljiv)</small></label>
+                <label for="backgroundMode"><span data-i18n="background">Pozadina</span> <small class="text-muted" data-i18n="backgroundHint">(tekst se automatski prilagođava da ostane čitljiv)</small></label>
                 <select class="form-control" id="backgroundMode">
-                  <option value="dark">Tamna (trenutno)</option>
-                  <option value="light">Svijetla</option>
+                  <option value="dark" data-i18n="bgDark">Tamna (trenutno)</option>
+                  <option value="light" data-i18n="bgLight">Svijetla</option>
                 </select>
               </div>
               <div class="form-group" id="backgroundColorGroup">
-                <label for="backgroundColor">Nijansa pozadine</label>
+                <label for="backgroundColor" data-i18n="backgroundShade">Nijansa pozadine</label>
                 <div style="display:flex;align-items:center;gap:12px;">
                   <input type="color" id="backgroundColor" value="#1C1C1C" style="width:60px;height:42px;padding:2px;border-radius:8px;border:1.5px solid rgba(198,166,100,.4);cursor:pointer;background:transparent;">
                   <input type="text" class="form-control" id="backgroundColorHex" placeholder="#1C1C1C" style="max-width:130px;" maxlength="7">
                 </div>
               </div>
               <div class="form-actions">
-                <button type="button" class="btn btn-primary" id="sacuvajIzgledBtn"><i class="fas fa-save"></i> Sačuvaj</button>
-                <button type="button" class="btn btn-secondary" id="resetIzgledBtn"><i class="fas fa-eraser"></i> Vrati na podrazumijevano</button>
+                <button type="button" class="btn btn-primary" id="sacuvajIzgledBtn"><i class="fas fa-save"></i> <span data-i18n="save">Sačuvaj</span></button>
+                <button type="button" class="btn btn-secondary" id="resetIzgledBtn"><i class="fas fa-eraser"></i> <span data-i18n="resetToDefault">Vrati na podrazumijevano</span></button>
               </div>
             </div>
 
@@ -752,8 +752,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Include Translation Manager -->
-  <script src="translation-manager.js?v=20261103a"></script>
-  <script type="module" src="js/admin-controller.js?v=20261103a"></script>
+  <script src="translation-manager.js?v=20261103b"></script>
+  <script type="module" src="js/admin-controller.js?v=20261103b"></script>
 <script>
 // Hamburger meni (fioka sa strane) — samo na mobilnom
 (function () {
@@ -907,11 +907,11 @@ function otvoriSimpleCjenovnikModal() {
 <div id="iconPickerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:5000;align-items:flex-start;justify-content:center;padding:30px 16px;overflow-y:auto;">
   <div style="background:#1a1a1a;border:1px solid rgba(198,166,100,.3);border-radius:16px;max-width:640px;width:100%;padding:24px;">
     <h2 style="font-family:'Playfair Display',serif;color:#C6A664;font-size:1.15rem;margin-bottom:16px;display:flex;align-items:center;gap:9px;"><i class="fas fa-icons"></i> <span id="iconPickerTitle">Izaberi postojeću ikonu</span></h2>
-    <input type="text" id="iconPickerSearch" class="form-control" placeholder="Pretraži po nazivu...">
+    <input type="text" id="iconPickerSearch" class="form-control" placeholder="Pretraži po nazivu..." data-i18n-ph="placeholderSearchByName">
     <div id="iconPickerStatus" style="color:#8f887a;font-size:.8rem;margin-top:8px;">Učitavanje...</div>
     <div id="iconPickerGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;max-height:420px;overflow-y:auto;margin-top:12px;"></div>
     <div style="display:flex;justify-content:flex-end;margin-top:18px;">
-      <button type="button" class="btn btn-secondary" onclick="window.adminController && window.adminController.closeIconPicker()">Zatvori</button>
+      <button type="button" class="btn btn-secondary" onclick="window.adminController && window.adminController.closeIconPicker()" data-i18n="close">Zatvori</button>
     </div>
   </div>
 </div>

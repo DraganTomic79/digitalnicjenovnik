@@ -629,14 +629,14 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     const search = document.getElementById('iconPickerSearch');
     const title = document.getElementById('iconPickerTitle');
     if (!modal) return;
-    if (title) title.textContent = 'Izaberi postojeću ikonu';
+    if (title) title.textContent = window.t ? window.t('chooseExistingIcon', 'Izaberi postojeću ikonu') : 'Izaberi postojeću ikonu';
     modal.style.display = 'flex';
     if (search) { search.value = ''; search.oninput = () => this.renderIconPickerGrid(search.value); }
-    if (status) status.textContent = 'Učitavanje...';
+    if (status) status.textContent = window.t ? window.t('loading', 'Učitavanje...') : 'Učitavanje...';
 
     await this.loadAllIcons();
     this.state.pickerItems = this.state.svihIkona;
-    if (status) status.textContent = `${this.state.pickerItems.length} dostupnih ikona (sa sva 4 kafića)`;
+    if (status) status.textContent = (window.t ? window.t('iconCount', '{n} dostupnih ikona (sa sva 4 kafića)') : '{n} dostupnih ikona (sa sva 4 kafića)').replace('{n}', this.state.pickerItems.length);
     this.renderIconPickerGrid('');
   }
 
@@ -648,10 +648,10 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     const search = document.getElementById('iconPickerSearch');
     const title = document.getElementById('iconPickerTitle');
     if (!modal) return;
-    if (title) title.textContent = 'Izaberi postojeću sliku artikla';
+    if (title) title.textContent = window.t ? window.t('pickImageTitle', 'Izaberi postojeću sliku artikla') : 'Izaberi postojeću sliku artikla';
     modal.style.display = 'flex';
     if (search) { search.value = ''; search.oninput = () => this.renderIconPickerGrid(search.value); }
-    if (status) status.textContent = 'Učitavanje...';
+    if (status) status.textContent = window.t ? window.t('loading', 'Učitavanje...') : 'Učitavanje...';
 
     // Pretraga artikala već učitava sve sa sva 4 kafića za automatsko popunjavanje —
     // ovdje samo sačekamo da to (ako još nije) stigne, bez novog upita ka bazi
@@ -681,7 +681,7 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
     const lista = (this.state.pickerItems || []).filter(i => !f || i.naziv.toLowerCase().includes(f));
 
     if (lista.length === 0) {
-      grid.innerHTML = '<p style="color:#8f887a;grid-column:1/-1;text-align:center;padding:20px 0;">Nema rezultata</p>';
+      grid.innerHTML = '<p style="color:#8f887a;grid-column:1/-1;text-align:center;padding:20px 0;"'+(window.t ? window.t('noResults', 'Nema rezultata') : 'Nema rezultata')+'</p>';
       return;
     }
 
