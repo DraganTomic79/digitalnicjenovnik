@@ -122,6 +122,7 @@ class IndexTranslationManager {
     if (window.menuApp && window.menuApp.refreshWithTranslations) {
       window.menuApp.refreshWithTranslations();
     }
+    setTimeout(() => this.showMissingPanel(), 300);
     
   }
 
@@ -129,38 +130,111 @@ class IndexTranslationManager {
     return this.translations[this.currentLanguage]?.[key] || defaultText;
   }
 
+  // Normalizacija za poređenje: bez razmaka na krajevima, višestrukih razmaka i razlike velikih/malih slova
+  _norm(text) {
+    return String(text).replace(/\s+/g, ' ').trim().toLowerCase();
+  }
+
+  // Traži prevod u rječniku: tačno poklapanje, pa poklapanje bez obzira na velika/mala slova i razmake
+  _lookup(type, text) {
+    const dict = this.translations[this.currentLanguage]?.[type];
+    if (!dict || !text) return null;
+    if (dict[text]) return dict[text];
+    this._indexCache = this._indexCache || {};
+    const cacheKey = this.currentLanguage + '|' + type;
+    if (!this._indexCache[cacheKey]) {
+      const idx = {};
+      Object.keys(dict).forEach(k => { const n = this._norm(k); if (!(n in idx)) idx[n] = dict[k]; });
+      this._indexCache[cacheKey] = idx;
+    }
+    return this._indexCache[cacheKey][this._norm(text)] || null;
+  }
+
+  // Jedinice mjere u opisima (gr -> g, lit -> liter) kad za cijeli opis ne postoji prevod
+  _translateUnits(text) {
+    const liter = this.currentLanguage === 'de' ? 'Liter' : 'liter';
+    return text
+      .replace(/(\d)\s*gr\b\.?/gi, '$1 g')
+      .replace(/(\d)\s*lit\b\.?/gi, '$1 ' + liter);
+  }
+
+  // Bilježi neprevedene tekstove (koristi se samo za pomoćni prikaz ?prevodi=1)
+  _noteMissing(type, text) {
+    if (!text || !String(text).trim()) return;
+    this.missing = this.missing || { categories: new Set(), items: new Set(), descriptions: new Set() };
+    this.missing[type].add(String(text).trim());
+  }
+
   // Prevedi naziv kategorije/podkategorije
   translateCategory(categoryName) {
     if (!categoryName) return categoryName;
     if (this.currentLanguage === 'sr') return categoryName;
-    const translation = this.translations[this.currentLanguage]?.categories?.[categoryName];
+    const translation = this._lookup('categories', categoryName);
+    if (!translation) this._noteMissing('categories', categoryName);
     return translation || categoryName;
   }
 
-  // NOVA FUNKCIJA - Prevedi naziv artikla
+  // Prevedi naziv artikla
   translateItem(itemName) {
     if (!itemName) return itemName;
     if (this.currentLanguage === 'sr') return itemName;
-    const translation = this.translations[this.currentLanguage]?.items?.[itemName];
+    const translation = this._lookup('items', itemName);
+    if (!translation) this._noteMissing('items', itemName);
     return translation || itemName;
   }
 
-  // NOVA FUNKCIJA - Prevedi opis artikla
+  // Prevedi opis artikla: cijeli opis; ako ga nema, dijelovi odvojeni sa " / " ili ","; pa jedinice mjere
   translateDescription(description) {
     if (!description) return description;
     if (this.currentLanguage === 'sr') return description;
-    const translation = this.translations[this.currentLanguage]?.descriptions?.[description];
-    return translation || description;
+    const whole = this._lookup('descriptions', description);
+    if (whole) return whole;
+
+    const unitFixed = this._translateUnits(description);
+    const sepMatch = description.match(/\s\/\s/) ? /\s\/\s/ : null;
+    if (sepMatch) {
+      let anyMissing = false;
+      const parts = description.split(sepMatch).map(part => {
+        const t = this._lookup('descriptions', part) || this._lookup('descriptions', this._translateUnits(part));
+        if (t) return t;
+        const u = this._translateUnits(part);
+        if (u === part) anyMissing = true;
+        return u;
+      });
+      if (anyMissing) this._noteMissing('descriptions', description);
+      return parts.join(' / ');
+    }
+    if (unitFixed === description) this._noteMissing('descriptions', description);
+    return unitFixed;
   }
 
-  // NOVA FUNKCIJA - Prevedi bilo koji tekst (naziv ili opis)
+  // Prevedi bilo koji tekst (naziv ili opis)
   translateText(text, type = 'item') {
     if (!text) return text;
     if (this.currentLanguage === 'sr') return text;
-    
-    const translationKey = type === 'description' ? 'descriptions' : 'items';
-    const translation = this.translations[this.currentLanguage]?.[translationKey]?.[text];
-    return translation || text;
+    return type === 'description' ? this.translateDescription(text) : this.translateItem(text);
+  }
+
+  // Pomoćni prikaz neprevedenih tekstova: otvoriti stranicu sa ?prevodi=1, izabrati EN ili DE
+  showMissingPanel() {
+    if (!/[?&]prevodi=1/.test(location.search)) return;
+    let box = document.getElementById('missingTranslationsBox');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'missingTranslationsBox';
+      box.style.cssText = 'position:fixed;left:8px;right:8px;bottom:8px;max-height:45vh;overflow:auto;background:#111;color:#eee;font:12px/1.4 monospace;padding:10px;border:2px solid #C6A664;border-radius:8px;z-index:99999;white-space:pre-wrap;';
+      document.body.appendChild(box);
+    }
+    const m = this.missing || { categories: new Set(), items: new Set(), descriptions: new Set() };
+    const out = { categories: [...m.categories], items: [...m.items], descriptions: [...m.descriptions] };
+    const txt = JSON.stringify(out, null, 1);
+    box.innerHTML = '';
+    const btn = document.createElement('button');
+    btn.textContent = 'Kopiraj listu neprevedenih (' + this.currentLanguage.toUpperCase() + ')';
+    btn.style.cssText = 'display:block;margin-bottom:8px;padding:6px 10px;';
+    btn.onclick = () => { try { navigator.clipboard.writeText(txt); btn.textContent = 'Kopirano ✓'; } catch (e) { btn.textContent = 'Označite i kopirajte ručno'; } };
+    box.appendChild(btn);
+    box.appendChild(document.createTextNode(txt));
   }
 
   // Ažuriraj Hero sekciju sa prevodima
