@@ -904,8 +904,20 @@ this.addHandler(p.resetPostavke, 'click', () => this.handleLogo('reset'));
       } else if (data.existingIconUrl) {
         imageURL = data.existingIconUrl;
       }
+      Utils.setLoadingState(elements.sacuvaj, true);
       const updateData = this.prepareUpdateData(entityType, data, imageURL, currentEntity); 
       await config.services.update(editId, updateData);
+
+      // Preimenovana podkategorija: artikli su vezani za NAZIV, pa ih prebaci na novi naziv
+      if (entityType === 'podkategorija' && currentEntity && currentEntity.naziv && updateData.naziv && currentEntity.naziv !== updateData.naziv) {
+        try {
+          const n = await FirebaseService.preimenujPodkategorijuUArtiklima(currentEntity.naziv, updateData.naziv, editId);
+          if (n > 0) Utils.prikaziPoruku(`Naziv ažuriran i na ${n} artikala`, 'info');
+        } catch (renameErr) {
+          Utils.debug.error('Greška preimenovanja u artiklima:', renameErr);
+          Utils.prikaziPoruku('Podkategorija sačuvana, ali artikli nisu prebačeni na novi naziv — provjeri ručno', 'warning');
+        }
+      }
 
       const primijeniNesto = data.primijeniAlkohol || data.primijeniPromo;
       if (primijeniNesto && (entityType === 'glavnaKategorija' || entityType === 'kategorija')) {
@@ -2286,12 +2298,17 @@ async removeLogo() {
     if (pageTitle) pageTitle.value = "";
   }
 
-  /** Čuva izabranu brend boju i font */
+  /** Čuva izabranu brend boju, font i pozadinu */
   async saveBrandTheme() {
-    const { brandColor, brandColorHex, sacuvajIzgled } = this.elements.postavke;
+    const { brandColor, brandColorHex, backgroundColor, backgroundColorHex, sacuvajIzgled } = this.elements.postavke;
     const hexVrijednost = brandColorHex?.value.trim() || brandColor?.value || "";
     if (hexVrijednost && !/^#[0-9A-Fa-f]{6}$/.test(hexVrijednost)) {
       Utils.prikaziPoruku('Neispravan format boje — koristi format #RRGGBB (npr. #C6A664)', 'error');
+      return;
+    }
+    const bgHexVrijednost = backgroundColorHex?.value.trim() || backgroundColor?.value || "";
+    if (bgHexVrijednost && !/^#[0-9A-Fa-f]{6}$/.test(bgHexVrijednost)) {
+      Utils.prikaziPoruku('Neispravan format boje pozadine — koristi format #RRGGBB', 'error');
       return;
     }
     try {

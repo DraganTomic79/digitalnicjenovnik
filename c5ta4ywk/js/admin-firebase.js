@@ -328,3 +328,21 @@ async function postaviAktivnostSvihArtikala(noviStatus) {
 
 export const sakrijSveArtikle = () => postaviAktivnostSvihArtikala(false);
 export const objaviSveArtikle = () => postaviAktivnostSvihArtikala(true);
+
+/* PREIMENOVANJE PODKATEGORIJE — artikli su vezani za NAZIV podkategorije, pa se pri promjeni naziva
+   isti naziv upisuje i u sve njene artikle (inače bi artikli "ostali bez" podkategorije na sajtu). */
+export async function preimenujPodkategorijuUArtiklima(stariNaziv, noviNaziv, podkategorijaId) {
+  if (!stariNaziv || !noviNaziv || stariNaziv === noviNaziv) return 0;
+  const snap = await getDocs(query(collection(db, CONFIG.collections.artikli), where('podkategorija', '==', stariNaziv)));
+  const docs = snap.docs;
+  for (let i = 0; i < docs.length; i += 450) {
+    const batch = writeBatch(db);
+    docs.slice(i, i + 450).forEach(d => {
+      const upd = { podkategorija: noviNaziv, azurirano: new Date().toISOString() };
+      if (podkategorijaId) upd.podkategorijaId = podkategorijaId;
+      batch.update(d.ref, upd);
+    });
+    await batch.commit();
+  }
+  return docs.length;
+}

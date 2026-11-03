@@ -34,7 +34,6 @@ class MenuApp {
 
   /* Pokretanje aplikacije - učitava podatke, postavlja listenere i inicira UI */
   async initializeApp() {
-    console.log('Starting MenuApp...');
     await this.waitForTranslationManager();
     try { 
       await Promise.all([this.loadInitialData(), this.loadWebSettings()]); 
@@ -48,14 +47,12 @@ class MenuApp {
 
   /* Osvježava UI kada se promijene prijevodi */
   refreshWithTranslations() {
-    console.log('Refreshing UI with new translations...');
     this.createMainTabs();
   }
 
   /* Učitava početne podatke iz svih kolekcija */
   async loadInitialData() {
     try {
-      console.log('Loading initial data...');
       /* Paralelno učitavanje svih kolekcija za bolju performansu */
       const [glavneKatSnapshot, katSnapshot, podkatSnapshot, meniSnapshot] = await Promise.all([
         this.loadCollection('glavne-kategorije'), 
@@ -66,7 +63,6 @@ class MenuApp {
       this.resetState(); 
       this.processSnapshots(glavneKatSnapshot, katSnapshot, podkatSnapshot, meniSnapshot); 
       this.sortDataArrays();
-      console.log(`Loaded: ${this.state.allMainCategories.length} main, ${this.state.allCategories.length} categories, ${this.state.allSubcategories.length} subcategories, ${this.state.allItems.length} items`);
       this.createMainTabs();
     } catch (error) { 
       console.error('Data loading error:', error); 

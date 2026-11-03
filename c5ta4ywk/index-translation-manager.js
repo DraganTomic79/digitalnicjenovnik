@@ -12,7 +12,6 @@ class IndexTranslationManager {
     try {
       const response = await fetch('./index-translations.json');
       this.translations = await response.json();
-      console.log('Index prevodi učitani');
     } catch (error) {
       console.error('Greška pri učitavanju prevoda:', error);
       this.translations = {
@@ -92,7 +91,6 @@ class IndexTranslationManager {
       btn.addEventListener('click', () => this.changeLanguage(langCode));
     });
     
-    console.log(`Postavljeno ${languageButtons.length} jezičkih dugmadi`);
   }
 
   changeLanguage(languageCode) {
@@ -115,7 +113,7 @@ class IndexTranslationManager {
     
     // Primeni prevode
     this.applyTranslations();
-    document.title = this.t('pageTitle');
+    // Naslov taba dolazi iz baze (pageTitle u postavkama) — ne prepisuje se prevodom
     
     // Ažuriraj Hero sekciju
     this.updateHeroSection();
@@ -125,7 +123,6 @@ class IndexTranslationManager {
       window.menuApp.refreshWithTranslations();
     }
     
-    console.log(`Jezik promenjen na: ${languageCode}`);
   }
 
   t(key, defaultText = key) {
@@ -242,7 +239,7 @@ class IndexTranslationManager {
     if (scrollBtn) scrollBtn.setAttribute('aria-label', this.t('backToTop'));
 
     // Page title
-    document.title = this.t('pageTitle');
+    // Naslov taba dolazi iz baze (pageTitle u postavkama) — ne prepisuje se prevodom
     
     // Ažuriraj Hero sekciju
     this.updateHeroSection();
