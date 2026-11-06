@@ -10,10 +10,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Konobar">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=20261108d">
+<link rel="manifest" href="manifest.webmanifest?v=20261108e">
 <link rel="icon" type="image/png" sizes="192x192" href="ikona-192.png?v=3">
 <link rel="apple-touch-icon" href="ikona-180.png?v=3">
-<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261108d">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261108e">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -136,6 +136,13 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .col.menu{border-right:1px solid var(--line)}
 .col h3{margin:0;padding:12px 16px 6px;font-size:.8rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
 .search{margin:0 16px 8px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);width:calc(100% - 32px)}
+.whowrap{position:relative;margin-left:auto}
+.whopop{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:8;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;min-width:220px;max-height:50vh;overflow:auto;box-shadow:var(--shadow)}
+.whopop.show{display:block}
+.whopop label{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;font-weight:600}
+.whopop label:hover{background:var(--panel2)}
+.whopop input{width:18px;height:18px;accent-color:var(--accent)}
+.whopop hr{border:0;border-top:1px solid var(--line);margin:4px 0}
 .cats{scrollbar-width:thin;scrollbar-color:var(--line) transparent;display:flex;gap:6px;overflow-x:auto;padding:0 16px 8px;flex-shrink:0}
 .cats button{white-space:nowrap;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);font-size:.8rem}
 .cats button.on{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -448,7 +455,7 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
       <button class="btn ghost sm" id="pmPrev" type="button">‹</button>
       <h3 id="pmMonth"></h3>
       <button class="btn ghost sm" id="pmNext" type="button">›</button>
-      <select class="chip" id="pmWho" style="display:none"></select>
+      <div class="whowrap" id="pmWho" style="display:none"><button class="chip" id="pmWhoBtn" type="button">Svi konobari ▾</button><div class="whopop" id="pmWhoPop"></div></div>
     </div>
     <div class="cal-body">
       <div class="cal" id="pmCal"></div>
@@ -486,14 +493,14 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261108d
+   KONOBAR – verzija 20261108e
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261108d';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261108e';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic3.js?v=20261108d';
+import { db, auth } from '../firebase-config-kafic3.js?v=20261108e';
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
@@ -504,10 +511,10 @@ import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12
 const ZONES = [{ id: 'enterijer', name: 'Enterijer' }, { id: 'basta', name: 'Bašta' }];
 const DEFAULT_SIZE = 64;
 const S = { zone: 'enterijer', editMode: false, profile: null, tables: [], orders: {}, sales: {}, today: [], theme: 'dark', dragging: false };
-const tName = t => t.oblik === 'sank' ? String(t.broj) : 'Sto ' + t.broj;
+const tName = t => (t.oblik === 'sank' ? 'Šank ' : 'Sto ') + t.broj;   // na platnu stoji samo broj; u tekstu (narudžba, stiker, račun) i naziv
 const menu = { items: [], subcats: [], currency: '', cafe: '' };
 const raw = { meni: [], podkategorije: [], kategorije: [] };
-const ui = { openTable: null, cat: '★', q: '', pane: 'menu', editTable: null, pm: { ym: '', day: '', who: '', docs: [] } };
+const ui = { openTable: null, cat: '★', q: '', pane: 'menu', editTable: null, pm: { ym: '', day: '', sel: new Set(), who: new Map(), docs: [] } };
 let unsubs = [];
 
 /* ---------- POMOĆNO ---------- */
@@ -986,7 +993,7 @@ function showReceipt(r, when) {
 /* ---------- PROMET: kalendar po danima ---------- */
 function openPromet() {
   const now = new Date();
-  ui.pm = { ym: monthStr(now), day: dayStr(now), who: '', docs: [] };
+  ui.pm = { ym: monthStr(now), day: dayStr(now), sel: new Set(), who: new Map(), docs: [] };
   $('pmTitle').textContent = isAdmin() ? 'Promet' : 'Moj promet';
   $('pmWho').style.display = isAdmin() ? '' : 'none';
   $('pmOv').classList.add('show'); loadMonth();
@@ -1001,13 +1008,24 @@ async function loadMonth() {
   } catch (err) { fail('čitanje prometa', err); ui.pm.docs = []; }
   if (isAdmin()) {
     const who = new Map(); ui.pm.docs.forEach(r => who.set(r.konobarEmail, r.konobarIme));
-    const sel = $('pmWho'); sel.textContent = ''; sel.append(h('option', { value: '', text: 'Svi konobari' }));
-    who.forEach((n, e) => sel.append(h('option', { value: e, text: n })));
-    sel.value = who.has(ui.pm.who) ? ui.pm.who : ''; ui.pm.who = sel.value;
+    ui.pm.who = who; ui.pm.sel = new Set([...ui.pm.sel].filter(e => who.has(e)));
+    renderWho();
   }
   renderCal();
 }
-const pmDocs = () => ui.pm.docs.filter(r => !ui.pm.who || r.konobarEmail === ui.pm.who);
+const pmDocs = () => ui.pm.docs.filter(r => !ui.pm.sel.size || ui.pm.sel.has(r.konobarEmail));
+function renderWho() {
+  const pop = $('pmWhoPop'); pop.textContent = '';
+  const all = h('input', { type: 'checkbox' }); all.checked = ui.pm.sel.size === 0; all.addEventListener('change', () => { ui.pm.sel.clear(); renderWho(); renderCal(); });
+  pop.append(h('label', {}, all, h('span', { text: 'Svi konobari' })), h('hr'));
+  ui.pm.who.forEach((n, e) => {
+    const cb = h('input', { type: 'checkbox' }); cb.checked = ui.pm.sel.has(e);
+    cb.addEventListener('change', () => { cb.checked ? ui.pm.sel.add(e) : ui.pm.sel.delete(e); if (ui.pm.sel.size === ui.pm.who.size) ui.pm.sel.clear(); renderWho(); renderCal(); });
+    pop.append(h('label', {}, cb, h('span', { text: n })));
+  });
+  const n = ui.pm.sel.size;
+  $('pmWhoBtn').textContent = (n === 0 ? 'Svi konobari' : n === 1 ? ui.pm.who.get([...ui.pm.sel][0]) : n + ' konobara') + ' ▾';
+}
 function renderCal() {
   const { ym } = ui.pm, [y, m] = ym.split('-').map(Number), first = new Date(y, m - 1, 1), days = new Date(y, m, 0).getDate();
   const lead = (first.getDay() + 6) % 7, byDay = {};
@@ -1029,7 +1047,7 @@ function renderDay() {
   box.append(h('h4', { text: `${dayLabel(k)} — ${fmt(tot)} · ${rs.length} računa` }));
   const mt = pmDocs().reduce((s, r) => s + r.ukupno, 0);
   box.append(h('div', { class: 'sumline' }, h('span', { text: 'Ukupno za mjesec' }), h('b', { text: fmt(mt) })));
-  if (isAdmin() && !ui.pm.who && rs.length) {
+  if (isAdmin() && ui.pm.sel.size !== 1 && rs.length) {
     const by = {}; rs.forEach(r => { by[r.konobarIme] = (by[r.konobarIme] || 0) + r.ukupno; });
     Object.entries(by).forEach(([n, v]) => box.append(h('div', { class: 'sumline' }, h('span', { text: 'Konobar: ' + n }), h('b', { text: fmt(v) }))));
   }
@@ -1046,7 +1064,7 @@ function renderDay() {
 function loadScript(src) { return new Promise((ok, no) => { if ([...document.scripts].some(s => s.src === src)) return ok(); const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => no(new Error('Biblioteka nije učitana: ' + src)); document.head.appendChild(s); }); }
 function reportNode(kind) {
   const rs = kind === 'day' ? pmDocs().filter(r => r.dan === ui.pm.day) : pmDocs();
-  const who = ui.pm.who ? (rs[0] ? rs[0].konobarIme : '') : 'Svi konobari';
+  const who = ui.pm.sel.size ? [...ui.pm.sel].map(e => ui.pm.who.get(e)).join(', ') : 'Svi konobari';
   const period = kind === 'day' ? dayLabel(ui.pm.day) : `${MONTHS[+ui.pm.ym.slice(5) - 1]} ${ui.pm.ym.slice(0, 4)}`;
   const tot = rs.reduce((s, r) => s + r.ukupno, 0), cur = menu.currency ? ' ' + menu.currency : '';
   const root = h('div', {}, h('h1', { text: (menu.cafe || 'Kafić') + ' – izvještaj o prometu' }),
@@ -1060,7 +1078,7 @@ function reportNode(kind) {
     root.append(h('h3', { text: 'Računi' }), tbl(['Vrijeme', 'Sto', 'Konobar', 'Stavke', 'Iznos'], rs.sort((a, b) => a.ts - b.ts).map(r => [new Date(r.ts).toLocaleTimeString('sr-Latn-BA', { hour: '2-digit', minute: '2-digit' }), r.stolNaziv || ('Sto ' + r.stolBroj), r.konobarIme, r.stavke.map(l => `${l.kol}× ${l.naziv}`).join(', '), money(r.ukupno)])));
   }
   const wb = {}; rs.forEach(r => { wb[r.konobarIme] = (wb[r.konobarIme] || { n: 0, s: 0 }); wb[r.konobarIme].n++; wb[r.konobarIme].s += r.ukupno; });
-  if (Object.keys(wb).length > 1 || !ui.pm.who) root.append(h('h3', { text: 'Po konobarima' }), tbl(['Konobar', 'Računa', 'Iznos'], Object.entries(wb).map(([n, v]) => [n, String(v.n), money(v.s)])));
+  if (Object.keys(wb).length > 1 || ui.pm.sel.size === 0) root.append(h('h3', { text: 'Po konobarima' }), tbl(['Konobar', 'Računa', 'Iznos'], Object.entries(wb).map(([n, v]) => [n, String(v.n), money(v.s)])));
   const it = {}; rs.forEach(r => r.stavke.forEach(l => { it[l.naziv] = (it[l.naziv] || { k: 0, s: 0 }); it[l.naziv].k += l.kol; it[l.naziv].s += l.kol * l.cijena; }));
   const top = Object.entries(it).sort((a, b) => b[1].k - a[1].k).slice(0, 15);
   if (top.length) root.append(h('h3', { text: 'Najprodavaniji artikli' }), tbl(['Artikal', 'Količina', 'Iznos'], top.map(([n, v]) => [n, String(v.k), money(v.s)])));
@@ -1160,7 +1178,8 @@ $('turnBtn').addEventListener('click', openPromet);
 $('pmClose').addEventListener('click', () => $('pmOv').classList.remove('show'));
 $('pmPrev').addEventListener('click', () => { const [y, m] = ui.pm.ym.split('-').map(Number); const d = new Date(y, m - 2, 1); ui.pm.ym = monthStr(d); ui.pm.day = dayStr(d); loadMonth(); });
 $('pmNext').addEventListener('click', () => { const [y, m] = ui.pm.ym.split('-').map(Number); const d = new Date(y, m, 1); ui.pm.ym = monthStr(d); ui.pm.day = dayStr(d); loadMonth(); });
-$('pmWho').addEventListener('change', e => { ui.pm.who = e.target.value; renderCal(); });
+$('pmWhoBtn').addEventListener('click', e => { e.stopPropagation(); $('pmWhoPop').classList.toggle('show'); });
+document.addEventListener('click', e => { if (!e.target.closest('#pmWho')) $('pmWhoPop').classList.remove('show'); });
 $('pdfDay').addEventListener('click', () => makePdf('day'));
 $('pdfMonth').addEventListener('click', () => makePdf('month'));
 $('staffBtn').addEventListener('click', openStaff);
@@ -1184,7 +1203,7 @@ $('installBtn').addEventListener('click', async () => {
   if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('installBtn').style.display = 'none'; }
   else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
 });
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261108d').catch(e => console.warn('SW', e)));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261108e').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
