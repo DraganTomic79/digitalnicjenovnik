@@ -1,10 +1,18 @@
 <!DOCTYPE html>
-<html lang="sr-Latn-BA">
+<html lang="sr-Latn-BA" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Konobar – Stolovi i narudžbe</title>
-<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261106b">
+<meta name="theme-color" content="#14151a">
+<meta name="color-scheme" content="dark light">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Konobar">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest?v=20261106c">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261106c">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261106c">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -66,7 +74,7 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);text-align:center;padding:20px;pointer-events:none}
 
 /* ===== STO ===== */
-.table{--sz:calc(var(--base,64) * var(--scale,1) * 1px);--ow:calc(var(--sz) * 1.44);position:absolute;width:var(--ow);height:var(--ow);font-size:max(9px,calc(var(--sz) / 6));user-select:none;text-align:center;touch-action:none}
+.table{--sz:calc(var(--base,64) * var(--scale,1) * 1px);--ow:calc(var(--sz) * 1.44);position:absolute;--oh:var(--ow);width:var(--ow);height:var(--oh);font-size:max(9px,calc(var(--sz) / 6));user-select:none;text-align:center;touch-action:none}
 .table .body{position:absolute;inset:calc(var(--sz) * .22);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;border:3px solid var(--free);background:var(--free-bg);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.1);transition:background .15s,border-color .15s}
 .table.round .body{border-radius:50%}
 .table.square .body{border-radius:14%}
@@ -74,10 +82,16 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .table .no{font-weight:800;font-size:1.5em}
 .table .meta{font-size:.72em;color:var(--muted)}
 .table .sum{font-size:.95em;font-weight:800;color:var(--busy)}
-.chair{position:absolute;width:13.9%;height:13.9%;transform:translate(-50%,-50%);background:var(--panel);border:2px solid var(--free);box-sizing:border-box}
+.chair{position:absolute;width:calc(var(--sz) * .2);height:calc(var(--sz) * .2);transform:translate(-50%,-50%);background:var(--panel);border:2px solid var(--free);box-sizing:border-box}
 .table.round .chair{border-radius:50%}
 .table.square .chair{border-radius:24%}
 .table.busy .chair{border-color:var(--busy);background:var(--busy-bg)}
+/* ŠANK: duga pregrada sa barskim stolicama ispred */
+.table.sank{--ow:calc(var(--sz) * 3.64);--oh:calc(var(--sz) * 1.2)}
+.table.sank .body{inset:calc(var(--sz) * .1) calc(var(--sz) * .22) calc(var(--sz) * .48) calc(var(--sz) * .22);border-radius:12px;flex-direction:row;gap:.6em;flex-wrap:nowrap}
+.table.sank .chair{border-radius:50%}
+.table.sank .no{font-size:1.25em;white-space:nowrap}
+.table.sank .meta{display:none}
 .table .wtr{position:absolute;top:2px;left:2px;width:21px;height:21px;border-radius:50%;background:var(--accent);color:#fff;font-size:.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:2}
 .canvas.editing .table{cursor:grab}
 .canvas.editing .table .body{border-style:dashed}
@@ -144,7 +158,7 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .form input,.form select{padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2)}
 .form .full{grid-column:1/-1}
 .form input[type=range]{padding:0}
-.preview{display:flex;align-items:center;justify-content:center;height:110px;background:var(--panel2);border-radius:10px;border:1px dashed var(--line)}
+.preview{display:flex;align-items:center;justify-content:center;overflow:auto;height:110px;background:var(--panel2);border-radius:10px;border:1px dashed var(--line)}
 /* račun */
 .receipt{font-family:ui-monospace,Menlo,Consolas,monospace;background:#fff;color:#111;padding:18px;border-radius:10px;margin:16px;font-size:.85rem}
 .receipt h3{margin:0 0 4px;text-align:center;font-size:1rem}
@@ -248,6 +262,7 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 <header>
   <div class="brand">Konobar <small id="cafeName">Stolovi i narudžbe</small></div>
   <div class="hdr-right">
+    <button class="chip" id="installBtn" type="button" style="display:none" title="Instaliraj kao aplikaciju">⬇ Instaliraj</button>
     <button class="chip" id="turnBtn" type="button" title="Pregled prometa po danima">Promet danas: <b id="turnover">–</b></button>
     <span class="chip" id="whoChip"></span>
     <div class="toggle" id="modeToggle" role="group" aria-label="Režim rada" style="display:none">
@@ -265,10 +280,10 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <div class="editbar" id="editbar">
   <label>Oblik
-    <select id="newShape"><option value="round">Okrugli</option><option value="square">Kvadratni</option></select>
+    <select id="newShape"><option value="round">Okrugli</option><option value="square">Kvadratni</option><option value="sank">Šank</option></select>
   </label>
   <label>Broj stola<input id="newNo" type="number" min="1" inputmode="numeric" placeholder="npr. 12"></label>
-  <label>Kapacitet (stolica)<input id="newCap" type="number" min="1" max="30" inputmode="numeric" value="4"></label>
+  <label>Stolica / mjesta<input id="newCap" type="number" min="1" max="30" inputmode="numeric" value="4"></label>
   <label>Veličina
     <select id="newSize"><option value="48">Mala</option><option value="64" selected>Srednja</option><option value="84">Velika</option></select>
   </label>
@@ -336,9 +351,9 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
     <div class="m-head"><h2 id="tTitle">Uredi sto</h2></div>
     <div class="form">
       <label>Broj stola<input id="eNo" type="number" min="1" inputmode="numeric"></label>
-      <label>Kapacitet (stolica)<input id="eCap" type="number" min="1" max="30" inputmode="numeric"></label>
+      <label>Stolica / mjesta<input id="eCap" type="number" min="1" max="30" inputmode="numeric"></label>
       <label class="full">Oblik
-        <select id="eShape"><option value="round">Okrugli</option><option value="square">Kvadratni</option></select>
+        <select id="eShape"><option value="round">Okrugli</option><option value="square">Kvadratni</option><option value="sank">Šank</option></select>
       </label>
       <label class="full">Veličina: <b id="eSizeVal"></b>
         <input id="eSize" type="range" min="40" max="110" step="2">
@@ -399,14 +414,14 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261106b
+   KONOBAR – verzija 20261106c
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261106b';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261106c';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic3.js?v=20261106b';
+import { db, auth } from '../firebase-config-kafic3.js?v=20261106c';
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
@@ -416,7 +431,8 @@ import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12
 /* ---------- STANJE ---------- */
 const ZONES = [{ id: 'enterijer', name: 'Enterijer' }, { id: 'basta', name: 'Bašta' }];
 const DEFAULT_SIZE = 64;
-const S = { zone: 'enterijer', editMode: false, profile: null, tables: [], orders: {}, sales: {}, today: [], theme: 'light', dragging: false };
+const S = { zone: 'enterijer', editMode: false, profile: null, tables: [], orders: {}, sales: {}, today: [], theme: 'dark', dragging: false };
+const tName = t => (t.oblik === 'sank' ? 'Šank ' : 'Sto ') + t.broj;
 const menu = { items: [], subcats: [], currency: '', cafe: '' };
 const raw = { meni: [], podkategorije: [], kategorije: [] };
 const ui = { openTable: null, cat: '★', q: '', pane: 'menu', editTable: null, pm: { ym: '', day: '', who: '', docs: [] } };
@@ -443,7 +459,7 @@ const dayLabel = s => { const [y, m, d] = s.split('-'); return `${+d}. ${+m}. ${
 const MONTHS = ['januar', 'februar', 'mart', 'april', 'maj', 'jun', 'jul', 'august', 'septembar', 'oktobar', 'novembar', 'decembar'];
 const isAdmin = () => S.profile && S.profile.role === 'admin';
 const me = () => S.profile ? S.profile.email : '';
-function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 1900); }
+function toast(msg, ms = 1900) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), ms); }
 function fail(what, err) {
   console.error(what, err);
   const code = err && err.code ? err.code : '';
@@ -581,7 +597,8 @@ function renderMode() {
 function chairPositions(n, shape) {
   const R = 41.7, pts = [];
   for (let i = 0; i < n; i++) {
-    if (shape === 'round') { const a = -Math.PI / 2 + (2 * Math.PI * i) / n; pts.push([50 + R * Math.cos(a), 50 + R * Math.sin(a)]); }
+    if (shape === 'sank') pts.push([(0.22 + (i + 0.5) * 3.2 / n) / 3.64 * 100, 80.8]);   // red stolica ispod šanka
+    else if (shape === 'round') { const a = -Math.PI / 2 + (2 * Math.PI * i) / n; pts.push([50 + R * Math.cos(a), 50 + R * Math.sin(a)]); }
     else {
       const per = 8 * R, s = ((i + 0.5) * per) / n, side = Math.floor(s / (2 * R)), u = s - side * 2 * R - R;
       const [x, y] = [[u, -R], [R, u], [-u, R], [-R, -u]][Math.min(side, 3)]; pts.push([50 + x, 50 + y]);
@@ -593,17 +610,18 @@ function fillTable(el, t, busy) {
   const size = t.velicina || DEFAULT_SIZE;
   el.textContent = '';
   el.style.setProperty('--base', size);
-  el.classList.remove('round', 'square'); el.classList.add(t.oblik === 'square' ? 'square' : 'round');
+  const shape = t.oblik === 'square' ? 'square' : t.oblik === 'sank' ? 'sank' : 'round';
+  el.classList.remove('round', 'square', 'sank'); el.classList.add(shape);
   el.classList.toggle('busy', !!busy);
-  const n = Math.max(1, Math.min(t.kapacitet || 1, 16));
-  chairPositions(n, t.oblik === 'square' ? 'square' : 'round').forEach(([x, y]) => el.append(h('i', { class: 'chair', style: `left:${x.toFixed(2)}%;top:${y.toFixed(2)}%` })));
+  const n = Math.max(1, Math.min(t.kapacitet || 1, shape === 'sank' ? 24 : 16));
+  chairPositions(n, shape).forEach(([x, y]) => el.append(h('i', { class: 'chair', style: `left:${x.toFixed(2)}%;top:${y.toFixed(2)}%` })));
   el.append(h('div', { class: 'body' },
-    h('div', { class: 'no', text: t.broj }),
+    h('div', { class: 'no', text: shape === 'sank' ? 'Šank ' + t.broj : t.broj }),
     busy ? h('div', { class: 'sum', text: money(orderTotal(t.id)) }) : (size >= 56 ? h('div', { class: 'meta', text: 'slobodan' }) : null)));
 }
 function tableEl(t) {
   const busy = hasOrder(t.id), o = S.orders[t.id];
-  const el = h('div', { class: 'table', 'data-id': t.id, style: `left:min(${t.x || 0}%, calc(100% - var(--ow)));top:min(${t.y || 0}%, calc(100% - var(--ow)))` });
+  const el = h('div', { class: 'table', 'data-id': t.id, style: `left:min(${t.x || 0}%, calc(100% - var(--ow)));top:min(${t.y || 0}%, calc(100% - var(--oh)))` });
   fillTable(el, t, busy);
   if (busy && o && o.konobarIme) el.append(h('div', { class: 'wtr', title: o.konobarIme, text: String(o.konobarIme).trim().slice(0, 2).toUpperCase() }));
   const x = h('button', { class: 'x', type: 'button', title: 'Obriši sto', text: '×' });
@@ -664,16 +682,16 @@ async function addTable() {
   const broj = parseInt($('newNo').value, 10), kap = parseInt($('newCap').value, 10);
   if (!broj || broj < 1) { toast('Unesite broj stola'); return; }
   if (!kap || kap < 1) { toast('Unesite kapacitet (broj stolica)'); return; }
-  if (S.tables.some(t => t.zona === S.zone && t.broj === broj)) { toast(`Sto ${broj} već postoji u ovoj zoni`); return; }
+  if (S.tables.some(t => t.zona === S.zone && t.broj === broj)) { toast(`Broj ${broj} već postoji u ovoj zoni`); return; }
   const n = S.tables.filter(t => t.zona === S.zone).length;
   try {
     await addDoc(col('stolovi'), { zona: S.zone, broj, kapacitet: kap, oblik: $('newShape').value, velicina: +$('newSize').value, x: 4 + (n % 6) * 5, y: 6 + (n % 6) * 5 });
-    $('newNo').value = ''; toast(`Sto ${broj} dodat – prevucite ga na željeno mjesto`);
+    $('newNo').value = ''; toast(`Dodato (${broj}) – prevucite na željeno mjesto`);
   } catch (err) { fail('dodavanje stola', err); }
 }
 async function deleteTable(id) {
   const t = S.tables.find(x => x.id === id); if (!t || !isAdmin()) return;
-  const msg = hasOrder(id) ? `Sto ${t.broj} ima otvorenu narudžbu (${fmt(orderTotal(id))}). Ipak obrisati?` : `Obrisati sto ${t.broj}?`;
+  const msg = hasOrder(id) ? `${tName(t)} ima otvorenu narudžbu (${fmt(orderTotal(id))}). Ipak obrisati?` : `Obrisati: ${tName(t)}?`;
   if (!confirm(msg)) return;
   try { const b = writeBatch(db); b.delete(doc(db, 'stolovi', id)); b.delete(doc(db, 'narudzbe', id)); await b.commit(); }
   catch (err) { fail('brisanje stola', err); }
@@ -682,7 +700,7 @@ function openTableEditor(id) {
   if (!isAdmin()) return;
   const t = S.tables.find(x => x.id === id); if (!t) return;
   ui.editTable = id;
-  $('tTitle').textContent = `Uredi sto ${t.broj}`;
+  $('tTitle').textContent = `Uredi: ${tName(t)}`;
   $('eNo').value = t.broj; $('eCap').value = t.kapacitet; $('eShape').value = t.oblik || 'round'; $('eSize').value = t.velicina || DEFAULT_SIZE;
   updatePreview(); $('tblOv').classList.add('show');
 }
@@ -695,7 +713,7 @@ async function saveTableEditor() {
   const broj = parseInt($('eNo').value, 10), kap = parseInt($('eCap').value, 10);
   if (!broj || broj < 1) { toast('Unesite broj stola'); return; }
   if (!kap || kap < 1) { toast('Unesite kapacitet'); return; }
-  if (S.tables.some(x => x.id !== t.id && x.zona === t.zona && x.broj === broj)) { toast(`Sto ${broj} već postoji u ovoj zoni`); return; }
+  if (S.tables.some(x => x.id !== t.id && x.zona === t.zona && x.broj === broj)) { toast(`Broj ${broj} već postoji u ovoj zoni`); return; }
   const upd = { broj, kapacitet: kap, oblik: $('eShape').value, velicina: +$('eSize').value };
   closeTableEditor();
   try { await updateDoc(doc(db, 'stolovi', t.id), upd); toast('Sačuvano'); } catch (err) { fail('čuvanje stola', err); }
@@ -714,7 +732,7 @@ function topItems() { return menu.items.filter(i => sold(i.id) > 0).sort((a, b) 
 
 function renderModal(keepScroll) {
   const t = S.tables.find(x => x.id === ui.openTable); if (!t) { closeOrder(); return; }
-  $('mTitle').textContent = `Sto ${t.broj} · ${ZONES.find(z => z.id === t.zona).name} · ${t.kapacitet} stolica`;
+  $('mTitle').textContent = `${tName(t)} · ${ZONES.find(z => z.id === t.zona).name} · ${t.kapacitet} ${t.oblik === 'sank' ? 'mjesta' : 'stolica'}`;
   const hasTop = topItems().length > 0;
   if (ui.cat === '★' && !hasTop) ui.cat = 'Sve';
   const cats = $('cats'); cats.textContent = '';
@@ -787,7 +805,7 @@ async function pay() {
   const rid = doc(col('racuni')).id, zone = ZONES.find(z => z.id === t.zona).name;
   const bro = `SIM-${dayStr(now).replace(/-/g, '')}-${rid.slice(0, 4).toUpperCase()}`;
   const racun = {
-    broj: bro, stolBroj: t.broj, zona: zone, stavke: lines.map(l => ({ id: l.id, naziv: l.naziv, cijena: l.cijena, kol: l.kol })), ukupno: Math.round(total * 100) / 100,
+    broj: bro, stolBroj: t.broj, stolNaziv: tName(t), zona: zone, stavke: lines.map(l => ({ id: l.id, naziv: l.naziv, cijena: l.cijena, kol: l.kol })), ukupno: Math.round(total * 100) / 100,
     valuta: menu.currency, konobarEmail: me(), konobarIme: S.profile.ime, otvorioIme: o.konobarIme || '', ts: now.getTime(), dan: dayStr(now), mjesec: monthStr(now)
   };
   $('payBtn').disabled = true;
@@ -805,7 +823,7 @@ function showReceipt(r, when) {
   const R = $('receipt'); R.textContent = '';
   R.append(
     h('h3', { text: menu.cafe || 'Račun' }),
-    h('div', { class: 'c', text: `Sto ${r.stolBroj} · ${r.zona}` }),
+    h('div', { class: 'c', text: `${r.stolNaziv || 'Sto ' + r.stolBroj} · ${r.zona}` }),
     h('div', { class: 'c', text: new Date(when).toLocaleString('sr-Latn-BA') }),
     h('div', { class: 'c', text: 'Račun br. ' + r.broj }),
     h('div', { class: 'c', text: 'Konobar: ' + r.konobarIme }),
@@ -871,7 +889,7 @@ function renderDay() {
   rs.forEach(r => {
     const det = h('div', { class: 'rdet', style: 'display:none' }, r.stavke.map(l => h('div', { text: `${l.kol} × ${l.naziv} — ${money(l.cijena * l.kol)}` })));
     box.append(h('div', { class: 'rrow', onclick: () => { det.style.display = det.style.display === 'none' ? '' : 'none'; } },
-      h('div', { class: 'g' }, h('b', { text: new Date(r.ts).toLocaleTimeString('sr-Latn-BA', { hour: '2-digit', minute: '2-digit' }) + ' · Sto ' + r.stolBroj }), h('br'), h('small', { text: r.konobarIme + ' · ' + r.broj })),
+      h('div', { class: 'g' }, h('b', { text: new Date(r.ts).toLocaleTimeString('sr-Latn-BA', { hour: '2-digit', minute: '2-digit' }) + ' · ' + (r.stolNaziv || 'Sto ' + r.stolBroj) }), h('br'), h('small', { text: r.konobarIme + ' · ' + r.broj })),
       h('b', { text: money(r.ukupno) })), det);
   });
 }
@@ -891,7 +909,7 @@ function reportNode(kind) {
     const by = {}; rs.forEach(r => { (by[r.dan] = by[r.dan] || { n: 0, s: 0 }); by[r.dan].n++; by[r.dan].s += r.ukupno; });
     root.append(h('h3', { text: 'Promet po danima' }), tbl(['Datum', 'Računa', 'Iznos'], Object.keys(by).sort().map(k => [dayLabel(k), String(by[k].n), money(by[k].s)])));
   } else {
-    root.append(h('h3', { text: 'Računi' }), tbl(['Vrijeme', 'Sto', 'Konobar', 'Stavke', 'Iznos'], rs.sort((a, b) => a.ts - b.ts).map(r => [new Date(r.ts).toLocaleTimeString('sr-Latn-BA', { hour: '2-digit', minute: '2-digit' }), String(r.stolBroj), r.konobarIme, r.stavke.map(l => `${l.kol}× ${l.naziv}`).join(', '), money(r.ukupno)])));
+    root.append(h('h3', { text: 'Računi' }), tbl(['Vrijeme', 'Sto', 'Konobar', 'Stavke', 'Iznos'], rs.sort((a, b) => a.ts - b.ts).map(r => [new Date(r.ts).toLocaleTimeString('sr-Latn-BA', { hour: '2-digit', minute: '2-digit' }), r.stolNaziv || ('Sto ' + r.stolBroj), r.konobarIme, r.stavke.map(l => `${l.kol}× ${l.naziv}`).join(', '), money(r.ukupno)])));
   }
   const wb = {}; rs.forEach(r => { wb[r.konobarIme] = (wb[r.konobarIme] || { n: 0, s: 0 }); wb[r.konobarIme].n++; wb[r.konobarIme].s += r.ukupno; });
   if (Object.keys(wb).length > 1 || !ui.pm.who) root.append(h('h3', { text: 'Po konobarima' }), tbl(['Konobar', 'Računa', 'Iznos'], Object.entries(wb).map(([n, v]) => [n, String(v.n), money(v.s)])));
@@ -967,7 +985,8 @@ $('modeWork').addEventListener('click', () => setMode(false));
 $('modeEdit').addEventListener('click', () => setMode(true));
 $('addTableBtn').addEventListener('click', addTable);
 $('newNo').addEventListener('keydown', e => { if (e.key === 'Enter') addTable(); });
-$('themeBtn').addEventListener('click', () => { S.theme = S.theme === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', S.theme); lsSet('konobar_theme', S.theme); });
+function setTheme(t) { S.theme = t; document.documentElement.setAttribute('data-theme', t); lsSet('konobar_theme', t); const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = t === 'dark' ? '#14151a' : '#f4f1ea'; }
+$('themeBtn').addEventListener('click', () => setTheme(S.theme === 'dark' ? 'light' : 'dark'));
 $('q').addEventListener('input', e => { ui.q = e.target.value; renderModal(); });
 $('closeBtn').addEventListener('click', closeOrder);
 $('tabMenu').addEventListener('click', () => { ui.pane = 'menu'; applyPane(); });
@@ -993,8 +1012,21 @@ for (const id of ['orderOv', 'tblOv', 'pmOv', 'stOv']) $(id).addEventListener('c
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (ui.openTable) closeOrder(); closeTableEditor(); $('pmOv').classList.remove('show'); } });
 
 /* ---------- START ---------- */
-S.theme = lsGet('konobar_theme', 'light'); S.zone = lsGet('konobar_zone', 'enterijer');
-document.documentElement.setAttribute('data-theme', S.theme);
+S.theme = lsGet('konobar_theme', 'dark'); S.zone = lsGet('konobar_zone', 'enterijer');
+setTheme(S.theme);
+
+/* ---------- INSTALACIJA KAO APLIKACIJA (PWA) ---------- */
+let installEvt = null;
+const standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; if (!standalone) $('installBtn').style.display = ''; });
+window.addEventListener('appinstalled', () => { $('installBtn').style.display = 'none'; toast('Aplikacija instalirana'); });
+if (isIOS && !standalone) $('installBtn').style.display = '';
+$('installBtn').addEventListener('click', async () => {
+  if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('installBtn').style.display = 'none'; }
+  else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
+});
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261106c').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
