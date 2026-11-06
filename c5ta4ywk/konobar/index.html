@@ -10,9 +10,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Konobar">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=20261107c">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261107c">
-<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261107c">
+<link rel="manifest" href="manifest.webmanifest?v=20261107d">
+<link rel="icon" type="image/png" sizes="192x192" href="ikona-192.png?v=3">
+<link rel="apple-touch-icon" href="ikona-180.png?v=3">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261107d">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -430,14 +431,14 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261107c
+   KONOBAR – verzija 20261107d
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261107c';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261107d';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic3.js?v=20261107c';
+import { db, auth } from '../firebase-config-kafic3.js?v=20261107d';
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
@@ -615,9 +616,11 @@ function chairPositions(n, shape) {
   for (let i = 0; i < n; i++) {
     if (shape === 'sank') pts.push([(0.22 + (i + 0.5) * 3.2 / n) / 3.64 * 100, 78]);   // red stolica ispod šanka
     else if (shape === 'round') { const a = -Math.PI / 2 + (2 * Math.PI * i) / n; pts.push([50 + R * Math.cos(a), 50 + R * Math.sin(a)]); }
-    else {
-      const per = 8 * R, s = ((i + 0.5) * per) / n, side = Math.floor(s / (2 * R)), u = s - side * 2 * R - R;
-      const [x, y] = [[u, -R], [R, u], [-u, R], [-R, -u]][Math.min(side, 3)]; pts.push([50 + x, 50 + y]);
+    else { /* kvadrat: stolice na sredinama strana (gore, dolje, lijevo, desno), višak ravnomjerno po stranama */
+      if (i > 0) continue;
+      const cnt = [0, 0, 0, 0]; for (let k = 0; k < n; k++) cnt[[0, 1, 2, 3][k % 4]]++;
+      const sides = [(u) => [u, -R], (u) => [u, R], (u) => [-R, u], (u) => [R, u]];
+      cnt.forEach((c, si) => { for (let j = 0; j < c; j++) { const u = c === 1 ? 0 : ((j + 0.5) / c - 0.5) * 2 * R * 0.8; const [x, y] = sides[si](u); pts.push([50 + x, 50 + y]); } });
     }
   }
   return pts;
@@ -1050,7 +1053,7 @@ $('installBtn').addEventListener('click', async () => {
   if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('installBtn').style.display = 'none'; }
   else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
 });
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261107c').catch(e => console.warn('SW', e)));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261107d').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
