@@ -10,10 +10,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Konobar">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=20261108g">
+<link rel="manifest" href="manifest.webmanifest?v=20261108h">
 <link rel="icon" type="image/png" sizes="192x192" href="ikona-192.png?v=3">
 <link rel="apple-touch-icon" href="ikona-180.png?v=3">
-<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261108g">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261108h">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -486,9 +486,29 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
         <label>E-mail<input id="sMail" type="email" placeholder="marko@primjer.com"></label>
         <label>Lozinka (min. 6 znakova)<input id="sPass" type="text" autocomplete="off"></label>
         <button class="btn full" id="sAdd" type="button">+ Dodaj osobu</button>
+        <button class="btn ghost full" id="clOpen" type="button">🗑 Brisanje podataka (računi, najprodavanije)</button>
         <div class="full" style="font-size:.78rem;color:var(--muted)">Ako e-mail već ima nalog, samo mu se dodjeljuje uloga (lozinka se ne mijenja). Uklanjanje osobe oduzima pristup.</div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Modal: brisanje podataka (admin) -->
+<div class="overlay" id="clOv" style="z-index:65">
+  <div class="modal" style="width:min(560px,100%);height:auto;max-height:92dvh">
+    <div class="m-head"><h2>Brisanje podataka</h2><button class="btn ghost sm" id="clClose" type="button">Zatvori</button></div>
+    <div class="cal-body" style="padding-top:10px;overflow:auto">
+      <div style="font-size:.82rem;color:var(--muted);margin-bottom:8px">Izaberite čiji se <b>izdati računi</b> brišu (uključujući osoblje koje je već uklonjeno) i za koji period. Brisanje je trajno – prije toga napravite PDF izvještaj iz „Promet“.</div>
+      <div id="clList" class="none">Učitavanje…</div>
+      <label style="display:block;margin-top:12px">Period
+        <select id="clPeriod" style="width:100%;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--text)">
+          <option value="0">Svi računi izabranih</option><option value="12">Samo stariji od 12 mjeseci</option><option value="6">Samo stariji od 6 mjeseci</option><option value="3">Samo stariji od 3 mjeseca</option><option value="1">Samo stariji od 1 mjesec</option>
+        </select>
+      </label>
+      <label style="display:flex;gap:10px;align-items:center;margin-top:12px"><input type="checkbox" id="clSales" style="width:18px;height:18px"> <span>Resetuj i listu „Najprodavanije“ (brojači prodaje)</span></label>
+      <div id="clSum" style="margin-top:12px;font-weight:700"></div>
+    </div>
+    <div class="m-foot"><button class="btn danger" id="clGo" type="button" disabled>Obriši izabrano</button></div>
   </div>
 </div>
 
@@ -497,14 +517,14 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261108g
+   KONOBAR – verzija 20261108h
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261108g';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261108h';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic3.js?v=20261108g';
+import { db, auth } from '../firebase-config-kafic3.js?v=20261108h';
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField, enableNetwork, disableNetwork }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
@@ -1122,13 +1142,53 @@ function openStaff() {
   $('stOv').classList.add('show');
   unsubs.push(S.staffUnsub = onSnapshot(col('osoblje'), snap => renderStaff(docsOf(snap)), err => fail('čitanje osoblja', err)));
 }
+/* ---------- BRISANJE PODATAKA (admin) ---------- */
+const cl = { by: new Map(), sel: new Set() };
+async function openCleanup() {
+  if (!isAdmin()) return;
+  $('clOv').classList.add('show'); $('clList').className = 'none'; $('clList').textContent = 'Učitavanje…'; $('clGo').disabled = true; $('clSum').textContent = '';
+  try {
+    const all = docsOf(await getDocs(col('racuni'))); cl.by = new Map(); cl.sel = new Set();
+    all.forEach(r => { const k = r.konobarEmail || '?'; const g = cl.by.get(k) || { ime: r.konobarIme || k, docs: [] }; g.docs.push({ id: r.id, ts: r.ts || 0, sum: +r.ukupno || 0 }); cl.by.set(k, g); });
+    renderCleanup();
+  } catch (err) { fail('čitanje računa', err); $('clList').textContent = 'Greška pri čitanju.'; }
+}
+const clCutoff = () => { const m = +$('clPeriod').value; if (!m) return Infinity; const d = new Date(); d.setMonth(d.getMonth() - m); return d.getTime(); };
+function clPicked() { const cut = clCutoff(); let n = 0, sum = 0; cl.sel.forEach(k => cl.by.get(k).docs.forEach(d => { if (d.ts < cut) { n++; sum += d.sum; } })); return { n, sum, cut }; }
+function renderCleanup() {
+  const box = $('clList'); box.className = ''; box.textContent = '';
+  if (!cl.by.size) { box.className = 'none'; box.textContent = 'Nema izdatih računa u bazi.'; }
+  cl.by.forEach((g, k) => {
+    const ts = g.docs.map(d => d.ts), sum = g.docs.reduce((a, d) => a + d.sum, 0), f = t => new Date(t).toLocaleDateString('sr-Latn-BA');
+    const cb = h('input', { type: 'checkbox' }); cb.style.cssText = 'width:18px;height:18px'; cb.checked = cl.sel.has(k);
+    cb.addEventListener('change', () => { cb.checked ? cl.sel.add(k) : cl.sel.delete(k); clSummary(); });
+    box.append(h('label', { class: 'staff-row', style: 'cursor:pointer' }, cb,
+      h('div', { class: 'g' }, h('b', { text: g.ime }), h('small', { text: `${k} · ${g.docs.length} računa · ${fmt(sum)} · ${f(Math.min(...ts))} – ${f(Math.max(...ts))}` }))));
+  });
+  clSummary();
+}
+function clSummary() { const { n, sum } = clPicked(); $('clSum').textContent = n ? `Biće obrisano: ${n} računa (${fmt(sum)})` : ''; $('clGo').disabled = !(n || $('clSales').checked); }
+async function runCleanup() {
+  const { n, sum, cut } = clPicked(), sales = $('clSales').checked;
+  if (!n && !sales) return;
+  const msg = `Trajno obrisati ${n ? n + ' računa (' + fmt(sum) + ')' : ''}${n && sales ? ' i ' : ''}${sales ? 'listu najprodavanijih' : ''}?\n\nOvo se NE MOŽE poništiti. Jeste li napravili PDF izvještaj?`;
+  if (!confirm(msg)) return;
+  $('clGo').disabled = true;
+  try {
+    const ids = []; cl.sel.forEach(k => cl.by.get(k).docs.forEach(d => { if (d.ts < cut) ids.push(['racuni', d.id]); }));
+    if (sales) (await getDocs(col('prodaja'))).docs.forEach(d => ids.push(['prodaja', d.id]));
+    for (let i = 0; i < ids.length; i += 400) { const b = writeBatch(db); ids.slice(i, i + 400).forEach(([c, id]) => b.delete(doc(db, c, id))); await b.commit(); }
+    toast('Obrisano: ' + ids.length + ' zapisa', 3500);
+    $('clSales').checked = false; await openCleanup();
+  } catch (err) { fail('brisanje podataka', err); $('clGo').disabled = false; }
+}
 function closeStaff() { $('stOv').classList.remove('show'); if (S.staffUnsub) { S.staffUnsub(); unsubs = unsubs.filter(u => u !== S.staffUnsub); S.staffUnsub = null; } }
 function renderStaff(list) {
   const box = $('stList'); box.textContent = '';
   list.sort((a, b) => (a.ime || '').localeCompare(b.ime || '')).forEach(p => box.append(h('div', { class: 'staff-row' },
     h('div', { class: 'g' }, h('b', { text: p.ime || p.id }), h('small', { text: p.id })),
     h('span', { class: 'pill ' + (p.role === 'admin' ? 'admin' : ''), text: p.role === 'admin' ? 'Admin' : p.role === 'sanker' ? 'Šanker' : 'Konobar' }),
-    p.id === me() ? h('span', { class: 'pill', text: 'Vi' }) : h('button', { class: 'btn danger sm', type: 'button', text: 'Ukloni', onclick: async () => { if (confirm(`Ukloniti pristup za ${p.ime || p.id}?`)) { try { await deleteDoc(doc(db, 'osoblje', p.id)); } catch (e) { fail('uklanjanje', e); } } } }))));
+    p.id === me() ? h('span', { class: 'pill', text: 'Vi' }) : h('button', { class: 'btn danger sm', type: 'button', text: 'Ukloni', onclick: async () => { if (confirm(`Ukloniti pristup za ${p.ime || p.id}?\n\nNjegovi izdati računi ostaju u bazi. Možete ih obrisati preko „Brisanje podataka“.`)) { try { await deleteDoc(doc(db, 'osoblje', p.id)); } catch (e) { fail('uklanjanje', e); } } } }))));
   if (!list.length) box.append(h('div', { class: 'none', text: 'Nema osoblja.' }));
 }
 async function addStaff() {
@@ -1191,6 +1251,8 @@ $('pdfDay').addEventListener('click', () => makePdf('day'));
 $('pdfMonth').addEventListener('click', () => makePdf('month'));
 $('staffBtn').addEventListener('click', openStaff);
 $('stClose').addEventListener('click', closeStaff);
+$('clOpen').addEventListener('click', openCleanup); $('clClose').addEventListener('click', () => $('clOv').classList.remove('show')); $('clGo').addEventListener('click', runCleanup);
+$('clPeriod').addEventListener('change', clSummary); $('clSales').addEventListener('change', clSummary);
 $('sAdd').addEventListener('click', addStaff);
 for (const id of ['orderOv', 'tblOv', 'pmOv', 'stOv']) $(id).addEventListener('click', e => { if (e.target.id === id) { if (id === 'orderOv') closeOrder(); else if (id === 'tblOv') closeTableEditor(); else if (id === 'pmOv') $('pmOv').classList.remove('show'); else closeStaff(); } });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (ui.openTable) closeOrder(); closeTableEditor(); $('pmOv').classList.remove('show'); } });
@@ -1233,7 +1295,7 @@ $('installBtn').addEventListener('click', async () => {
   if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('installBtn').style.display = 'none'; }
   else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
 });
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261108g').catch(e => console.warn('SW', e)));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261108h').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
