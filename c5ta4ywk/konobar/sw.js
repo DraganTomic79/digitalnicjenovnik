@@ -1,5 +1,5 @@
-/* Konobar service worker – verzija 20261108c */
-const CACHE = 'konobar-20261108c';
+/* Konobar service worker – verzija 20261108d */
+const CACHE = 'konobar-20261108d';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'ikona-192.png', 'ikona-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
