@@ -10,9 +10,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Konobar">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=20261106c">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261106c">
-<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261106c">
+<link rel="manifest" href="manifest.webmanifest?v=20261107a">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261107a">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261107a">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -67,18 +67,20 @@ select.chip{padding:7px 10px}
 /* ===== PLATNO ===== */
 main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .canvas-wrap{background:var(--panel);border:1px solid var(--line);border-radius:0 var(--r) var(--r) var(--r);padding:10px;flex:1;display:flex;flex-direction:column}
-.canvas{position:relative;flex:1;min-height:52vh;border-radius:10px;border:2px dashed var(--line);overflow:hidden;touch-action:none;
+.canvas{position:relative;flex:none;width:min(100%,82vh);aspect-ratio:1/1;margin:0 auto;border-radius:10px;border:2px dashed var(--line);overflow:hidden;touch-action:none;
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:32px 32px;background-color:var(--panel2)}
 .canvas.editing{border-color:var(--accent);border-style:solid}
 .canvas .zlabel{position:absolute;right:10px;bottom:6px;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:1.5px;pointer-events:none}
 .empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);text-align:center;padding:20px;pointer-events:none}
 
 /* ===== STO ===== */
-.table{--sz:calc(var(--base,64) * var(--scale,1) * 1px);--ow:calc(var(--sz) * 1.44);position:absolute;--oh:var(--ow);width:var(--ow);height:var(--oh);font-size:max(9px,calc(var(--sz) / 6));user-select:none;text-align:center;touch-action:none}
+.table{--sz:calc(var(--base,64) * var(--scale,1) * 1px);--ow:calc(var(--sz) * 1.44);position:absolute;--oh:var(--ow);--c:1;--s:0;--rw:calc(var(--ow) * var(--c) + var(--oh) * var(--s));--rh:calc(var(--ow) * var(--s) + var(--oh) * var(--c));width:var(--rw);height:var(--rh);font-size:max(9px,calc(var(--sz) / 6));user-select:none;text-align:center;touch-action:none}
 .table .body{position:absolute;inset:calc(var(--sz) * .22);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;border:3px solid var(--free);background:var(--free-bg);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.1);transition:background .15s,border-color .15s}
 .table.round .body{border-radius:50%}
 .table.square .body{border-radius:14%}
 .table.busy .body{border-color:var(--busy);background:var(--busy-bg)}
+.table .rt{position:absolute;left:50%;top:50%;width:var(--ow);height:var(--oh);transform:translate(-50%,-50%) rotate(var(--rot,0deg))}
+.table .no,.table .meta,.table .sum{transform:rotate(calc(var(--rot,0deg) * -1))}
 .table .no{font-weight:800;font-size:1.5em}
 .table .meta{font-size:.72em;color:var(--muted)}
 .table .sum{font-size:.95em;font-weight:800;color:var(--busy)}
@@ -98,10 +100,11 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .canvas.editing .table.drag{cursor:grabbing;opacity:.85;z-index:5}
 .canvas:not(.editing) .table{cursor:pointer}
 .canvas:not(.editing) .table:hover .body{transform:scale(1.04)}
-.table .x,.table .pen{display:none;position:absolute;width:24px;height:24px;border-radius:50%;color:#fff;font-weight:700;line-height:24px;font-size:.8rem;padding:0;z-index:3}
+.table .x,.table .pen,.table .rotb{display:none;position:absolute;width:24px;height:24px;border-radius:50%;color:#fff;font-weight:700;line-height:24px;font-size:.8rem;padding:0;z-index:3}
 .table .x{top:0;right:0;background:var(--busy)}
+.table .rotb{bottom:0;left:0;background:#6b7280;font-size:.85rem}
 .table .pen{bottom:0;right:0;background:var(--accent);font-size:.72rem}
-.canvas.editing .table .x,.canvas.editing .table .pen{display:block}
+.canvas.editing .table .x,.canvas.editing .table .pen,.canvas.editing .table .rotb{display:block}
 
 /* ===== LEGENDA ===== */
 .legend{display:flex;gap:14px;align-items:center;padding:8px 2px 0;font-size:.8rem;color:var(--muted);flex-wrap:wrap}
@@ -183,7 +186,6 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
   .tabs{padding:8px 10px 0}.tab{padding:9px 14px}
   main{padding:0 8px 8px}.hint{padding:0 10px 6px}
   .editbar{margin:0 10px;padding:10px;gap:8px}.editbar input,.editbar select{width:92px}
-  .canvas{min-height:58vh}
   .overlay{align-items:flex-end;padding:0}
   .modal{border-radius:18px 18px 0 0;height:94dvh;max-height:94dvh}
   .m-tabs{display:flex}
@@ -358,7 +360,10 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
       <label class="full">Veličina: <b id="eSizeVal"></b>
         <input id="eSize" type="range" min="40" max="110" step="2">
       </label>
-      <div class="full preview" style="height:150px"><div class="table" id="ePrev" style="position:relative;--scale:1"></div></div>
+      <label class="full">Rotacija: <b id="eRotVal"></b>
+        <input id="eRot" type="range" min="0" max="345" step="15">
+      </label>
+      <div class="full preview" style="height:auto;min-height:150px"><div class="table" id="ePrev" style="position:relative;--scale:1"></div></div>
     </div>
     <div class="m-foot">
       <button class="btn danger" id="eDel" type="button" style="margin-right:auto">Obriši sto</button>
@@ -414,14 +419,14 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261106c
+   KONOBAR – verzija 20261107a
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261106c';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261107a';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic3.js?v=20261106c';
+import { db, auth } from '../firebase-config-kafic3.js?v=20261107a';
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
@@ -589,7 +594,7 @@ function renderMode() {
   $('modeEdit').classList.toggle('on', S.editMode);
   $('editbar').classList.toggle('show', S.editMode);
   $('hint').textContent = S.editMode
-    ? 'Uređivanje rasporeda: prevlačite stolove, ✎ uređuje sto, × briše sto. Izlaz: "Pregled / Rad".'
+    ? 'Uređivanje rasporeda: prevlačite stolove, ✎ uređuje, ⟳ rotira za 90°, × briše. Izlaz: "Pregled / Rad".'
     : 'Dodirnite sto za narudžbu. Zeleno = slobodan, crveno = zauzet.';
 }
 
@@ -613,15 +618,20 @@ function fillTable(el, t, busy) {
   const shape = t.oblik === 'square' ? 'square' : t.oblik === 'sank' ? 'sank' : 'round';
   el.classList.remove('round', 'square', 'sank'); el.classList.add(shape);
   el.classList.toggle('busy', !!busy);
+  const rot = ((+t.rot || 0) % 360 + 360) % 360, rad = rot * Math.PI / 180;
+  el.style.setProperty('--rot', rot + 'deg');
+  el.style.setProperty('--c', Math.abs(Math.cos(rad)).toFixed(4)); el.style.setProperty('--s', Math.abs(Math.sin(rad)).toFixed(4));
+  const rt = h('div', { class: 'rt' });
   const n = Math.max(1, Math.min(t.kapacitet || 1, shape === 'sank' ? 24 : 16));
-  chairPositions(n, shape).forEach(([x, y]) => el.append(h('i', { class: 'chair', style: `left:${x.toFixed(2)}%;top:${y.toFixed(2)}%` })));
-  el.append(h('div', { class: 'body' },
+  chairPositions(n, shape).forEach(([x, y]) => rt.append(h('i', { class: 'chair', style: `left:${x.toFixed(2)}%;top:${y.toFixed(2)}%` })));
+  rt.append(h('div', { class: 'body' },
     h('div', { class: 'no', text: shape === 'sank' ? 'Šank ' + t.broj : t.broj }),
     busy ? h('div', { class: 'sum', text: money(orderTotal(t.id)) }) : (size >= 56 ? h('div', { class: 'meta', text: 'slobodan' }) : null)));
+  el.append(rt);
 }
 function tableEl(t) {
   const busy = hasOrder(t.id), o = S.orders[t.id];
-  const el = h('div', { class: 'table', 'data-id': t.id, style: `left:min(${t.x || 0}%, calc(100% - var(--ow)));top:min(${t.y || 0}%, calc(100% - var(--oh)))` });
+  const el = h('div', { class: 'table', 'data-id': t.id, style: `left:min(${t.x || 0}%, calc(100% - var(--rw)));top:min(${t.y || 0}%, calc(100% - var(--rh)))` });
   fillTable(el, t, busy);
   if (busy && o && o.konobarIme) el.append(h('div', { class: 'wtr', title: o.konobarIme, text: String(o.konobarIme).trim().slice(0, 2).toUpperCase() }));
   const x = h('button', { class: 'x', type: 'button', title: 'Obriši sto', text: '×' });
@@ -630,7 +640,10 @@ function tableEl(t) {
   const pen = h('button', { class: 'pen', type: 'button', title: 'Uredi sto', text: '✎' });
   pen.addEventListener('pointerdown', e => e.stopPropagation());
   pen.addEventListener('click', e => { e.stopPropagation(); openTableEditor(t.id); });
-  el.append(x, pen);
+  const rb = h('button', { class: 'rotb', type: 'button', title: 'Zarotiraj za 90°', text: '⟳' });
+  rb.addEventListener('pointerdown', e => e.stopPropagation());
+  rb.addEventListener('click', async e => { e.stopPropagation(); const r = (((+t.rot || 0) + 90) % 360); t.rot = r; try { await updateDoc(doc(db, 'stolovi', t.id), { rot: r }); } catch (err) { fail('rotiranje', err); } });
+  el.append(x, pen, rb);
   el.addEventListener('pointerdown', e => onTablePointerDown(e, t, el));
   el.addEventListener('click', () => { if (el._dragged) return; if (S.editMode) openTableEditor(t.id); else openOrder(t.id); });
   return el;
@@ -701,12 +714,12 @@ function openTableEditor(id) {
   const t = S.tables.find(x => x.id === id); if (!t) return;
   ui.editTable = id;
   $('tTitle').textContent = `Uredi: ${tName(t)}`;
-  $('eNo').value = t.broj; $('eCap').value = t.kapacitet; $('eShape').value = t.oblik || 'round'; $('eSize').value = t.velicina || DEFAULT_SIZE;
+  $('eNo').value = t.broj; $('eCap').value = t.kapacitet; $('eShape').value = t.oblik || 'round'; $('eSize').value = t.velicina || DEFAULT_SIZE; $('eRot').value = t.rot || 0;
   updatePreview(); $('tblOv').classList.add('show');
 }
 function updatePreview() {
-  const size = +$('eSize').value; $('eSizeVal').textContent = size + ' px';
-  fillTable($('ePrev'), { id: 'prev', broj: $('eNo').value || '?', kapacitet: +$('eCap').value || 1, oblik: $('eShape').value, velicina: size }, false);
+  const size = +$('eSize').value; $('eSizeVal').textContent = size + ' px'; $('eRotVal').textContent = $('eRot').value + '°';
+  fillTable($('ePrev'), { id: 'prev', broj: $('eNo').value || '?', kapacitet: +$('eCap').value || 1, oblik: $('eShape').value, velicina: size, rot: +$('eRot').value }, false);
 }
 async function saveTableEditor() {
   const t = S.tables.find(x => x.id === ui.editTable); if (!t) return;
@@ -714,7 +727,7 @@ async function saveTableEditor() {
   if (!broj || broj < 1) { toast('Unesite broj stola'); return; }
   if (!kap || kap < 1) { toast('Unesite kapacitet'); return; }
   if (S.tables.some(x => x.id !== t.id && x.zona === t.zona && x.broj === broj)) { toast(`Broj ${broj} već postoji u ovoj zoni`); return; }
-  const upd = { broj, kapacitet: kap, oblik: $('eShape').value, velicina: +$('eSize').value };
+  const upd = { broj, kapacitet: kap, oblik: $('eShape').value, velicina: +$('eSize').value, rot: +$('eRot').value };
   closeTableEditor();
   try { await updateDoc(doc(db, 'stolovi', t.id), upd); toast('Sačuvano'); } catch (err) { fail('čuvanje stola', err); }
 }
@@ -997,7 +1010,7 @@ $('printBtn').addEventListener('click', () => window.print());
 $('eSave').addEventListener('click', saveTableEditor);
 $('eCancel').addEventListener('click', closeTableEditor);
 $('eDel').addEventListener('click', () => { const id = ui.editTable; closeTableEditor(); deleteTable(id); });
-['eNo', 'eCap', 'eShape', 'eSize'].forEach(i => $(i).addEventListener('input', updatePreview));
+['eNo', 'eCap', 'eShape', 'eSize', 'eRot'].forEach(i => $(i).addEventListener('input', updatePreview));
 $('turnBtn').addEventListener('click', openPromet);
 $('pmClose').addEventListener('click', () => $('pmOv').classList.remove('show'));
 $('pmPrev').addEventListener('click', () => { const [y, m] = ui.pm.ym.split('-').map(Number); const d = new Date(y, m - 2, 1); ui.pm.ym = monthStr(d); ui.pm.day = dayStr(d); loadMonth(); });
@@ -1026,7 +1039,7 @@ $('installBtn').addEventListener('click', async () => {
   if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('installBtn').style.display = 'none'; }
   else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
 });
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261106c').catch(e => console.warn('SW', e)));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261107a').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
