@@ -10,10 +10,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Konobar">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=20261108e">
+<link rel="manifest" href="manifest.webmanifest?v=20261108f">
 <link rel="icon" type="image/png" sizes="192x192" href="ikona-192.png?v=3">
 <link rel="apple-touch-icon" href="ikona-180.png?v=3">
-<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261108e">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261108f">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -167,6 +167,8 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .lines{overflow-y:auto;padding:0 16px;flex:1;min-height:120px}
 .line{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}
 .line .nm{flex:1;min-width:0;font-weight:600}
+.od{display:block;color:var(--muted);font-weight:500;font-size:.78rem}
+.item .nm small.od{color:var(--accent);font-weight:600}
 .qty{display:flex;align-items:center;gap:6px}
 .qty button{width:30px;height:30px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);font-weight:700}
 .line .lt{width:70px;text-align:right;font-weight:700}
@@ -190,7 +192,9 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .sticky .sm2{font-size:.66rem;opacity:.75;margin-bottom:6px}
 .sticky .it{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:6px 3px;border-bottom:1px dotted rgba(0,0,0,.25);font-size:.74rem;font-weight:600;white-space:nowrap;color:inherit;border-radius:6px}
 .sticky .it:active{background:rgba(0,0,0,.08)}
-.sticky .it span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sticky .it .nmx{flex:1;min-width:0;display:flex;flex-direction:column;white-space:normal;overflow:visible}
+.sticky .it .n1{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sticky .it .n2{font-size:.68rem;font-weight:600;opacity:.8;line-height:1.2;white-space:normal}
 .sticky .it i{font-style:normal;flex:0 0 18px;height:18px;border:2px solid #3b3200;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:.9rem}
 .sticky .it.ok{text-decoration:line-through;opacity:.55}
 .sticky .it.ok i{background:#2e7d32;border-color:#2e7d32;color:#fff}
@@ -493,14 +497,14 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261108e
+   KONOBAR – verzija 20261108f
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261108e';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261108f';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic3.js?v=20261108e';
+import { db, auth } from '../firebase-config-kafic3.js?v=20261108f';
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
@@ -626,7 +630,7 @@ function rebuildMenu() {
   const pods = raw.podkategorije.filter(p => !p.sistemska && !sistemske.has(p.kategorijaId)).sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
   menu.items = raw.meni.filter(i => i.aktivna !== false && i.naziv)
     .sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999))
-    .map(i => ({ id: i.id, naziv: i.naziv, cijena: parsePrice(i.cijena), podkategorija: i.podkategorija || 'Ostalo', slika: i.slikaURL || '' }));
+    .map(i => ({ id: i.id, naziv: i.naziv, cijena: parsePrice(i.cijena), podkategorija: i.podkategorija || 'Ostalo', slika: i.slikaURL || '', opis: String(i.opis || '').trim() }));
   const names = new Set(menu.items.map(i => i.podkategorija));
   menu.subcats = pods.map(p => p.naziv).filter(n => names.has(n));
   names.forEach(n => { if (!menu.subcats.includes(n)) menu.subcats.push(n); });
@@ -652,6 +656,8 @@ function renderTurnover() {
 
 /* ---------- ZAGLAVLJE, TABOVI ---------- */
 const hasOrder = id => linesOf(S.orders[id]).length > 0;
+const opisOf = l => String(l.opis || (menu.items.find(x => x.id === l.id) || {}).opis || '').trim();   // "Opis 1" iz menija (npr. 0,33 l)
+const nz = l => l.naziv + (opisOf(l) ? ' ' + opisOf(l) : '');
 function linesOf(o) { return o && o.stavke ? Object.entries(o.stavke).map(([id, v]) => ({ id, ...v })).filter(l => l.kol > 0).sort((a, b) => (a.t || 0) - (b.t || 0)) : []; }
 const orderTotal = id => linesOf(S.orders[id]).reduce((s, l) => s + l.cijena * l.kol, 0);
 
@@ -842,7 +848,7 @@ function renderSank() {
       ...x.lines.map(l => {
         const pn = pendingOf(l), partial = (l.gotovo || 0) > 0 && pn > 0;
         return h('button', { class: 'it' + (pn === 0 ? ' ok' : ''), type: 'button', onclick: () => sankToggle(x.id, l) },
-          h('i', { text: pn === 0 ? '✓' : '' }), h('span', { text: `${l.kol} × ${l.naziv}` }), partial ? h('em', { text: `+${pn} novo` }) : null);
+          h('i', { text: pn === 0 ? '✓' : '' }), h('span', { class: 'nmx' }, h('span', { class: 'n1', text: `${l.kol} × ${l.naziv}` }), opisOf(l) ? h('span', { class: 'n2', text: opisOf(l) }) : null), partial ? h('em', { text: `+${pn} novo` }) : null);
       }));
     box.append(card);
   });
@@ -892,7 +898,7 @@ function renderModal(keepScroll) {
   if (!list.length) items.append(h('div', { class: 'none', text: menu.items.length ? 'Nema artikala' : 'Meni se učitava…' }));
   list.forEach(i => items.append(h('div', { class: 'item', 'data-id': i.id, onclick: () => addLine(i) },
     thumb(i),
-    h('div', { class: 'nm' }, h('b', { text: i.naziv }), h('small', { text: i.podkategorija }), h('span', { class: 'badge', style: 'display:none' })),
+    h('div', { class: 'nm' }, h('b', { text: i.naziv }), i.opis ? h('small', { class: 'od', text: i.opis }) : null, h('small', { text: i.podkategorija }), h('span', { class: 'badge', style: 'display:none' })),
     h('div', { class: 'pr' }, money(i.cijena), menu.currency ? h('small', { text: menu.currency }) : null),
     h('button', { class: 'minus', type: 'button', 'aria-label': 'Umanji ' + i.naziv, title: 'Umanji količinu', text: '−', onclick: e => { e.stopPropagation(); const l = linesOf(S.orders[ui.openTable]).find(x => x.id === i.id); if (l) changeQty(l, -1); } }),
     h('button', { class: 'plus', type: 'button', 'aria-label': 'Dodaj ' + i.naziv, text: '+' }))));
@@ -914,7 +920,7 @@ function renderLines() {
   const stavke = linesOf(S.orders[id]); const L = $('lines'); L.textContent = '';
   if (!stavke.length) L.append(h('div', { class: 'none', text: 'Nema artikala na računu. Dodajte ih tipkom + iz mini-menija.' }));
   stavke.forEach(l => L.append(h('div', { class: 'line' },
-    h('div', { class: 'nm', text: (l.gotovo >= l.kol ? '✓ ' : '') + l.naziv }),
+    h('div', { class: 'nm' }, (l.gotovo >= l.kol ? '✓ ' : '') + l.naziv, opisOf(l) ? h('small', { class: 'od', text: opisOf(l) }) : null),
     h('div', { class: 'qty' }, h('button', { class: 'dec', type: 'button', 'aria-label': 'Umanji', text: '−', onclick: () => changeQty(l, -1) }), h('b', { text: l.kol }), h('button', { type: 'button', text: '+', onclick: () => changeQty(l, 1) })),
     h('div', { class: 'lt', text: money(l.cijena * l.kol) }),
     h('button', { class: 'del', type: 'button', title: 'Ukloni stavku', 'aria-label': 'Ukloni stavku', text: '✕', onclick: () => removeLine(l) }))));
@@ -931,10 +937,11 @@ async function addLine(item) {
   const id = ui.openTable, ref = doc(db, 'narudzbe', id), cur = S.orders[id];
   const exists = cur && cur.stavke && cur.stavke[item.id] && cur.stavke[item.id].kol > 0;
   const line = { naziv: item.naziv, cijena: item.cijena, kol: increment(1) };
+  if (item.opis) line.opis = item.opis;
   if (!exists) line.t = Date.now();
   const data = { stolId: id, stavke: { [item.id]: line }, azurirano: Date.now() };
   if (!hasOrder(id)) Object.assign(data, { konobarEmail: me(), konobarIme: S.profile.ime, otvoreno: Date.now() });
-  toast('Dodato: ' + item.naziv);
+  toast('Dodato: ' + item.naziv + (item.opis ? ' ' + item.opis : ''));
   try { await setDoc(ref, data, { merge: true }); } catch (err) { fail('dodavanje artikla', err); }
 }
 async function changeQty(l, d) {
@@ -947,7 +954,7 @@ async function changeQty(l, d) {
   } catch (err) { fail('izmjena količine', err); }
 }
 async function removeLine(l) {
-  if (l.kol > 1 && !confirm(`Ukloniti „${l.naziv}" (${l.kol} kom) sa računa?`)) return;
+  if (l.kol > 1 && !confirm(`Ukloniti „${nz(l)}" (${l.kol} kom) sa računa?`)) return;
   const id = ui.openTable, ref = doc(db, 'narudzbe', id);
   try {
     const rest = linesOf(S.orders[id]).filter(x => x.id !== l.id);
@@ -960,7 +967,7 @@ async function pay() {
   const rid = doc(col('racuni')).id, zone = ZONES.find(z => z.id === t.zona).name;
   const bro = `SIM-${dayStr(now).replace(/-/g, '')}-${rid.slice(0, 4).toUpperCase()}`;
   const racun = {
-    broj: bro, stolBroj: t.broj, stolNaziv: tName(t), zona: zone, stavke: lines.map(l => ({ id: l.id, naziv: l.naziv, cijena: l.cijena, kol: l.kol })), ukupno: Math.round(total * 100) / 100,
+    broj: bro, stolBroj: t.broj, stolNaziv: tName(t), zona: zone, stavke: lines.map(l => ({ id: l.id, naziv: l.naziv, opis: opisOf(l), cijena: l.cijena, kol: l.kol })), ukupno: Math.round(total * 100) / 100,
     valuta: menu.currency, konobarEmail: me(), konobarIme: S.profile.ime, otvorioIme: o.konobarIme || '', ts: now.getTime(), dan: dayStr(now), mjesec: monthStr(now)
   };
   $('payBtn').disabled = true;
@@ -983,7 +990,7 @@ function showReceipt(r, when) {
     h('div', { class: 'c', text: 'Račun br. ' + r.broj }),
     h('div', { class: 'c', text: 'Konobar: ' + r.konobarIme }),
     h('hr'),
-    ...r.stavke.map(l => h('div', { class: 'r' }, h('span', { text: `${l.kol} × ${l.naziv}` }), h('span', { text: money(l.cijena * l.kol) }))),
+    ...r.stavke.map(l => h('div', { class: 'r' }, h('span', { text: `${l.kol} × ${l.naziv}${l.opis ? ' ' + l.opis : ''}` }), h('span', { text: money(l.cijena * l.kol) }))),
     h('hr'),
     h('div', { class: 'r' }, h('b', { text: 'UKUPNO' }), h('b', { text: money(r.ukupno) + (r.valuta ? ' ' + r.valuta : '') })),
     h('div', { class: 'warn', text: 'SIMULIRANI RAČUN – NIJE FISKALNI RAČUN' }));
@@ -1053,7 +1060,7 @@ function renderDay() {
   }
   if (!rs.length) { box.append(h('div', { class: 'none', text: 'Nema računa za ovaj dan.' })); return; }
   rs.forEach(r => {
-    const det = h('div', { class: 'rdet', style: 'display:none' }, r.stavke.map(l => h('div', { text: `${l.kol} × ${l.naziv} — ${money(l.cijena * l.kol)}` })));
+    const det = h('div', { class: 'rdet', style: 'display:none' }, r.stavke.map(l => h('div', { text: `${l.kol} × ${l.naziv}${l.opis ? ' ' + l.opis : ''} — ${money(l.cijena * l.kol)}` })));
     box.append(h('div', { class: 'rrow', onclick: () => { det.style.display = det.style.display === 'none' ? '' : 'none'; } },
       h('div', { class: 'g' }, h('b', { text: new Date(r.ts).toLocaleTimeString('sr-Latn-BA', { hour: '2-digit', minute: '2-digit' }) + ' · ' + (r.stolNaziv || 'Sto ' + r.stolBroj) }), h('br'), h('small', { text: r.konobarIme + ' · ' + r.broj })),
       h('b', { text: money(r.ukupno) })), det);
@@ -1075,11 +1082,11 @@ function reportNode(kind) {
     const by = {}; rs.forEach(r => { (by[r.dan] = by[r.dan] || { n: 0, s: 0 }); by[r.dan].n++; by[r.dan].s += r.ukupno; });
     root.append(h('h3', { text: 'Promet po danima' }), tbl(['Datum', 'Računa', 'Iznos'], Object.keys(by).sort().map(k => [dayLabel(k), String(by[k].n), money(by[k].s)])));
   } else {
-    root.append(h('h3', { text: 'Računi' }), tbl(['Vrijeme', 'Sto', 'Konobar', 'Stavke', 'Iznos'], rs.sort((a, b) => a.ts - b.ts).map(r => [new Date(r.ts).toLocaleTimeString('sr-Latn-BA', { hour: '2-digit', minute: '2-digit' }), r.stolNaziv || ('Sto ' + r.stolBroj), r.konobarIme, r.stavke.map(l => `${l.kol}× ${l.naziv}`).join(', '), money(r.ukupno)])));
+    root.append(h('h3', { text: 'Računi' }), tbl(['Vrijeme', 'Sto', 'Konobar', 'Stavke', 'Iznos'], rs.sort((a, b) => a.ts - b.ts).map(r => [new Date(r.ts).toLocaleTimeString('sr-Latn-BA', { hour: '2-digit', minute: '2-digit' }), r.stolNaziv || ('Sto ' + r.stolBroj), r.konobarIme, r.stavke.map(l => `${l.kol}× ${l.naziv}${l.opis ? " " + l.opis : ""}`).join(', '), money(r.ukupno)])));
   }
   const wb = {}; rs.forEach(r => { wb[r.konobarIme] = (wb[r.konobarIme] || { n: 0, s: 0 }); wb[r.konobarIme].n++; wb[r.konobarIme].s += r.ukupno; });
   if (Object.keys(wb).length > 1 || ui.pm.sel.size === 0) root.append(h('h3', { text: 'Po konobarima' }), tbl(['Konobar', 'Računa', 'Iznos'], Object.entries(wb).map(([n, v]) => [n, String(v.n), money(v.s)])));
-  const it = {}; rs.forEach(r => r.stavke.forEach(l => { it[l.naziv] = (it[l.naziv] || { k: 0, s: 0 }); it[l.naziv].k += l.kol; it[l.naziv].s += l.kol * l.cijena; }));
+  const it = {}; rs.forEach(r => r.stavke.forEach(l => { const kk = l.naziv + (l.opis ? ' ' + l.opis : ''); it[kk] = (it[kk] || { k: 0, s: 0 }); it[kk].k += l.kol; it[kk].s += l.kol * l.cijena; }));
   const top = Object.entries(it).sort((a, b) => b[1].k - a[1].k).slice(0, 15);
   if (top.length) root.append(h('h3', { text: 'Najprodavaniji artikli' }), tbl(['Artikal', 'Količina', 'Iznos'], top.map(([n, v]) => [n, String(v.k), money(v.s)])));
   root.append(h('div', { style: 'margin-top:14px;color:#b00;font-weight:bold', text: 'Interni izvještaj iz simulirane naplate – nije fiskalni dokument.' }));
@@ -1203,7 +1210,7 @@ $('installBtn').addEventListener('click', async () => {
   if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('installBtn').style.display = 'none'; }
   else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
 });
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261108e').catch(e => console.warn('SW', e)));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261108f').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
