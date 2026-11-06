@@ -10,10 +10,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Konobar">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=20261108i">
+<link rel="manifest" href="manifest.webmanifest?v=20261108j">
 <link rel="icon" type="image/png" sizes="192x192" href="ikona-192.png?v=3">
 <link rel="apple-touch-icon" href="ikona-180.png?v=3">
-<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261108i">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261108j">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -155,11 +155,13 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .item .nm{flex:1;min-width:0}
 .item .nm b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis}
 .item .nm small{color:var(--muted)}
-.item .pr{font-weight:700;white-space:nowrap;text-align:right}
-.item .pr small{display:block;font-weight:400;color:var(--muted);font-size:.68rem}
-.plus{width:42px;height:42px;border-radius:50%;background:var(--accent);color:#fff;font-size:1.3rem;font-weight:700;flex-shrink:0}
+.item .pr{font-weight:500;font-size:.8rem;color:var(--muted);white-space:nowrap;text-align:right}
+.ctl{display:flex;align-items:center;justify-content:flex-end;gap:6px;min-width:128px;flex-shrink:0}
+.qv{min-width:26px;text-align:center;font-size:1.35rem;font-weight:800}
+.item .pr small{display:block;font-weight:400;color:var(--muted);font-size:.62rem;opacity:.8}
+.plus{width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;font-size:1.3rem;font-weight:700;flex-shrink:0}
 .plus:active{transform:scale(.92)}
-.minus{width:42px;height:42px;border-radius:50%;background:transparent;color:var(--busy);border:2px solid var(--busy);font-size:1.4rem;font-weight:700;line-height:1;flex-shrink:0;display:none}
+.minus{width:40px;height:40px;border-radius:50%;background:transparent;color:var(--busy);border:2px solid var(--busy);font-size:1.4rem;font-weight:700;line-height:1;flex-shrink:0;display:none}
 .minus:active{transform:scale(.92)}
 .qty button.dec{background:var(--busy-bg);border-color:var(--busy);color:var(--busy)}
 .qty button{width:34px;height:34px}
@@ -171,6 +173,7 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .item .nm small.od{color:var(--accent);font-weight:600}
 .qty{display:flex;align-items:center;gap:6px}
 .qty button{width:30px;height:30px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);font-weight:700}
+.line .cu{color:var(--muted);font-size:.78rem;white-space:nowrap}
 .line .lt{width:70px;text-align:right;font-weight:700}
 .none{color:var(--muted);padding:26px 0;text-align:center}
 .total{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-top:1px solid var(--line);font-size:1.15rem;font-weight:800;background:var(--panel2)}
@@ -517,14 +520,14 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261108i
+   KONOBAR – verzija 20261108j
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261108i';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261108j';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic3.js?v=20261108i';
+import { db, auth } from '../firebase-config-kafic3.js?v=20261108j';
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField, enableNetwork, disableNetwork }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
@@ -918,10 +921,12 @@ function renderModal(keepScroll) {
   if (!list.length) items.append(h('div', { class: 'none', text: menu.items.length ? 'Nema artikala' : 'Meni se učitava…' }));
   list.forEach(i => items.append(h('div', { class: 'item', 'data-id': i.id, onclick: () => addLine(i) },
     thumb(i),
-    h('div', { class: 'nm' }, h('b', { text: i.naziv }), i.opis ? h('small', { class: 'od', text: i.opis }) : null, h('small', { text: i.podkategorija }), h('span', { class: 'badge', style: 'display:none' })),
+    h('div', { class: 'nm' }, h('b', { text: i.naziv }), i.opis ? h('small', { class: 'od', text: i.opis }) : null, h('small', { text: i.podkategorija })),
     h('div', { class: 'pr' }, money(i.cijena), menu.currency ? h('small', { text: menu.currency }) : null),
-    h('button', { class: 'minus', type: 'button', 'aria-label': 'Umanji ' + i.naziv, title: 'Umanji količinu', text: '−', onclick: e => { e.stopPropagation(); const l = linesOf(S.orders[ui.openTable]).find(x => x.id === i.id); if (l) changeQty(l, -1); } }),
-    h('button', { class: 'plus', type: 'button', 'aria-label': 'Dodaj ' + i.naziv, text: '+' }))));
+    h('div', { class: 'ctl' },
+      h('button', { class: 'minus', type: 'button', 'aria-label': 'Umanji ' + i.naziv, title: 'Umanji količinu', text: '−', onclick: e => { e.stopPropagation(); const l = linesOf(S.orders[ui.openTable]).find(x => x.id === i.id); if (l) changeQty(l, -1); } }),
+      h('b', { class: 'qv', style: 'display:none', onclick: e => e.stopPropagation() }),
+      h('button', { class: 'plus', type: 'button', 'aria-label': 'Dodaj ' + i.naziv, text: '+' })))));
   if (keepScroll) items.scrollTop = prev;
   renderLines(); applyPane();
 }
@@ -942,6 +947,7 @@ function renderLines() {
   stavke.forEach(l => L.append(h('div', { class: 'line' },
     h('div', { class: 'nm' }, (l.gotovo >= l.kol ? '✓ ' : '') + l.naziv, opisOf(l) ? h('small', { class: 'od', text: opisOf(l) }) : null),
     h('div', { class: 'qty' }, h('button', { class: 'dec', type: 'button', 'aria-label': 'Umanji', text: '−', onclick: () => changeQty(l, -1) }), h('b', { text: l.kol }), h('button', { type: 'button', text: '+', onclick: () => changeQty(l, 1) })),
+    h('div', { class: 'cu', text: `(${l.kol}x${money(l.cijena)})` }),
     h('div', { class: 'lt', text: money(l.cijena * l.kol) }),
     h('button', { class: 'del', type: 'button', title: 'Ukloni stavku', 'aria-label': 'Ukloni stavku', text: '✕', onclick: () => removeLine(l) }))));
   $('total').textContent = fmt(orderTotal(id));
@@ -949,7 +955,7 @@ function renderLines() {
   $('tabCnt').textContent = stavke.reduce((s, l) => s + l.kol, 0);
   const busy = stavke.length > 0, st = $('mStatus'); st.textContent = busy ? 'Zauzet' : 'Slobodan'; st.className = 'status ' + (busy ? 'busy' : 'free');
   const byId = {}; stavke.forEach(l => { byId[l.id] = l.kol; });
-  document.querySelectorAll('#items .item').forEach(r => { const b = r.querySelector('.badge'), q = byId[r.getAttribute('data-id')]; r.querySelector('.minus').style.display = q ? 'block' : 'none'; b.style.display = q ? '' : 'none'; b.textContent = q ? '× ' + q : ''; });
+  document.querySelectorAll('#items .item').forEach(r => { const b = r.querySelector('.badge'), q = byId[r.getAttribute('data-id')]; const mn = r.querySelector('.minus'), qv = r.querySelector('.qv'); mn.style.display = q ? 'block' : 'none'; qv.style.display = q ? '' : 'none'; qv.textContent = q || ''; });
 }
 
 /* Izmjene narudžbe: atomski preko increment() — više konobara može dodavati na isti sto istovremeno */
@@ -1295,7 +1301,7 @@ $('installBtn').addEventListener('click', async () => {
   if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('installBtn').style.display = 'none'; }
   else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
 });
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261108i').catch(e => console.warn('SW', e)));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261108j').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
