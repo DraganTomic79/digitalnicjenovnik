@@ -10,10 +10,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Konobar">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=20261108f">
+<link rel="manifest" href="manifest.webmanifest?v=20261108g">
 <link rel="icon" type="image/png" sizes="192x192" href="ikona-192.png?v=3">
 <link rel="apple-touch-icon" href="ikona-180.png?v=3">
-<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261108f">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261108g">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -497,15 +497,15 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261108f
+   KONOBAR – verzija 20261108g
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261108f';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261108g';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic3.js?v=20261108f';
-import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField }
+import { db, auth } from '../firebase-config-kafic3.js?v=20261108g';
+import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField, enableNetwork, disableNetwork }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js';
@@ -1199,6 +1199,29 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (ui.ope
 S.theme = lsGet('konobar_theme', 'dark'); S.zone = lsGet('konobar_zone', 'enterijer');
 setTheme(S.theme);
 
+/* ---------- OSVJEŽAVANJE NAKON SPAVANJA / GUBITKA VEZE ----------
+   Kad računar ode u sleep ili telefon ugasi ekran, veza s bazom se prekine a Firestore je ponekad dugo ne obnovi.
+   Zato pri povratku (ekran upaljen, internet nazad, ili "preskočen" sat) ponovo uspostavimo vezu: listeneri odmah dobiju sve što je propušteno. */
+let reconnecting = false, lastTick = Date.now(), lastHidden = 0;
+async function resync() {
+  if (reconnecting || !S.profile) return; reconnecting = true;
+  try { await disableNetwork(db); await enableNetwork(db); } catch (e) { console.warn('resync', e); }
+  finally { reconnecting = false; }
+}
+function netBanner() {
+  const b = $('banner');
+  if (navigator.onLine === false) { b.textContent = 'Nema veze s internetom – podaci se ne osvježavaju dok se veza ne vrati.'; b.style.display = 'block'; }
+  else if (b.dataset.net) { b.style.display = 'none'; }
+  b.dataset.net = navigator.onLine === false ? '1' : '';
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden) lastHidden = Date.now(); else if (Date.now() - lastHidden > 10000) resync(); });
+window.addEventListener('pageshow', e => { if (e.persisted) resync(); });
+window.addEventListener('focus', () => { if (Date.now() - lastHidden > 10000 && lastHidden) { lastHidden = 0; resync(); } });
+window.addEventListener('online', () => { netBanner(); resync(); });
+window.addEventListener('offline', netBanner);
+setInterval(() => { const now = Date.now(); if (now - lastTick > 20000) resync(); lastTick = now; }, 5000);   // sat je stao (sleep) → odmah obnovi
+netBanner();
+
 /* ---------- INSTALACIJA KAO APLIKACIJA (PWA) ---------- */
 let installEvt = null;
 const standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
@@ -1210,7 +1233,7 @@ $('installBtn').addEventListener('click', async () => {
   if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('installBtn').style.display = 'none'; }
   else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
 });
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261108f').catch(e => console.warn('SW', e)));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261108g').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
