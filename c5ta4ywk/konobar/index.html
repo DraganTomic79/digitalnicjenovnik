@@ -10,10 +10,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Konobar">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=20261107e">
+<link rel="manifest" href="manifest.webmanifest?v=20261108a">
 <link rel="icon" type="image/png" sizes="192x192" href="ikona-192.png?v=3">
 <link rel="apple-touch-icon" href="ikona-180.png?v=3">
-<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261107e">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261108a">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -168,7 +168,36 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .m-foot{display:flex;gap:10px;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--line)}
 .m-foot .btn{flex:0 1 auto}
 
+/* ŠANK: stikeri */
+.sankmodal{width:100%;height:100dvh;max-height:100dvh;border-radius:0}
+.sankgrid{flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;align-content:start;background:var(--bg)}
+.sticky{position:relative;background:#fff3a8;color:#3b3200;border-radius:4px 4px 14px 4px;padding:12px 14px 10px;box-shadow:0 6px 14px rgba(0,0,0,.25);transform:rotate(var(--rot,0deg));border-top:8px solid #e8c800}
+:root[data-theme="dark"] .sticky{background:#f7e98a}
+.sticky.new{animation:pop .6s ease-out}
+@keyframes pop{0%{transform:scale(.85) rotate(var(--rot,0deg));opacity:0}100%{transform:scale(1) rotate(var(--rot,0deg));opacity:1}}
+:root[data-theme="dark"] .sticky.done,.sticky.done{background:#c8efc9;border-top-color:#4caf50;opacity:.75}
+.sticky .sh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px dashed rgba(0,0,0,.3);padding-bottom:6px;margin-bottom:6px}
+.sticky .sh b{font-size:1.25rem}
+.sticky .sh span{font-size:.78rem;font-weight:700}
+.sticky .sm2{font-size:.76rem;opacity:.75;margin-bottom:6px}
+.sticky .it{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 4px;border-bottom:1px dotted rgba(0,0,0,.25);font-size:1.05rem;font-weight:700;color:inherit;border-radius:6px}
+.sticky .it:active{background:rgba(0,0,0,.08)}
+.sticky .it i{font-style:normal;flex:0 0 22px;height:22px;border:2px solid #3b3200;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:.9rem}
+.sticky .it.ok{text-decoration:line-through;opacity:.55}
+.sticky .it.ok i{background:#2e7d32;border-color:#2e7d32;color:#fff}
+.sticky .it em{font-style:normal;font-size:.7rem;background:#d32f2f;color:#fff;border-radius:999px;padding:1px 7px;margin-left:auto}
+.sticky .ag{font-size:.74rem;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(0,0,0,.1)}
+.sticky .ag.late{background:#d32f2f;color:#fff}
+.sticky .ag.mid{background:#f59e0b;color:#000}
 /* tabovi modala (samo na telefonu) */
+.ordermodal{width:min(640px,100%);height:min(92dvh,800px)}
+.ordermodal .m-tabs{display:flex}
+.ordermodal .m-body{display:block;flex:1;min-height:0;overflow:hidden}
+.ordermodal .col{display:none;height:100%}
+.ordermodal .col.on{display:flex}
+.ordermodal .col.menu{border-right:0}
+.ordermodal .col h3{display:none}
+.ordermodal .items,.ordermodal .lines{min-height:0}
 .m-tabs{display:none;border-bottom:1px solid var(--line)}
 .m-tabs button{flex:1;padding:11px 8px;font-weight:700;color:var(--muted);border-bottom:3px solid transparent}
 .m-tabs button.on{color:var(--text);border-bottom-color:var(--accent)}
@@ -282,6 +311,7 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
   <div class="brand">Konobar <small id="cafeName">Stolovi i narudžbe</small></div>
   <div class="hdr-right">
     <button class="chip install" id="installBtn" type="button" style="display:none" title="Instaliraj kao aplikaciju">📲 Instaliraj aplikaciju</button>
+    <button class="chip" id="sankBtn" type="button" style="display:none" title="Narudžbe za šank">🍸 Šank</button>
     <button class="chip" id="turnBtn" type="button" title="Pregled prometa po danima">Promet danas: <b id="turnover">–</b></button>
     <span class="chip" id="whoChip"></span>
     <div class="toggle" id="modeToggle" role="group" aria-label="Režim rada" style="display:none">
@@ -323,7 +353,7 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <!-- Modal narudžbe -->
 <div class="overlay" id="orderOv">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="modal ordermodal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
     <div class="m-head">
       <h2 id="mTitle"></h2>
       <span class="status" id="mStatus"></span>
@@ -349,6 +379,24 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
       <button class="btn ghost" id="closeBtn" type="button">Zatvori</button>
       <button class="btn danger" id="payBtn" type="button">Naplati i oslobodi sto</button>
     </div>
+  </div>
+</div>
+
+<!-- Šank: narudžbe kao stikeri -->
+<div class="overlay" id="sankOv" style="padding:0;z-index:60">
+  <div class="modal sankmodal">
+    <div class="m-head"><h2>🍸 Šank <small id="sankCnt" style="font-weight:400;color:var(--muted)"></small></h2>
+      <div style="display:flex;gap:8px"><button class="btn ghost sm" id="sankSnd" type="button" title="Zvuk za nove narudžbe">🔔 Zvuk: isključen</button><button class="btn ghost sm" id="sankClose" type="button">Zatvori</button></div></div>
+    <div class="sankgrid" id="sankGrid"></div>
+  </div>
+</div>
+
+<!-- Potvrda naplate -->
+<div class="overlay" id="cfOv" style="z-index:70">
+  <div class="modal" style="width:min(380px,100%);height:auto">
+    <div class="m-head"><h2>Naplatiti i osloboditi sto?</h2><button class="btn ghost sm" id="cfX" type="button" aria-label="Odustani">✕</button></div>
+    <div style="padding:18px;text-align:center"><div id="cfTxt" style="color:var(--muted);margin-bottom:6px"></div><div id="cfSum" style="font-size:1.8rem;font-weight:800"></div></div>
+    <div class="m-foot"><button class="btn ghost" id="cfNo" type="button">Odustani</button><button class="btn danger" id="cfYes" type="button">Da, naplati</button></div>
   </div>
 </div>
 
@@ -420,7 +468,7 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
       <div class="form" style="padding:14px 0 0">
         <label>Ime<input id="sName" type="text" placeholder="npr. Marko"></label>
         <label>Uloga
-          <select id="sRole"><option value="konobar">Konobar</option><option value="admin">Administrator</option></select>
+          <select id="sRole"><option value="konobar">Konobar</option><option value="sanker">Šanker</option><option value="admin">Administrator</option></select>
         </label>
         <label>E-mail<input id="sMail" type="email" placeholder="marko@primjer.com"></label>
         <label>Lozinka (min. 6 znakova)<input id="sPass" type="text" autocomplete="off"></label>
@@ -436,14 +484,14 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261107e
+   KONOBAR – verzija 20261108a
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261107e';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261108a';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic3.js?v=20261107e';
+import { db, auth } from '../firebase-config-kafic3.js?v=20261108a';
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
@@ -508,7 +556,7 @@ onAuthStateChanged(auth, async user => {
     const email = (user.email || '').toLowerCase();
     const snap = await getDoc(doc(db, 'osoblje', email));
     const p = snap.exists() ? snap.data() : null;
-    if (!p || p.aktivan === false || !['admin', 'konobar'].includes(p.role)) {
+    if (!p || p.aktivan === false || !['admin', 'konobar', 'sanker'].includes(p.role)) {
       $('lErr').textContent = 'Ovaj nalog nema dozvolu za pristup. Obratite se administratoru.';
       await signOut(auth); return;
     }
@@ -545,12 +593,13 @@ function startApp() {
   listen(col('stolovi'), 'stolovi', s => { S.tables = docsOf(s); safeRender(); });
   listen(col('narudzbe'), 'narudzbe', s => {
     S.orders = {}; s.docs.forEach(d => { S.orders[d.id] = d.data(); });
-    safeRender(); if (ui.openTable) renderLines();
+    safeRender(); if (ui.openTable) renderLines(); renderSank();
   });
   listen(col('prodaja'), 'prodaja', s => { S.sales = {}; s.docs.forEach(d => { S.sales[d.id] = d.data().kol || 0; }); });
-  listenToday();
-  clearInterval(startApp._t); startApp._t = setInterval(() => { if (S.todayKey !== dayStr(new Date())) listenToday(); }, 60000);
+  if (S.profile.role !== 'sanker') listenToday();
+  clearInterval(startApp._t); startApp._t = setInterval(() => { if (S.profile.role !== 'sanker' && S.todayKey !== dayStr(new Date())) listenToday(); }, 60000);
   renderAll();
+  if (S.profile.role === 'sanker') openSank();
 }
 function listenToday() {
   if (S.todayUnsub) { try { S.todayUnsub(); } catch (e) {} unsubs = unsubs.filter(u => u !== S.todayUnsub); }
@@ -578,7 +627,10 @@ function rebuildMenu() {
 /* ---------- ULOGE U SUČELJU ---------- */
 function applyRoleUI() {
   const a = isAdmin();
-  $('whoChip').textContent = `${S.profile.ime} · ${a ? 'Admin' : 'Konobar'}`;
+  const isSk = S.profile.role === 'sanker';
+  $('whoChip').textContent = `${S.profile.ime} · ${a ? 'Admin' : isSk ? 'Šanker' : 'Konobar'}`;
+  $('sankBtn').style.display = '';
+  $('turnBtn').style.display = isSk ? 'none' : '';
   $('modeToggle').style.display = a ? '' : 'none';
   $('staffBtn').style.display = a ? '' : 'none';
   $('turnBtn').firstChild.textContent = a ? 'Promet danas: ' : 'Moj promet danas: ';
@@ -754,10 +806,57 @@ function closeTableEditor() { ui.editTable = null; $('tblOv').classList.remove('
 
 /* ---------- MODAL NARUDŽBE ---------- */
 function openOrder(id) {
-  ui.openTable = id; ui.q = ''; ui.pane = 'menu'; $('q').value = '';
+  ui.openTable = id; ui.q = ''; ui.pane = hasOrder(id) ? 'order' : 'menu'; $('q').value = '';
   ui.cat = topItems().length ? '★' : 'Sve';
   $('orderOv').classList.add('show'); renderModal();
 }
+/* ---------- ŠANK ---------- */
+const sk = { open: false, sound: false, pending: null, ctx: null };
+function pendingOf(l) { return Math.max(0, l.kol - Math.min(l.kol, l.gotovo || 0)); }
+function openSank() { sk.open = true; $('sankOv').classList.add('show'); $('sankClose').style.display = S.profile && S.profile.role === 'sanker' ? 'none' : ''; renderSank(); }
+function closeSank() { sk.open = false; $('sankOv').classList.remove('show'); }
+function ago(ms) { const m = Math.max(0, Math.floor((Date.now() - ms) / 60000)); return m < 1 ? 'upravo' : m < 60 ? 'prije ' + m + ' min' : 'prije ' + Math.floor(m / 60) + ' h ' + (m % 60) + ' min'; }
+function renderSank() {
+  if (!sk.open) return;
+  const box = $('sankGrid'); box.textContent = '';
+  const list = Object.entries(S.orders).map(([id, o]) => ({ id, o, lines: linesOf(o) })).filter(x => x.lines.length);
+  list.forEach(x => { x.pend = x.lines.reduce((a, l) => a + pendingOf(l), 0); x.oldest = Math.min(...x.lines.filter(l => pendingOf(l) > 0).map(l => l.t || x.o.otvoreno || Date.now()), Infinity); });
+  list.sort((a, b) => (a.pend === 0) - (b.pend === 0) || a.oldest - b.oldest);
+  const totalPend = list.reduce((a, x) => a + x.pend, 0);
+  $('sankCnt').textContent = list.length ? `· ${list.filter(x => x.pend > 0).length} za pripremu, ${totalPend} stavki` : '';
+  if (!list.length) box.append(h('div', { class: 'none', style: 'grid-column:1/-1', text: 'Nema otvorenih narudžbi.' }));
+  list.forEach((x, idx) => {
+    const t = S.tables.find(tt => tt.id === x.id), mins = x.oldest === Infinity ? 0 : Math.floor((Date.now() - x.oldest) / 60000);
+    const card = h('div', { class: 'sticky' + (x.pend === 0 ? ' done' : ''), style: `--rot:${((idx * 37) % 5 - 2) * 0.6}deg` },
+      h('div', { class: 'sh' }, h('b', { text: t ? tName(t) : 'Sto' }), x.pend > 0 ? h('span', { class: 'ag' + (mins >= 10 ? ' late' : mins >= 5 ? ' mid' : ''), text: ago(x.oldest) }) : h('span', { text: '✓ sve spremno' })),
+      h('div', { class: 'sm2', text: `${t ? (ZONES.find(z => z.id === t.zona) || {}).name || '' : ''} · konobar: ${x.o.konobarIme || '–'}` }),
+      ...x.lines.map(l => {
+        const pn = pendingOf(l), partial = (l.gotovo || 0) > 0 && pn > 0;
+        return h('button', { class: 'it' + (pn === 0 ? ' ok' : ''), type: 'button', onclick: () => sankToggle(x.id, l) },
+          h('i', { text: pn === 0 ? '✓' : '' }), h('span', { text: `${l.kol} × ${l.naziv}` }), partial ? h('em', { text: `+${pn} novo` }) : null);
+      }));
+    box.append(card);
+  });
+  // zvuk za nove stavke
+  if (sk.pending !== null && totalPend > sk.pending && sk.sound) beep();
+  sk.pending = totalPend;
+}
+async function sankToggle(id, l) {
+  try { await updateDoc(doc(db, 'narudzbe', id), { ['stavke.' + l.id + '.gotovo']: pendingOf(l) > 0 ? l.kol : 0 }); }
+  catch (err) { fail('šank – označavanje', err); }
+}
+function beep() {
+  try {
+    const c = sk.ctx || (sk.ctx = new (window.AudioContext || window.webkitAudioContext)());
+    const o = c.createOscillator(), g = c.createGain(); o.connect(g); g.connect(c.destination);
+    o.type = 'sine'; o.frequency.value = 880; g.gain.setValueAtTime(.18, c.currentTime); g.gain.exponentialRampToValueAtTime(.001, c.currentTime + .5);
+    o.start(); o.stop(c.currentTime + .5);
+  } catch (e) {}
+}
+$('sankBtn').addEventListener('click', openSank);
+$('sankClose').addEventListener('click', closeSank);
+$('sankSnd').addEventListener('click', () => { sk.sound = !sk.sound; $('sankSnd').textContent = '🔔 Zvuk: ' + (sk.sound ? 'uključen' : 'isključen'); if (sk.sound) beep(); });
+setInterval(() => { if (sk.open) renderSank(); }, 30000);
 function closeOrder() { ui.openTable = null; $('orderOv').classList.remove('show'); }
 const sold = id => S.sales[id] || 0;
 function topItems() { return menu.items.filter(i => sold(i.id) > 0).sort((a, b) => sold(b.id) - sold(a.id)).slice(0, 15); }
@@ -801,7 +900,7 @@ function renderLines() {
   const stavke = linesOf(S.orders[id]); const L = $('lines'); L.textContent = '';
   if (!stavke.length) L.append(h('div', { class: 'none', text: 'Nema artikala na računu. Dodajte ih tipkom + iz mini-menija.' }));
   stavke.forEach(l => L.append(h('div', { class: 'line' },
-    h('div', { class: 'nm', text: l.naziv }),
+    h('div', { class: 'nm', text: (l.gotovo >= l.kol ? '✓ ' : '') + l.naziv }),
     h('div', { class: 'qty' }, h('button', { class: 'dec', type: 'button', 'aria-label': 'Umanji', text: '−', onclick: () => changeQty(l, -1) }), h('b', { text: l.kol }), h('button', { type: 'button', text: '+', onclick: () => changeQty(l, 1) })),
     h('div', { class: 'lt', text: money(l.cijena * l.kol) }),
     h('button', { class: 'del', type: 'button', title: 'Ukloni stavku', 'aria-label': 'Ukloni stavku', text: '✕', onclick: () => removeLine(l) }))));
@@ -996,7 +1095,7 @@ function renderStaff(list) {
   const box = $('stList'); box.textContent = '';
   list.sort((a, b) => (a.ime || '').localeCompare(b.ime || '')).forEach(p => box.append(h('div', { class: 'staff-row' },
     h('div', { class: 'g' }, h('b', { text: p.ime || p.id }), h('small', { text: p.id })),
-    h('span', { class: 'pill ' + (p.role === 'admin' ? 'admin' : ''), text: p.role === 'admin' ? 'Admin' : 'Konobar' }),
+    h('span', { class: 'pill ' + (p.role === 'admin' ? 'admin' : ''), text: p.role === 'admin' ? 'Admin' : p.role === 'sanker' ? 'Šanker' : 'Konobar' }),
     p.id === me() ? h('span', { class: 'pill', text: 'Vi' }) : h('button', { class: 'btn danger sm', type: 'button', text: 'Ukloni', onclick: async () => { if (confirm(`Ukloniti pristup za ${p.ime || p.id}?`)) { try { await deleteDoc(doc(db, 'osoblje', p.id)); } catch (e) { fail('uklanjanje', e); } } } }))));
   if (!list.length) box.append(h('div', { class: 'none', text: 'Nema osoblja.' }));
 }
@@ -1033,7 +1132,17 @@ $('q').addEventListener('input', e => { ui.q = e.target.value; renderModal(); })
 $('closeBtn').addEventListener('click', closeOrder);
 $('tabMenu').addEventListener('click', () => { ui.pane = 'menu'; applyPane(); });
 $('tabOrder').addEventListener('click', () => { ui.pane = 'order'; applyPane(); });
-$('payBtn').addEventListener('click', pay);
+$('payBtn').addEventListener('click', () => {
+  const id = ui.openTable; if (!id || !hasOrder(id)) return;
+  const t = S.tables.find(x => x.id === id);
+  $('cfTxt').textContent = t ? tName(t) : '';
+  $('cfSum').textContent = fmt(orderTotal(id));
+  $('cfOv').classList.add('show');
+});
+const cfClose = () => $('cfOv').classList.remove('show');
+$('cfNo').addEventListener('click', cfClose); $('cfX').addEventListener('click', cfClose);
+$('cfOv').addEventListener('click', e => { if (e.target === $('cfOv')) cfClose(); });
+$('cfYes').addEventListener('click', () => { cfClose(); pay(); });
 $('rcOk').addEventListener('click', () => $('rcOv').classList.remove('show'));
 $('printBtn').addEventListener('click', () => window.print());
 $('eSave').addEventListener('click', saveTableEditor);
@@ -1068,7 +1177,7 @@ $('installBtn').addEventListener('click', async () => {
   if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('installBtn').style.display = 'none'; }
   else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
 });
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261107e').catch(e => console.warn('SW', e)));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261108a').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
