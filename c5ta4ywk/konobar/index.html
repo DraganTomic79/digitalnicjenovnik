@@ -10,10 +10,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Konobar">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=20261108j">
+<link rel="manifest" href="manifest.webmanifest?v=20261108k">
 <link rel="icon" type="image/png" sizes="192x192" href="ikona-192.png?v=3">
 <link rel="apple-touch-icon" href="ikona-180.png?v=3">
-<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261108j">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261108k">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -520,14 +520,14 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261108j
+   KONOBAR – verzija 20261108k
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261108j';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261108k';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic3.js?v=20261108j';
+import { db, auth } from '../firebase-config-kafic3.js?v=20261108k';
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField, enableNetwork, disableNetwork }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
@@ -1104,14 +1104,21 @@ function reportNode(kind) {
     h('div', { text: `Period: ${period} · Konobar: ${who || '-'} · Izdato: ${new Date().toLocaleString('sr-Latn-BA')}` }),
     h('div', { style: 'margin:10px 0;font-size:16px' }, h('b', { text: `Ukupno: ${money(tot)}${cur}` }), ` · računa: ${rs.length}` + (rs.length ? ` · prosjek: ${money(tot / rs.length)}${cur}` : '')));
   const tbl = (head, rows) => h('table', {}, h('tr', {}, head.map((x, i) => h('th', { class: i === head.length - 1 || x.r ? 'r' : '', text: x.t || x }))), rows.map(r => h('tr', {}, r.map((c, i) => h('td', { class: i === r.length - 1 ? 'r' : '', text: c })))));
+  // Rang konobara po prometu (na početku izvještaja)
+  const wb = {}; rs.forEach(r => { const k = r.konobarIme || r.konobarEmail || '?'; (wb[k] = wb[k] || { n: 0, s: 0 }); wb[k].n++; wb[k].s += r.ukupno; });
+  const rank = Object.entries(wb).sort((a, b) => b[1].s - a[1].s);
+  if (rank.length > 1) {
+    const t = tbl(['#', 'Konobar', 'Računa', 'Prosjek računa', 'Udio', 'Promet'],
+      rank.map(([n, v], i) => [String(i + 1) + '.', n, String(v.n), money(v.s / v.n), (tot ? Math.round(v.s / tot * 100) : 0) + ' %', money(v.s)]));
+    t.querySelectorAll('tr')[1].style.cssText = 'background:#fff3cf;font-weight:bold';
+    root.append(h('h3', { text: 'Rang konobara po prometu' }), t);
+  }
   if (kind === 'month') {
     const by = {}; rs.forEach(r => { (by[r.dan] = by[r.dan] || { n: 0, s: 0 }); by[r.dan].n++; by[r.dan].s += r.ukupno; });
     root.append(h('h3', { text: 'Promet po danima' }), tbl(['Datum', 'Računa', 'Iznos'], Object.keys(by).sort().map(k => [dayLabel(k), String(by[k].n), money(by[k].s)])));
   } else {
     root.append(h('h3', { text: 'Računi' }), tbl(['Vrijeme', 'Sto', 'Konobar', 'Stavke', 'Iznos'], rs.sort((a, b) => a.ts - b.ts).map(r => [new Date(r.ts).toLocaleTimeString('sr-Latn-BA', { hour: '2-digit', minute: '2-digit' }), r.stolNaziv || ('Sto ' + r.stolBroj), r.konobarIme, r.stavke.map(l => `${l.kol}× ${l.naziv}${l.opis ? " " + l.opis : ""}`).join(', '), money(r.ukupno)])));
   }
-  const wb = {}; rs.forEach(r => { wb[r.konobarIme] = (wb[r.konobarIme] || { n: 0, s: 0 }); wb[r.konobarIme].n++; wb[r.konobarIme].s += r.ukupno; });
-  if (Object.keys(wb).length > 1 || ui.pm.sel.size === 0) root.append(h('h3', { text: 'Po konobarima' }), tbl(['Konobar', 'Računa', 'Iznos'], Object.entries(wb).map(([n, v]) => [n, String(v.n), money(v.s)])));
   const it = {}; rs.forEach(r => r.stavke.forEach(l => { const kk = l.naziv + (l.opis ? ' ' + l.opis : ''); it[kk] = (it[kk] || { k: 0, s: 0 }); it[kk].k += l.kol; it[kk].s += l.kol * l.cijena; }));
   const top = Object.entries(it).sort((a, b) => b[1].k - a[1].k).slice(0, 15);
   if (top.length) root.append(h('h3', { text: 'Najprodavaniji artikli' }), tbl(['Artikal', 'Količina', 'Iznos'], top.map(([n, v]) => [n, String(v.k), money(v.s)])));
@@ -1301,7 +1308,7 @@ $('installBtn').addEventListener('click', async () => {
   if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('installBtn').style.display = 'none'; }
   else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
 });
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261108j').catch(e => console.warn('SW', e)));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261108k').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
