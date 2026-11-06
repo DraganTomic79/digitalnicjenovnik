@@ -10,10 +10,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Konobar">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=20261106t">
+<link rel="manifest" href="manifest.webmanifest?v=20261106u">
 <link rel="icon" type="image/png" sizes="192x192" href="ikona-192.png?v=3">
 <link rel="apple-touch-icon" href="ikona-180.png?v=3">
-<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261106t">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261106u">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -170,7 +170,8 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 /* ŠANK: stikeri */
 .sankmodal{width:100%;height:100dvh;max-height:100dvh;border-radius:0}
-.sankgrid{flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;align-content:start;background:var(--bg)}
+.sankmodal .m-head{padding:10px 12px}.sankmodal .m-head h2{font-size:1rem}.sankmodal .m-head .btn{white-space:nowrap;padding:8px 10px;font-size:.78rem}.sankmodal .m-head small{display:block}
+.sankgrid{flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;align-content:start;background:var(--bg)}
 .sticky{position:relative;background:#fff3a8;color:#3b3200;border-radius:4px 4px 14px 4px;padding:8px 10px 6px;box-shadow:0 6px 14px rgba(0,0,0,.25);transform:rotate(var(--rot,0deg));border-top:8px solid #e8c800}
 :root[data-theme="dark"] .sticky{background:#f7e98a}
 .sticky.new{animation:pop .6s ease-out}
@@ -180,8 +181,9 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .sticky .sh b{font-size:1rem}
 .sticky .sh span{font-size:.68rem;font-weight:700}
 .sticky .sm2{font-size:.66rem;opacity:.75;margin-bottom:6px}
-.sticky .it{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:6px 3px;border-bottom:1px dotted rgba(0,0,0,.25);font-size:.85rem;font-weight:600;color:inherit;border-radius:6px}
+.sticky .it{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:6px 3px;border-bottom:1px dotted rgba(0,0,0,.25);font-size:.74rem;font-weight:600;white-space:nowrap;color:inherit;border-radius:6px}
 .sticky .it:active{background:rgba(0,0,0,.08)}
+.sticky .it span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sticky .it i{font-style:normal;flex:0 0 18px;height:18px;border:2px solid #3b3200;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:.9rem}
 .sticky .it.ok{text-decoration:line-through;opacity:.55}
 .sticky .it.ok i{background:#2e7d32;border-color:#2e7d32;color:#fff}
@@ -386,7 +388,7 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 <div class="overlay" id="sankOv" style="padding:0;z-index:60">
   <div class="modal sankmodal">
     <div class="m-head"><h2>🍸 Šank <small id="sankCnt" style="font-weight:400;color:var(--muted)"></small></h2>
-      <div style="display:flex;gap:8px"><button class="btn ghost sm" id="sankSnd" type="button" title="Zvuk za nove narudžbe">🔔 Zvuk: isključen</button><button class="btn ghost sm" id="sankClose" type="button">Zatvori</button></div></div>
+      <div style="display:flex;gap:8px"><button class="btn ghost sm" id="sankSnd" type="button" title="Zvuk za nove narudžbe">🔕 Zvuk: ne</button><button class="btn ghost sm" id="sankClose" type="button">Zatvori</button><button class="btn danger sm" id="sankOut" type="button">Odjava</button></div></div>
     <div class="sankgrid" id="sankGrid"></div>
   </div>
 </div>
@@ -484,14 +486,14 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261106t
+   KONOBAR – verzija 20261106u
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261106t';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261106u';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic3.js?v=20261106t';
+import { db, auth } from '../firebase-config-kafic3.js?v=20261106u';
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
@@ -813,7 +815,7 @@ function openOrder(id) {
 /* ---------- ŠANK ---------- */
 const sk = { open: false, sound: false, pending: null, ctx: null };
 function pendingOf(l) { return Math.max(0, l.kol - Math.min(l.kol, l.gotovo || 0)); }
-function openSank() { sk.open = true; $('sankOv').classList.add('show'); $('sankClose').style.display = S.profile && S.profile.role === 'sanker' ? 'none' : ''; renderSank(); }
+function openSank() { sk.open = true; $('sankOv').classList.add('show'); const isSk = S.profile && S.profile.role === 'sanker'; $('sankClose').style.display = isSk ? 'none' : ''; $('sankOut').style.display = isSk ? '' : 'none'; renderSank(); }
 function closeSank() { sk.open = false; $('sankOv').classList.remove('show'); }
 function ago(ms) { const m = Math.max(0, Math.floor((Date.now() - ms) / 60000)); return m < 1 ? 'upravo' : m < 60 ? 'prije ' + m + ' min' : 'prije ' + Math.floor(m / 60) + ' h ' + (m % 60) + ' min'; }
 function renderSank() {
@@ -855,7 +857,8 @@ function beep() {
 }
 $('sankBtn').addEventListener('click', openSank);
 $('sankClose').addEventListener('click', closeSank);
-$('sankSnd').addEventListener('click', () => { sk.sound = !sk.sound; $('sankSnd').textContent = '🔔 Zvuk: ' + (sk.sound ? 'uključen' : 'isključen'); if (sk.sound) beep(); });
+$('sankOut').addEventListener('click', () => { closeSank(); signOut(auth); });
+$('sankSnd').addEventListener('click', () => { sk.sound = !sk.sound; $('sankSnd').textContent = sk.sound ? '🔔 Zvuk: da' : '🔕 Zvuk: ne'; if (sk.sound) beep(); });
 setInterval(() => { if (sk.open) renderSank(); }, 30000);
 function closeOrder() { ui.openTable = null; $('orderOv').classList.remove('show'); }
 const sold = id => S.sales[id] || 0;
@@ -1177,7 +1180,7 @@ $('installBtn').addEventListener('click', async () => {
   if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('installBtn').style.display = 'none'; }
   else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
 });
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261106t').catch(e => console.warn('SW', e)));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261106u').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
