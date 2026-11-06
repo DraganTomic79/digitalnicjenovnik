@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="sr-Latn-BA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Konobar – Stolovi i narudžbe</title>
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png">
+<style>
+/* ===== TEMA (varijable) ===== */
+:root{
+  --bg:#f4f1ea; --panel:#fff; --panel2:#faf8f3; --text:#1f1d1a; --muted:#7a746a; --line:#e3ddd0;
+  --accent:#b48a3c; --accent-d:#8f6a24; --free:#2e9e5b; --free-bg:#e6f5ec; --busy:#d64545; --busy-bg:#fbe9e9;
+  --grid:rgba(60,50,30,.07); --shadow:0 6px 24px rgba(40,30,10,.12); --r:14px;
+}
+:root[data-theme="dark"]{
+  --bg:#14151a; --panel:#1d1f26; --panel2:#23262f; --text:#eceae4; --muted:#9a968c; --line:#33363f;
+  --accent:#d1a64e; --accent-d:#b48a3c; --free:#3fbf7a; --free-bg:#17352a; --busy:#ef5b5b; --busy-bg:#3a1d1f;
+  --grid:rgba(255,255,255,.06); --shadow:0 6px 24px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;min-height:100dvh}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,select{font:inherit;color:inherit}
+
+/* ===== ZAGLAVLJE ===== */
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.brand{font-weight:700;letter-spacing:.2px}
+.brand small{display:block;font-weight:400;color:var(--muted);font-size:.72rem}
+.hdr-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip{padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);font-size:.85rem}
+select.chip{padding:7px 10px}
+.btn{padding:9px 14px;border-radius:10px;background:var(--accent);color:#fff;font-weight:600}
+.btn:hover{background:var(--accent-d)}
+.btn.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+.btn.danger{background:var(--busy)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+
+/* prekidač režima */
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel2)}
+.toggle button{padding:8px 14px;font-size:.85rem;font-weight:600;color:var(--muted)}
+.toggle button.on{background:var(--accent);color:#fff}
+.toggle[aria-disabled="true"]{opacity:.5;pointer-events:none}
+
+/* ===== TABOVI ZONA ===== */
+.tabs{display:flex;gap:6px;padding:10px 14px 0}
+.tab{padding:10px 20px;border-radius:12px 12px 0 0;font-weight:600;color:var(--muted);background:transparent;border:1px solid transparent;border-bottom:0}
+.tab.on{background:var(--panel);color:var(--text);border-color:var(--line)}
+.tab .cnt{margin-left:8px;font-size:.75rem;padding:2px 7px;border-radius:999px;background:var(--busy-bg);color:var(--busy)}
+
+/* ===== TOOLBAR EDITORA ===== */
+.editbar{display:none;gap:10px;flex-wrap:wrap;align-items:flex-end;padding:12px 14px;margin:0 14px;background:var(--panel);border:1px solid var(--line);border-top:0}
+.editbar.show{display:flex}
+.editbar label{display:flex;flex-direction:column;font-size:.72rem;color:var(--muted);gap:3px}
+.editbar input,.editbar select{padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);width:110px}
+.hint{font-size:.8rem;color:var(--muted);padding:0 14px 8px}
+
+/* ===== PLATNO ===== */
+main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
+.canvas-wrap{background:var(--panel);border:1px solid var(--line);border-radius:0 var(--r) var(--r) var(--r);padding:10px;flex:1;display:flex;flex-direction:column}
+.canvas{position:relative;flex:1;min-height:52vh;border-radius:10px;border:2px dashed var(--line);overflow:hidden;touch-action:none;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:32px 32px;background-color:var(--panel2)}
+.canvas.editing{border-color:var(--accent);border-style:solid}
+.canvas .zlabel{position:absolute;right:10px;bottom:6px;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:1.5px;pointer-events:none}
+.empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);text-align:center;padding:20px;pointer-events:none}
+
+/* ===== STO ===== */
+.table{--sz:92px;position:absolute;width:var(--sz);height:var(--sz);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:3px solid var(--free);background:var(--free-bg);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.1);user-select:none;text-align:center;line-height:1.15;transition:background .15s,border-color .15s}
+.table.round{border-radius:50%}
+.table.square{border-radius:16px}
+.table.busy{border-color:var(--busy);background:var(--busy-bg)}
+.table .no{font-weight:800;font-size:1.25rem}
+.table .meta{font-size:.68rem;color:var(--muted)}
+.table .sum{font-size:.78rem;font-weight:700;color:var(--busy)}
+.table .wtr{position:absolute;top:-8px;left:-8px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.canvas.editing .table{cursor:grab;border-style:dashed}
+.canvas.editing .table.drag{cursor:grabbing;opacity:.85;z-index:5;box-shadow:var(--shadow)}
+.canvas:not(.editing) .table{cursor:pointer}
+.canvas:not(.editing) .table:hover{transform:scale(1.04)}
+.table .x{display:none;position:absolute;top:-10px;right:-10px;width:26px;height:26px;border-radius:50%;background:var(--busy);color:#fff;font-weight:700;line-height:26px;font-size:.85rem}
+.canvas.editing .table .x{display:block}
+
+/* ===== LEGENDA ===== */
+.legend{display:flex;gap:14px;align-items:center;padding:8px 2px 0;font-size:.8rem;color:var(--muted);flex-wrap:wrap}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+
+/* ===== MODAL ===== */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:12px}
+.overlay.show{display:flex}
+.modal{background:var(--panel);border-radius:18px;width:min(940px,100%);max-height:94dvh;display:flex;flex-direction:column;box-shadow:var(--shadow);overflow:hidden}
+.m-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.m-head h2{margin:0;font-size:1.2rem}
+.status{padding:4px 12px;border-radius:999px;font-size:.78rem;font-weight:700}
+.status.free{background:var(--free-bg);color:var(--free)}
+.status.busy{background:var(--busy-bg);color:var(--busy)}
+.m-body{display:grid;grid-template-columns:1.15fr 1fr;gap:0;min-height:0;flex:1;overflow:hidden}
+.col{display:flex;flex-direction:column;min-height:0}
+.col.menu{border-right:1px solid var(--line)}
+.col h3{margin:0;padding:12px 16px 6px;font-size:.8rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+.search{margin:0 16px 8px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);width:calc(100% - 32px)}
+.cats{display:flex;gap:6px;overflow-x:auto;padding:0 16px 8px;flex-shrink:0}
+.cats button{white-space:nowrap;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);font-size:.8rem}
+.cats button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.items{overflow-y:auto;padding:0 16px 12px;flex:1;min-height:120px}
+.item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.item .nm{flex:1;min-width:0}
+.item .nm b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis}
+.item .nm small{color:var(--muted)}
+.item .pr{font-weight:700;white-space:nowrap}
+.plus{width:38px;height:38px;border-radius:50%;background:var(--accent);color:#fff;font-size:1.3rem;font-weight:700;flex-shrink:0}
+.plus:active{transform:scale(.92)}
+.lines{overflow-y:auto;padding:0 16px;flex:1;min-height:120px}
+.line{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}
+.line .nm{flex:1;min-width:0;font-weight:600}
+.qty{display:flex;align-items:center;gap:6px}
+.qty button{width:30px;height:30px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);font-weight:700}
+.line .lt{width:70px;text-align:right;font-weight:700}
+.none{color:var(--muted);padding:26px 0;text-align:center}
+.total{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-top:1px solid var(--line);font-size:1.15rem;font-weight:800;background:var(--panel2)}
+.m-foot{display:flex;gap:10px;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--line)}
+.m-foot .btn{flex:0 1 auto}
+
+/* račun */
+.receipt{font-family:ui-monospace,Menlo,Consolas,monospace;background:#fff;color:#111;padding:18px;border-radius:10px;margin:16px;font-size:.85rem}
+.receipt h3{margin:0 0 4px;text-align:center;font-size:1rem}
+.receipt .c{text-align:center;color:#555}
+.receipt hr{border:0;border-top:1px dashed #999;margin:10px 0}
+.receipt .r{display:flex;justify-content:space-between;gap:8px}
+.receipt .warn{margin-top:10px;text-align:center;font-weight:700;color:#b00}
+
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:999px;z-index:99;font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+.banner{margin:8px 14px 0;padding:8px 12px;border-radius:10px;font-size:.8rem;background:#fff4d6;color:#6b5200;display:none}
+:root[data-theme="dark"] .banner{background:#3a3114;color:#f2d98a}
+
+/* mobilno: modal kao donji panel, kolone jedna ispod druge */
+@media (max-width:720px){
+  .overlay{align-items:flex-end;padding:0}
+  .modal{border-radius:18px 18px 0 0;max-height:96dvh}
+  .m-body{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) minmax(0,1fr);overflow:hidden}
+  .col.menu{border-right:0;border-bottom:1px solid var(--line)}
+  .table{--sz:78px}
+  .tab{padding:10px 14px}
+}
+@media print{header,.tabs,.editbar,main,.m-foot{display:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Konobar <small id="cafeName">Kafić 3 · stolovi i narudžbe</small></div>
+  <div class="hdr-right">
+    <span class="chip" title="Zbir naplaćenih računa u ovoj probnoj sesiji">Promet: <b id="turnover">0.00</b></span>
+    <select class="chip" id="userSel" title="Prijavljeni korisnik (probna simulacija uloga)"></select>
+    <div class="toggle" id="modeToggle" role="group" aria-label="Režim rada">
+      <button id="modeWork" class="on" type="button">Pregled / Rad</button>
+      <button id="modeEdit" type="button">Uredi raspored</button>
+    </div>
+    <button class="chip" id="themeBtn" type="button" title="Svijetla / tamna tema">◐</button>
+  </div>
+</header>
+
+<div class="banner" id="banner"></div>
+<div class="tabs" id="tabs"></div>
+
+<div class="editbar" id="editbar">
+  <label>Oblik
+    <select id="newShape"><option value="round">Okrugli</option><option value="square">Kvadratni</option></select>
+  </label>
+  <label>Broj stola<input id="newNo" type="number" min="1" inputmode="numeric" placeholder="npr. 12"></label>
+  <label>Kapacitet (stolica)<input id="newCap" type="number" min="1" max="30" inputmode="numeric" value="4"></label>
+  <button class="btn" id="addTableBtn" type="button">+ Dodaj sto</button>
+</div>
+<div class="hint" id="hint"></div>
+
+<main>
+  <div class="canvas-wrap">
+    <div class="canvas" id="canvas"></div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--free)"></i>Slobodan</span>
+      <span><i class="dot" style="background:var(--busy)"></i>Zauzet / ima narudžbu</span>
+      <span id="stats" style="margin-left:auto"></span>
+    </div>
+  </div>
+</main>
+
+<!-- Modal narudžbe -->
+<div class="overlay" id="orderOv">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <div class="m-head">
+      <h2 id="mTitle"></h2>
+      <span class="status" id="mStatus"></span>
+    </div>
+    <div class="m-body">
+      <div class="col menu">
+        <h3>Mini-meni</h3>
+        <input class="search" id="q" type="search" placeholder="Pretraži artikle…" autocomplete="off">
+        <div class="cats" id="cats"></div>
+        <div class="items" id="items"></div>
+      </div>
+      <div class="col">
+        <h3>Narudžba stola</h3>
+        <div class="lines" id="lines"></div>
+        <div class="total"><span>Ukupno</span><span id="total">0.00</span></div>
+      </div>
+    </div>
+    <div class="m-foot">
+      <button class="btn ghost" id="closeBtn" type="button">Zatvori</button>
+      <button class="btn danger" id="payBtn" type="button">Naplati i oslobodi sto</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal računa -->
+<div class="overlay" id="rcOv">
+  <div class="modal" style="width:min(420px,100%)">
+    <div class="m-head"><h2>Račun</h2></div>
+    <div class="receipt" id="receipt"></div>
+    <div class="m-foot">
+      <button class="btn ghost" id="printBtn" type="button">Štampaj</button>
+      <button class="btn" id="rcOk" type="button">Gotovo</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+/* =====================================================================
+   KONOBAR – PROTOTIP (korak 1)
+   - Artikli se ČITAJU iz baze Kafića 3 (samo čitanje; ništa se ne upisuje u Firebase).
+   - Ako baza nije dostupna, prikazuje se demo meni (da se prototip može isprobati i bez mreže).
+   - Stolovi, zone i narudžbe su u memoriji + localStorage ovog uređaja (probna verzija).
+   ===================================================================== */
+const STORAGE_KEY = 'konobar_proto_v1_c5ta4ywk';
+
+/* ---------- STANJE ---------- */
+const ZONES = [{ id: 'enterijer', name: 'Enterijer' }, { id: 'basta', name: 'Bašta' }];
+const USERS = [
+  { id: 'admin', name: 'Administrator', role: 'admin', initials: 'A' },
+  { id: 'marko', name: 'Marko (konobar)', role: 'konobar', initials: 'M' },
+  { id: 'ana',   name: 'Ana (konobar)',   role: 'konobar', initials: 'An' }
+];
+const state = {
+  zone: 'enterijer',
+  editMode: false,
+  user: 'admin',
+  tables: [],      // {id, zona, broj, kapacitet, oblik, x, y}   x,y = lijevo/gore u % platna
+  orders: {},      // tableId -> { stavke:[{id,naziv,cijena,kol}], konobar }
+  turnover: 0,
+  theme: 'light'
+};
+const menu = { items: [], subcats: [], currency: 'BAM', source: 'demo' };
+const ui = { openTable: null, cat: 'Sve', q: '' };
+
+/* ---------- POMOĆNO ---------- */
+const $ = id => document.getElementById(id);
+function h(tag, attrs = {}, ...kids) {           // sigurno pravljenje elemenata (bez innerHTML)
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'class') e.className = v; else if (k === 'text') e.textContent = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v);
+  }
+  kids.flat().forEach(c => c != null && e.append(c.nodeType ? c : document.createTextNode(c)));
+  return e;
+}
+const money = n => (Math.round(n * 100) / 100).toFixed(2);
+const parsePrice = v => { const n = parseFloat(String(v ?? '0').replace(',', '.')); return isFinite(n) ? n : 0; };
+const uid = () => Math.random().toString(36).slice(2, 9);
+const curUser = () => USERS.find(u => u.id === state.user);
+const isAdmin = () => curUser().role === 'admin';
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 1800); }
+
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ tables: state.tables, orders: state.orders, turnover: state.turnover, theme: state.theme, user: state.user, zone: state.zone })); } catch (e) {}
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) Object.assign(state, JSON.parse(raw), { editMode: false });
+  } catch (e) {}
+  if (!state.tables.length) {                      // početni raspored za probu
+    state.tables = [
+      { id: uid(), zona: 'enterijer', broj: 1, kapacitet: 4, oblik: 'square', x: 8,  y: 12 },
+      { id: uid(), zona: 'enterijer', broj: 2, kapacitet: 2, oblik: 'round',  x: 30, y: 12 },
+      { id: uid(), zona: 'enterijer', broj: 3, kapacitet: 6, oblik: 'square', x: 52, y: 12 },
+      { id: uid(), zona: 'enterijer', broj: 4, kapacitet: 4, oblik: 'round',  x: 20, y: 50 },
+      { id: uid(), zona: 'basta',     broj: 11, kapacitet: 4, oblik: 'round',  x: 12, y: 20 },
+      { id: uid(), zona: 'basta',     broj: 12, kapacitet: 4, oblik: 'round',  x: 40, y: 20 },
+      { id: uid(), zona: 'basta',     broj: 13, kapacitet: 6, oblik: 'square', x: 26, y: 55 }
+    ];
+  }
+}
+
+/* ---------- ARTIKLI IZ BAZE KAFIĆA 3 (samo čitanje) ---------- */
+const DEMO = {
+  podkategorije: ['Kafe', 'Sokovi', 'Piva', 'Rakije'],
+  items: [
+    ['Espresso', 2.0, 'Kafe'], ['Macchiato', 2.2, 'Kafe'], ['Cappuccino', 2.8, 'Kafe'], ['Nescafe', 2.5, 'Kafe'],
+    ['Cedevita Lemon', 2.5, 'Sokovi'], ['Cijeđena narandža', 4.5, 'Sokovi'], ['Coca-Cola 0.25', 3.0, 'Sokovi'],
+    ['Pivo točeno 0.3', 3.0, 'Piva'], ['Pivo flaša 0.33', 3.5, 'Piva'],
+    ['Viljamovka 0.03', 2.0, 'Rakije'], ['Šljivovica 0.03', 2.0, 'Rakije']
+  ]
+};
+async function loadMenu() {
+  try {
+    const [{ db }, fs] = await Promise.all([
+      import('../firebase-config-kafic3.js'),
+      import('https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js')
+    ]);
+    const get = async name => (await fs.getDocs(fs.collection(db, name))).docs.map(d => ({ id: d.id, ...d.data() }));
+    const [meni, pods, cats, ws] = await Promise.all([get('meni'), get('podkategorije'), get('kategorije'), get('web-postavke')]);
+    const sistemskeKat = new Set(cats.filter(c => c.sistemska).map(c => c.id));
+    const pods2 = pods.filter(p => !p.sistemska && !sistemskeKat.has(p.kategorijaId))
+                      .sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
+    menu.items = meni.filter(i => i.aktivna !== false && i.naziv)
+      .sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999))
+      .map(i => ({ id: i.id, naziv: i.naziv, cijena: parsePrice(i.cijena), podkategorija: i.podkategorija || 'Ostalo', opis: i.opis || '' }));
+    const names = new Set(menu.items.map(i => i.podkategorija));
+    menu.subcats = pods2.map(p => p.naziv).filter(n => names.has(n));
+    names.forEach(n => { if (!menu.subcats.includes(n)) menu.subcats.push(n); });
+    const w = ws[0]; if (w && w.currencyCode) menu.currency = w.currencyCode;
+    if (w && w.pageTitle) $('cafeName').textContent = w.pageTitle + ' · stolovi i narudžbe';
+    if (!menu.items.length) throw new Error('prazan meni');
+    menu.source = 'firebase';
+  } catch (err) {
+    console.warn('Meni iz baze nije učitan, koristi se demo meni:', err && err.message);
+    menu.source = 'demo';
+    menu.subcats = DEMO.podkategorije;
+    menu.items = DEMO.items.map(([naziv, cijena, podkategorija], i) => ({ id: 'demo' + i, naziv, cijena, podkategorija, opis: '' }));
+  }
+  const b = $('banner');
+  if (menu.source === 'demo') { b.style.display = 'block'; b.textContent = 'Demo meni: artikli iz baze nisu dostupni (nema mreže ili pravila ne dozvoljavaju čitanje). Stolovi i narudžbe rade normalno.'; }
+}
+
+/* ---------- ZAGLAVLJE, TABOVI ---------- */
+function renderUserSel() {
+  const s = $('userSel'); s.textContent = '';
+  USERS.forEach(u => s.append(h('option', { value: u.id, text: u.name })));
+  s.value = state.user;
+}
+function renderTabs() {
+  const t = $('tabs'); t.textContent = '';
+  ZONES.forEach(z => {
+    const busy = state.tables.filter(x => x.zona === z.id && hasOrder(x.id)).length;
+    t.append(h('button', { class: 'tab' + (state.zone === z.id ? ' on' : ''), type: 'button', onclick: () => { state.zone = z.id; save(); renderAll(); } },
+      z.name, busy ? h('span', { class: 'cnt', text: busy }) : null));
+  });
+}
+function setMode(edit) {
+  if (edit && !isAdmin()) { toast('Raspored može uređivati samo administrator'); return; }
+  state.editMode = edit;
+  renderAll();
+}
+function renderMode() {
+  $('modeWork').classList.toggle('on', !state.editMode);
+  $('modeEdit').classList.toggle('on', state.editMode);
+  $('modeToggle').setAttribute('aria-disabled', 'false');
+  $('modeEdit').style.opacity = isAdmin() ? '' : '.45';
+  $('editbar').classList.toggle('show', state.editMode);
+  $('hint').textContent = state.editMode
+    ? 'Uređivanje rasporeda: prevlačite stolove po platnu, × briše sto. Izlaz: "Pregled / Rad".'
+    : 'Dodirnite sto za narudžbu. Zeleno = slobodan, crveno = zauzet.';
+}
+
+/* ---------- PLATNO SA STOLOVIMA ---------- */
+const hasOrder = id => !!(state.orders[id] && state.orders[id].stavke.length);
+const orderTotal = id => (state.orders[id]?.stavke || []).reduce((s, l) => s + l.cijena * l.kol, 0);
+
+function renderCanvas() {
+  const c = $('canvas');
+  c.textContent = '';
+  c.classList.toggle('editing', state.editMode);
+  const zone = ZONES.find(z => z.id === state.zone);
+  const tables = state.tables.filter(t => t.zona === state.zone);
+  tables.forEach(t => c.append(tableEl(t)));
+  c.append(h('div', { class: 'zlabel', text: zone.name }));
+  if (!tables.length) c.append(h('div', { class: 'empty', text: state.editMode ? 'Nema stolova u ovoj zoni. Dodajte prvi sto iznad.' : 'Nema stolova u ovoj zoni. Administrator ih dodaje u režimu "Uredi raspored".' }));
+  const busy = tables.filter(t => hasOrder(t.id)).length;
+  $('stats').textContent = `${tables.length} stolova · ${busy} zauzeto · ${tables.length - busy} slobodno`;
+}
+function tableEl(t) {
+  const busy = hasOrder(t.id);
+  const o = state.orders[t.id];
+  const el = h('div', { class: `table ${t.oblik} ${busy ? 'busy' : ''}`, 'data-id': t.id, style: `left:min(${t.x}%, calc(100% - var(--sz)));top:min(${t.y}%, calc(100% - var(--sz)))` },
+    h('div', { class: 'no', text: t.broj }),
+    busy ? h('div', { class: 'sum', text: money(orderTotal(t.id)) + ' ' + menu.currency })
+         : h('div', { class: 'meta', text: 'slobodan' }),
+    h('div', { class: 'meta', text: `${t.kapacitet} stolica` })
+  );
+  if (busy && o && o.konobar) { const u = USERS.find(x => x.id === o.konobar); if (u) el.append(h('div', { class: 'wtr', title: u.name, text: u.initials })); }
+  const x = h('button', { class: 'x', type: 'button', title: 'Obriši sto', text: '×' });
+  x.addEventListener('pointerdown', e => e.stopPropagation());
+  x.addEventListener('click', e => { e.stopPropagation(); deleteTable(t.id); });
+  el.append(x);
+  el.addEventListener('pointerdown', e => onTablePointerDown(e, t, el));
+  el.addEventListener('click', () => { if (!state.editMode && !el._dragged) openOrder(t.id); });
+  return el;
+}
+
+/* drag & drop (Pointer Events: radi miš i dodir; pozicije u % platna) */
+function onTablePointerDown(e, t, el) {
+  if (!state.editMode) return;
+  const canvas = $('canvas'); const br = canvas.getBoundingClientRect(); const er = el.getBoundingClientRect();
+  // unutrašnja površina platna (bez okvira): na nju se odnose CSS procenti
+  const cr = { left: br.left + canvas.clientLeft, top: br.top + canvas.clientTop, width: canvas.clientWidth, height: canvas.clientHeight };
+  const offX = e.clientX - er.left, offY = e.clientY - er.top;
+  el.setPointerCapture(e.pointerId); el.classList.add('drag'); el._dragged = false;
+  const move = ev => {
+    el._dragged = true;
+    const maxX = cr.width - er.width, maxY = cr.height - er.height;
+    const px = Math.min(Math.max(ev.clientX - cr.left - offX, 0), maxX);
+    const py = Math.min(Math.max(ev.clientY - cr.top - offY, 0), maxY);
+    t.x = +(px / cr.width * 100).toFixed(2); t.y = +(py / cr.height * 100).toFixed(2);
+    el.style.left = px + 'px'; el.style.top = py + 'px';
+  };
+  const up = () => {
+    el.classList.remove('drag');
+    el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up);
+    save(); setTimeout(() => { el._dragged = false; }, 0);
+  };
+  el.addEventListener('pointermove', move); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+}
+
+/* dodavanje / brisanje stola */
+function addTable() {
+  if (!isAdmin()) return;
+  const broj = parseInt($('newNo').value, 10), kap = parseInt($('newCap').value, 10);
+  if (!broj || broj < 1) { toast('Unesite broj stola'); return; }
+  if (!kap || kap < 1) { toast('Unesite kapacitet (broj stolica)'); return; }
+  if (state.tables.some(t => t.zona === state.zone && t.broj === broj)) { toast(`Sto ${broj} već postoji u ovoj zoni`); return; }
+  const n = state.tables.filter(t => t.zona === state.zone).length;
+  state.tables.push({ id: uid(), zona: state.zone, broj, kapacitet: kap, oblik: $('newShape').value, x: 6 + (n % 6) * 4, y: 8 + (n % 6) * 4 });
+  $('newNo').value = ''; save(); renderAll(); toast(`Sto ${broj} dodat – prevucite ga na željeno mjesto`);
+}
+function deleteTable(id) {
+  const t = state.tables.find(x => x.id === id); if (!t) return;
+  if (hasOrder(id) && !confirm(`Sto ${t.broj} ima otvorenu narudžbu (${money(orderTotal(id))} ${menu.currency}). Ipak obrisati?`)) return;
+  else if (!hasOrder(id) && !confirm(`Obrisati sto ${t.broj}?`)) return;
+  state.tables = state.tables.filter(x => x.id !== id); delete state.orders[id]; save(); renderAll();
+}
+
+/* ---------- MODAL NARUDŽBE ---------- */
+function openOrder(id) {
+  ui.openTable = id; ui.cat = 'Sve'; ui.q = ''; $('q').value = '';
+  $('orderOv').classList.add('show'); renderModal();
+}
+function closeOrder() {
+  ui.openTable = null; $('orderOv').classList.remove('show'); save(); renderAll();
+}
+function renderModal() {
+  const t = state.tables.find(x => x.id === ui.openTable); if (!t) return;
+  const busy = hasOrder(t.id);
+  $('mTitle').textContent = `Sto ${t.broj} · ${ZONES.find(z => z.id === t.zona).name} · ${t.kapacitet} stolica`;
+  const st = $('mStatus'); st.textContent = busy ? 'Zauzet' : 'Slobodan'; st.className = 'status ' + (busy ? 'busy' : 'free');
+  // kategorije
+  const cats = $('cats'); cats.textContent = '';
+  ['Sve', ...menu.subcats].forEach(n => cats.append(h('button', { type: 'button', class: ui.cat === n ? 'on' : '', text: n, onclick: () => { ui.cat = n; renderModal(); } })));
+  // artikli
+  const q = ui.q.trim().toLowerCase();
+  const list = menu.items.filter(i => (ui.cat === 'Sve' || i.podkategorija === ui.cat) && (!q || i.naziv.toLowerCase().includes(q)));
+  const items = $('items'); items.textContent = '';
+  if (!list.length) items.append(h('div', { class: 'none', text: 'Nema artikala' }));
+  list.forEach(i => items.append(h('div', { class: 'item' },
+    h('div', { class: 'nm' }, h('b', { text: i.naziv }), h('small', { text: i.podkategorija })),
+    h('div', { class: 'pr', text: money(i.cijena) }),
+    h('button', { class: 'plus', type: 'button', 'aria-label': 'Dodaj ' + i.naziv, text: '+', onclick: () => addLine(i) })
+  )));
+  renderLines();
+}
+function renderLines() {
+  const id = ui.openTable; const o = state.orders[id]; const L = $('lines'); L.textContent = '';
+  const stavke = o ? o.stavke : [];
+  if (!stavke.length) L.append(h('div', { class: 'none', text: 'Nema artikala na računu. Dodajte ih tipkom + iz mini-menija.' }));
+  stavke.forEach(l => L.append(h('div', { class: 'line' },
+    h('div', { class: 'nm', text: l.naziv }),
+    h('div', { class: 'qty' },
+      h('button', { type: 'button', text: '−', onclick: () => changeQty(l.id, -1) }),
+      h('b', { text: l.kol }),
+      h('button', { type: 'button', text: '+', onclick: () => changeQty(l.id, 1) })),
+    h('div', { class: 'lt', text: money(l.cijena * l.kol) })
+  )));
+  $('total').textContent = money(orderTotal(id)) + ' ' + menu.currency;
+  $('payBtn').disabled = !stavke.length;
+  const t = state.tables.find(x => x.id === id), busy = stavke.length > 0;
+  const st = $('mStatus'); st.textContent = busy ? 'Zauzet' : 'Slobodan'; st.className = 'status ' + (busy ? 'busy' : 'free');
+}
+function addLine(item) {
+  const id = ui.openTable;
+  const o = state.orders[id] || (state.orders[id] = { stavke: [], konobar: state.user });
+  const ex = o.stavke.find(l => l.id === item.id);
+  if (ex) ex.kol++; else o.stavke.push({ id: item.id, naziv: item.naziv, cijena: item.cijena, kol: 1 });   // cijena se KOPIRA u stavku
+  save(); renderLines();
+}
+function changeQty(lineId, d) {
+  const o = state.orders[ui.openTable]; if (!o) return;
+  const l = o.stavke.find(x => x.id === lineId); if (!l) return;
+  l.kol += d; if (l.kol <= 0) o.stavke = o.stavke.filter(x => x !== l);
+  if (!o.stavke.length) delete state.orders[ui.openTable];
+  save(); renderLines();
+}
+function pay() {
+  const id = ui.openTable; const o = state.orders[id]; if (!o || !o.stavke.length) return;
+  const t = state.tables.find(x => x.id === id); const total = orderTotal(id); const now = new Date();
+  const w = USERS.find(u => u.id === o.konobar);
+  const R = $('receipt'); R.textContent = '';
+  R.append(
+    h('h3', { text: $('cafeName').textContent.split(' · ')[0] }),
+    h('div', { class: 'c', text: `Sto ${t.broj} · ${ZONES.find(z => z.id === t.zona).name}` }),
+    h('div', { class: 'c', text: now.toLocaleString('sr-Latn-BA') }),
+    h('div', { class: 'c', text: 'Konobar: ' + (w ? w.name : '-') }),
+    h('hr'),
+    ...o.stavke.map(l => h('div', { class: 'r' }, h('span', { text: `${l.kol} × ${l.naziv}` }), h('span', { text: money(l.cijena * l.kol) }))),
+    h('hr'),
+    h('div', { class: 'r' }, h('b', { text: 'UKUPNO' }), h('b', { text: money(total) + ' ' + menu.currency })),
+    h('div', { class: 'warn', text: 'SIMULIRANI RAČUN – NIJE FISKALNI RAČUN' })
+  );
+  state.turnover += total;
+  delete state.orders[id];
+  save();
+  $('orderOv').classList.remove('show'); ui.openTable = null;
+  $('rcOv').classList.add('show');
+  renderAll();
+}
+
+/* ---------- ISCRTAVANJE SVEGA ---------- */
+function renderAll() {
+  renderUserSel(); renderTabs(); renderMode(); renderCanvas();
+  $('turnover').textContent = money(state.turnover) + ' ' + menu.currency;
+}
+function applyTheme() { document.documentElement.setAttribute('data-theme', state.theme); }
+
+/* ---------- DOGAĐAJI ---------- */
+$('modeWork').addEventListener('click', () => setMode(false));
+$('modeEdit').addEventListener('click', () => setMode(true));
+$('addTableBtn').addEventListener('click', addTable);
+$('newNo').addEventListener('keydown', e => { if (e.key === 'Enter') addTable(); });
+$('userSel').addEventListener('change', e => { state.user = e.target.value; if (!isAdmin()) state.editMode = false; save(); renderAll(); });
+$('themeBtn').addEventListener('click', () => { state.theme = state.theme === 'dark' ? 'light' : 'dark'; applyTheme(); save(); });
+$('q').addEventListener('input', e => { ui.q = e.target.value; renderModal(); });
+$('closeBtn').addEventListener('click', closeOrder);
+$('payBtn').addEventListener('click', pay);
+$('rcOk').addEventListener('click', () => $('rcOv').classList.remove('show'));
+$('printBtn').addEventListener('click', () => window.print());
+$('orderOv').addEventListener('click', e => { if (e.target.id === 'orderOv') closeOrder(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && ui.openTable) closeOrder(); });
+
+/* ---------- START ---------- */
+load(); applyTheme(); renderAll();
+loadMenu().then(() => renderAll());
+</script>
+</body>
+</html>
