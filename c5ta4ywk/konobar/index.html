@@ -10,9 +10,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Konobar">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=20261107b">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261107b">
-<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261107b">
+<link rel="manifest" href="manifest.webmanifest?v=20261107c">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261107c">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261107c">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -37,6 +37,9 @@ header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:s
 .brand{font-weight:700;letter-spacing:.2px}
 .brand small{display:block;font-weight:400;color:var(--muted);font-size:.72rem}
 .hdr-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.install{background:linear-gradient(135deg,#ff3d81,#ff8a00)!important;color:#fff!important;border:0!important;font-weight:800;letter-spacing:.2px;box-shadow:0 0 0 0 rgba(255,100,80,.6);animation:instPulse 1.8s infinite}
+@keyframes instPulse{0%{box-shadow:0 0 0 0 rgba(255,100,80,.6)}70%{box-shadow:0 0 0 12px rgba(255,100,80,0)}100%{box-shadow:0 0 0 0 rgba(255,100,80,0)}}
+@media (prefers-reduced-motion:reduce){.install{animation:none}}
 .chip{padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);font-size:.85rem}
 select.chip{padding:7px 10px}
 .btn{padding:9px 14px;border-radius:10px;background:var(--accent);color:#fff;font-weight:600}
@@ -92,13 +95,13 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .table .no{font-weight:800;font-size:1.5em}
 .table .meta{font-size:.72em;color:var(--muted)}
 .table .sum{font-size:.95em;font-weight:800;color:var(--busy)}
-.chair{position:absolute;width:calc(var(--sz) * .2);height:calc(var(--sz) * .2);transform:translate(-50%,-50%);background:var(--panel);border:2px solid var(--free);box-sizing:border-box}
+.chair{position:absolute;width:max(6px,calc(var(--sz) * .13));height:max(6px,calc(var(--sz) * .13));transform:translate(-50%,-50%);background:var(--free);border:0;box-sizing:border-box}
 .table.round .chair{border-radius:50%}
-.table.square .chair{border-radius:24%}
-.table.busy .chair{border-color:var(--busy);background:var(--busy-bg)}
+.table.square .chair{border-radius:25%}
+.table.busy .chair{background:var(--busy)}
 /* ŠANK: duga pregrada sa barskim stolicama ispred */
-.table.sank{--ow:calc(var(--sz) * 3.64);--oh:calc(var(--sz) * 1.2)}
-.table.sank .body{inset:calc(var(--sz) * .1) calc(var(--sz) * .22) calc(var(--sz) * .48) calc(var(--sz) * .22);border-radius:12px;flex-direction:row;gap:.6em;flex-wrap:nowrap}
+.table.sank{--ow:calc(var(--sz) * 3.64);--oh:calc(var(--sz) * 1.05)}
+.table.sank .body{inset:calc(var(--sz) * .1) calc(var(--sz) * .22) calc(var(--sz) * .33) calc(var(--sz) * .22);border-radius:12px;flex-direction:row;gap:.6em;flex-wrap:nowrap}
 .table.sank .chair{border-radius:50%}
 .table.sank .no{font-size:1.25em;white-space:nowrap}
 .table.sank .meta{display:none}
@@ -272,7 +275,7 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 <header>
   <div class="brand">Konobar <small id="cafeName">Stolovi i narudžbe</small></div>
   <div class="hdr-right">
-    <button class="chip" id="installBtn" type="button" style="display:none" title="Instaliraj kao aplikaciju">⬇ Instaliraj</button>
+    <button class="chip install" id="installBtn" type="button" style="display:none" title="Instaliraj kao aplikaciju">📲 Instaliraj aplikaciju</button>
     <button class="chip" id="turnBtn" type="button" title="Pregled prometa po danima">Promet danas: <b id="turnover">–</b></button>
     <span class="chip" id="whoChip"></span>
     <div class="toggle" id="modeToggle" role="group" aria-label="Režim rada" style="display:none">
@@ -427,14 +430,14 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261107b
+   KONOBAR – verzija 20261107c
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261107b';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261107c';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic3.js?v=20261107b';
+import { db, auth } from '../firebase-config-kafic3.js?v=20261107c';
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
@@ -610,7 +613,7 @@ function renderMode() {
 function chairPositions(n, shape) {
   const R = 41.7, pts = [];
   for (let i = 0; i < n; i++) {
-    if (shape === 'sank') pts.push([(0.22 + (i + 0.5) * 3.2 / n) / 3.64 * 100, 80.8]);   // red stolica ispod šanka
+    if (shape === 'sank') pts.push([(0.22 + (i + 0.5) * 3.2 / n) / 3.64 * 100, 78]);   // red stolica ispod šanka
     else if (shape === 'round') { const a = -Math.PI / 2 + (2 * Math.PI * i) / n; pts.push([50 + R * Math.cos(a), 50 + R * Math.sin(a)]); }
     else {
       const per = 8 * R, s = ((i + 0.5) * per) / n, side = Math.floor(s / (2 * R)), u = s - side * 2 * R - R;
@@ -633,7 +636,7 @@ function fillTable(el, t, busy) {
   const n = Math.max(1, Math.min(t.kapacitet || 1, shape === 'sank' ? 24 : 16));
   chairPositions(n, shape).forEach(([x, y]) => rt.append(h('i', { class: 'chair', style: `left:${x.toFixed(2)}%;top:${y.toFixed(2)}%` })));
   rt.append(h('div', { class: 'body' },
-    h('div', { class: 'no', text: shape === 'sank' ? 'Šank ' + t.broj : t.broj }),
+    h('div', { class: 'no', text: t.broj }),
     busy ? h('div', { class: 'sum', text: money(orderTotal(t.id)) }) : (size >= 56 ? h('div', { class: 'meta', text: 'slobodan' }) : null)));
   el.append(rt);
 }
@@ -1047,7 +1050,7 @@ $('installBtn').addEventListener('click', async () => {
   if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('installBtn').style.display = 'none'; }
   else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
 });
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261107b').catch(e => console.warn('SW', e)));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261107c').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
