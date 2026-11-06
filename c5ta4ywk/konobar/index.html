@@ -10,10 +10,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Konobar">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=20261107d">
+<link rel="manifest" href="manifest.webmanifest?v=20261107e">
 <link rel="icon" type="image/png" sizes="192x192" href="ikona-192.png?v=3">
 <link rel="apple-touch-icon" href="ikona-180.png?v=3">
-<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261107d">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261107e">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -152,6 +152,11 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .item .pr small{display:block;font-weight:400;color:var(--muted);font-size:.68rem}
 .plus{width:42px;height:42px;border-radius:50%;background:var(--accent);color:#fff;font-size:1.3rem;font-weight:700;flex-shrink:0}
 .plus:active{transform:scale(.92)}
+.minus{width:42px;height:42px;border-radius:50%;background:transparent;color:var(--busy);border:2px solid var(--busy);font-size:1.4rem;font-weight:700;line-height:1;flex-shrink:0;display:none}
+.minus:active{transform:scale(.92)}
+.qty button.dec{background:var(--busy-bg);border-color:var(--busy);color:var(--busy)}
+.qty button{width:34px;height:34px}
+.line .del{width:30px;height:30px;border-radius:8px;background:transparent;border:0;color:var(--muted);font-size:1rem;flex-shrink:0}
 .lines{overflow-y:auto;padding:0 16px;flex:1;min-height:120px}
 .line{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}
 .line .nm{flex:1;min-width:0;font-weight:600}
@@ -431,14 +436,14 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261107d
+   KONOBAR – verzija 20261107e
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261107d';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261107e';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic3.js?v=20261107d';
+import { db, auth } from '../firebase-config-kafic3.js?v=20261107e';
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
@@ -776,6 +781,7 @@ function renderModal(keepScroll) {
     thumb(i),
     h('div', { class: 'nm' }, h('b', { text: i.naziv }), h('small', { text: i.podkategorija }), h('span', { class: 'badge', style: 'display:none' })),
     h('div', { class: 'pr' }, money(i.cijena), menu.currency ? h('small', { text: menu.currency }) : null),
+    h('button', { class: 'minus', type: 'button', 'aria-label': 'Umanji ' + i.naziv, title: 'Umanji količinu', text: '−', onclick: e => { e.stopPropagation(); const l = linesOf(S.orders[ui.openTable]).find(x => x.id === i.id); if (l) changeQty(l, -1); } }),
     h('button', { class: 'plus', type: 'button', 'aria-label': 'Dodaj ' + i.naziv, text: '+' }))));
   if (keepScroll) items.scrollTop = prev;
   renderLines(); applyPane();
@@ -796,14 +802,15 @@ function renderLines() {
   if (!stavke.length) L.append(h('div', { class: 'none', text: 'Nema artikala na računu. Dodajte ih tipkom + iz mini-menija.' }));
   stavke.forEach(l => L.append(h('div', { class: 'line' },
     h('div', { class: 'nm', text: l.naziv }),
-    h('div', { class: 'qty' }, h('button', { type: 'button', text: '−', onclick: () => changeQty(l, -1) }), h('b', { text: l.kol }), h('button', { type: 'button', text: '+', onclick: () => changeQty(l, 1) })),
-    h('div', { class: 'lt', text: money(l.cijena * l.kol) }))));
+    h('div', { class: 'qty' }, h('button', { class: 'dec', type: 'button', 'aria-label': 'Umanji', text: '−', onclick: () => changeQty(l, -1) }), h('b', { text: l.kol }), h('button', { type: 'button', text: '+', onclick: () => changeQty(l, 1) })),
+    h('div', { class: 'lt', text: money(l.cijena * l.kol) }),
+    h('button', { class: 'del', type: 'button', title: 'Ukloni stavku', 'aria-label': 'Ukloni stavku', text: '✕', onclick: () => removeLine(l) }))));
   $('total').textContent = fmt(orderTotal(id));
   $('payBtn').disabled = !stavke.length;
   $('tabCnt').textContent = stavke.reduce((s, l) => s + l.kol, 0);
   const busy = stavke.length > 0, st = $('mStatus'); st.textContent = busy ? 'Zauzet' : 'Slobodan'; st.className = 'status ' + (busy ? 'busy' : 'free');
   const byId = {}; stavke.forEach(l => { byId[l.id] = l.kol; });
-  document.querySelectorAll('#items .item').forEach(r => { const b = r.querySelector('.badge'), q = byId[r.getAttribute('data-id')]; b.style.display = q ? '' : 'none'; b.textContent = q ? '× ' + q : ''; });
+  document.querySelectorAll('#items .item').forEach(r => { const b = r.querySelector('.badge'), q = byId[r.getAttribute('data-id')]; r.querySelector('.minus').style.display = q ? 'block' : 'none'; b.style.display = q ? '' : 'none'; b.textContent = q ? '× ' + q : ''; });
 }
 
 /* Izmjene narudžbe: atomski preko increment() — više konobara može dodavati na isti sto istovremeno */
@@ -825,6 +832,14 @@ async function changeQty(l, d) {
       if (!rest.length) await deleteDoc(ref); else await updateDoc(ref, { ['stavke.' + l.id]: deleteField() });
     } else await updateDoc(ref, { ['stavke.' + l.id + '.kol']: increment(d) });
   } catch (err) { fail('izmjena količine', err); }
+}
+async function removeLine(l) {
+  if (l.kol > 1 && !confirm(`Ukloniti „${l.naziv}" (${l.kol} kom) sa računa?`)) return;
+  const id = ui.openTable, ref = doc(db, 'narudzbe', id);
+  try {
+    const rest = linesOf(S.orders[id]).filter(x => x.id !== l.id);
+    if (!rest.length) await deleteDoc(ref); else await updateDoc(ref, { ['stavke.' + l.id]: deleteField() });
+  } catch (err) { fail('uklanjanje stavke', err); }
 }
 async function pay() {
   const id = ui.openTable, lines = linesOf(S.orders[id]); if (!lines.length) return;
@@ -1053,7 +1068,7 @@ $('installBtn').addEventListener('click', async () => {
   if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('installBtn').style.display = 'none'; }
   else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
 });
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261107d').catch(e => console.warn('SW', e)));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261107e').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
