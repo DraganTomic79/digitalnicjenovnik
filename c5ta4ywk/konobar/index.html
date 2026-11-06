@@ -10,10 +10,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Konobar">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=20261108h">
+<link rel="manifest" href="manifest.webmanifest?v=20261108i">
 <link rel="icon" type="image/png" sizes="192x192" href="ikona-192.png?v=3">
 <link rel="apple-touch-icon" href="ikona-180.png?v=3">
-<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261108h">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261108i">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -87,7 +87,7 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 /* ===== STO ===== */
 .table{--sz:calc(var(--base,64) * var(--scale,1) * 1px);--ow:calc(var(--sz) * 1.44);position:absolute;--oh:var(--ow);--c:1;--s:0;--rw:calc(var(--ow) * var(--c) + var(--oh) * var(--s));--rh:calc(var(--ow) * var(--s) + var(--oh) * var(--c));width:var(--rw);height:var(--rh);font-size:max(9px,calc(var(--sz) / 6));user-select:none;text-align:center;touch-action:none}
-.table .body{position:absolute;inset:calc(var(--sz) * .22);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;border:3px solid var(--free);background:var(--free-bg);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.1);transition:background .15s,border-color .15s}
+.table .body{position:absolute;inset:calc(var(--sz) * .22);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;border:1.5px solid var(--free);background:var(--free-bg);color:var(--text);box-shadow:none;transition:background .15s,border-color .15s}
 .table.round .body{border-radius:50%}
 .table.square .body{border-radius:14%}
 .table.busy .body{border-color:var(--busy);background:var(--busy-bg)}
@@ -96,7 +96,7 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .table .no{font-weight:800;font-size:1.5em}
 .table .meta{font-size:.72em;color:var(--muted)}
 .table .sum{font-size:.95em;font-weight:800;color:var(--busy)}
-.chair{position:absolute;width:max(6px,calc(var(--sz) * .13));height:max(6px,calc(var(--sz) * .13));transform:translate(-50%,-50%);background:var(--free);border:0;box-sizing:border-box}
+.chair{position:absolute;width:max(4px,calc(var(--sz) * .085));height:max(4px,calc(var(--sz) * .085));transform:translate(-50%,-50%);background:var(--free);border:0;box-sizing:border-box}
 .table.round .chair{border-radius:50%}
 .table.square .chair{border-radius:25%}
 .table.busy .chair{background:var(--busy)}
@@ -517,14 +517,14 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261108h
+   KONOBAR – verzija 20261108i
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261108h';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261108i';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic3.js?v=20261108h';
+import { db, auth } from '../firebase-config-kafic3.js?v=20261108i';
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField, enableNetwork, disableNetwork }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
@@ -732,7 +732,7 @@ function fillTable(el, t, busy) {
   chairPositions(n, shape).forEach(([x, y]) => rt.append(h('i', { class: 'chair', style: `left:${x.toFixed(2)}%;top:${y.toFixed(2)}%` })));
   rt.append(h('div', { class: 'body' },
     h('div', { class: 'no', text: t.broj }),
-    busy ? h('div', { class: 'sum', text: money(orderTotal(t.id)) }) : (size >= 56 ? h('div', { class: 'meta', text: 'slobodan' }) : null)));
+    null));   // iznos se vidi u računu stola; na platnu samo broj (čisto), boja kaže slobodan/zauzet
   el.append(rt);
 }
 function tableEl(t) {
@@ -1295,7 +1295,7 @@ $('installBtn').addEventListener('click', async () => {
   if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('installBtn').style.display = 'none'; }
   else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
 });
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261108h').catch(e => console.warn('SW', e)));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261108i').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
