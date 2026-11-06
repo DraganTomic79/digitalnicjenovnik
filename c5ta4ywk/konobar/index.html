@@ -10,10 +10,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Konobar">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=20261108k">
+<link rel="manifest" href="manifest.webmanifest?v=20261109a">
 <link rel="icon" type="image/png" sizes="192x192" href="ikona-192.png?v=3">
 <link rel="apple-touch-icon" href="ikona-180.png?v=3">
-<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261108k">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261109a">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -79,9 +79,16 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
   .stage{flex:1;min-height:280px;container-type:size;display:flex;align-items:center;justify-content:center}
   .stage .canvas{width:min(100cqw,100cqh);margin:0}
 }
-.canvas{position:relative;flex:none;width:100%;aspect-ratio:1/1;margin:0 auto;border-radius:10px;border:2px dashed var(--line);overflow:hidden;touch-action:none;
+.canvas{position:relative;flex:none;width:100%;aspect-ratio:1/1;margin:0 auto;border-radius:10px;border:2px dashed var(--line);overflow:hidden;touch-action:pan-y;
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:32px 32px;background-color:var(--panel2)}
-.canvas.editing{border-color:var(--accent);border-style:solid}
+.canvas.editing{border-color:var(--accent);border-style:solid;touch-action:none}
+.canvas.editing .table{touch-action:none}
+.canvas.editing .table::after{content:'';position:absolute;inset:-10px}   /* veća površina za hvatanje malih stolova */
+.guide{position:absolute;background:var(--accent);opacity:.8;pointer-events:none;z-index:6}
+.guide.v{width:1px;top:0;bottom:0}.guide.hz{height:1px;left:0;right:0}
+#rotHint{display:none;position:fixed;inset:0;z-index:999;background:var(--bg);color:var(--text);align-items:center;justify-content:center;flex-direction:column;gap:14px;font-size:1.2rem;font-weight:700;text-align:center;padding:30px}
+#rotHint b{font-size:3rem;display:block;transform:rotate(90deg)}
+@media (orientation:landscape) and (max-height:480px) and (pointer:coarse){#rotHint{display:flex}}
 .canvas .zlabel{position:absolute;right:10px;bottom:6px;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:1.5px;pointer-events:none}
 .empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);text-align:center;padding:20px;pointer-events:none}
 
@@ -112,7 +119,7 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .canvas.editing .table.drag{cursor:grabbing;opacity:.85;z-index:5}
 .canvas:not(.editing) .table{cursor:pointer}
 .canvas:not(.editing) .table:hover .body{transform:scale(1.04)}
-.table .x,.table .pen,.table .rotb{display:none;position:absolute;width:24px;height:24px;border-radius:50%;color:#fff;font-weight:700;line-height:24px;font-size:.8rem;padding:0;z-index:3}
+.table .x,.table .pen,.table .rotb{display:none;position:absolute;width:20px;height:20px;border-radius:50%;color:#fff;font-weight:700;line-height:20px;font-size:.7rem;padding:0;z-index:3}
 .table .x{top:0;right:0;background:var(--busy)}
 .table .rotb{bottom:0;left:0;background:#6b7280;font-size:.85rem}
 .table .pen{bottom:0;right:0;background:var(--accent);font-size:.72rem}
@@ -353,6 +360,8 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
     <select id="newSize"><option value="48">Mala</option><option value="64" selected>Srednja</option><option value="84">Velika</option></select>
   </label>
   <button class="btn" id="addTableBtn" type="button">+ Dodaj sto</button>
+  <label style="flex-direction:row;align-items:center;gap:6px;font-size:.8rem"><input type="checkbox" id="snapChk" checked style="width:18px;height:18px"> Magnet</label>
+  <button class="btn ghost" id="alignBtn" type="button" title="Stolove koji su skoro u istoj liniji poravna tačno u red/kolonu">⇔ Poravnaj u linije</button>
 </div>
 <div class="hint" id="hint"></div>
 
@@ -515,19 +524,20 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
   </div>
 </div>
 
+<div id="rotHint"><b>📱</b>Okrenite telefon uspravno</div>
 <div id="pdfHost"></div>
 <div class="toast" id="toast"></div>
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261108k
+   KONOBAR – verzija 20261109a
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261108k';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261109a';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic3.js?v=20261108k';
+import { db, auth } from '../firebase-config-kafic3.js?v=20261109a';
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField, enableNetwork, disableNetwork }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
@@ -771,23 +781,52 @@ function renderCanvas() {
 function renderAll() { if (!S.profile) return; renderTabs(); renderMode(); renderCanvas(); renderTurnover(); }
 
 /* drag & drop (Pointer Events; pozicije u % platna; čuva se u bazi na kraju prevlačenja) */
+async function alignTables() {
+  const canvas = $('canvas'), cw = canvas.clientWidth, ch = canvas.clientHeight;
+  const items = [...canvas.querySelectorAll('.table')].map(el => ({ el, id: el.dataset.id, w: el.offsetWidth, h: el.offsetHeight, cx: el.offsetLeft + el.offsetWidth / 2, cy: el.offsetTop + el.offsetHeight / 2 })).filter(x => x.id);
+  const cluster = (key, tol) => { const a = [...items].sort((p, q) => p[key] - q[key]); let g = []; const groups = []; a.forEach(it => { if (g.length && it[key] - g[g.length - 1][key] > tol) { groups.push(g); g = []; } g.push(it); }); if (g.length) groups.push(g); groups.forEach(gr => { if (gr.length > 1) { const m = gr.reduce((s, i) => s + i[key], 0) / gr.length; gr.forEach(i => i[key] = m); } }); };
+  cluster('cy', ch * 0.04); cluster('cx', cw * 0.04);
+  const b = writeBatch(db); let n = 0;
+  items.forEach(i => {
+    const x = Math.min(Math.max(i.cx - i.w / 2, 0), cw - i.w), y = Math.min(Math.max(i.cy - i.h / 2, 0), ch - i.h);
+    const nx = +(x / cw * 100).toFixed(2), ny = +(y / ch * 100).toFixed(2), t = S.tables.find(q => q.id === i.id);
+    if (t && (Math.abs((t.x || 0) - nx) > 0.05 || Math.abs((t.y || 0) - ny) > 0.05)) { b.update(doc(db, 'stolovi', i.id), { x: nx, y: ny }); t.x = nx; t.y = ny; n++; }
+  });
+  try { if (n) await b.commit(); toast(n ? `Poravnato: ${n} stolova` : 'Već su poravnati'); renderAll(); } catch (err) { fail('poravnanje', err); }
+}
+$('alignBtn').addEventListener('click', alignTables);
 function onTablePointerDown(e, t, el) {
   if (!S.editMode) return;
   const canvas = $('canvas'); const br = canvas.getBoundingClientRect(); const er = el.getBoundingClientRect();
   const cr = { left: br.left + canvas.clientLeft, top: br.top + canvas.clientTop, width: canvas.clientWidth, height: canvas.clientHeight };
   const offX = e.clientX - er.left, offY = e.clientY - er.top, sx = e.clientX, sy = e.clientY;
   el.setPointerCapture(e.pointerId); el._dragged = false;
-  let nx = t.x, ny = t.y;
+  let nx = t.x, ny = t.y, guides = [];
+  const others = [...canvas.querySelectorAll('.table')].filter(x => x !== el).map(x => { const r = x.getBoundingClientRect(); return { l: r.left - cr.left, t: r.top - cr.top, w: r.width, h: r.height }; });
   const move = ev => {
-    if (!el._dragged && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 6) return;
+    if (!el._dragged && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 4) return;
     if (!el._dragged) { el._dragged = true; el.classList.add('drag'); S.dragging = true; }
-    const px = Math.min(Math.max(ev.clientX - cr.left - offX, 0), cr.width - er.width);
-    const py = Math.min(Math.max(ev.clientY - cr.top - offY, 0), cr.height - er.height);
+    let px = ev.clientX - cr.left - offX, py = ev.clientY - cr.top - offY;
+    guides.forEach(g => g.remove()); guides = [];
+    if ($('snapChk').checked) {
+      const w = er.width, hh = er.height, TH = 9, grid = cr.width / 40;
+      const fit = (pos, size, axis) => {
+        let best = TH + 1, adj = null, line = null;
+        [0, size / 2, size].forEach(o => others.forEach(t => (axis === 'x' ? [t.l, t.l + t.w / 2, t.l + t.w] : [t.t, t.t + t.h / 2, t.t + t.h]).forEach(l => { const d = Math.abs(pos + o - l); if (d < best) { best = d; adj = l - o; line = l; } })));
+        if (adj === null) { adj = Math.round((pos + size / 2) / grid) * grid - size / 2; line = null; }
+        return [adj, line];
+      };
+      const [ax, lx] = fit(px, w, 'x'), [ay, ly] = fit(py, hh, 'y'); px = ax; py = ay;
+      if (lx !== null) guides.push(h('div', { class: 'guide v', style: `left:${lx}px` }));
+      if (ly !== null) guides.push(h('div', { class: 'guide hz', style: `top:${ly}px` }));
+      guides.forEach(g => canvas.append(g));
+    }
+    px = Math.min(Math.max(px, 0), cr.width - er.width); py = Math.min(Math.max(py, 0), cr.height - er.height);
     nx = +(px / cr.width * 100).toFixed(2); ny = +(py / cr.height * 100).toFixed(2);
     el.style.left = px + 'px'; el.style.top = py + 'px';
   };
   const up = async () => {
-    el.classList.remove('drag');
+    el.classList.remove('drag'); guides.forEach(g => g.remove());
     el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up);
     const moved = el._dragged;
     setTimeout(() => { el._dragged = false; }, 0);
@@ -1308,7 +1347,8 @@ $('installBtn').addEventListener('click', async () => {
   if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('installBtn').style.display = 'none'; }
   else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
 });
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261108k').catch(e => console.warn('SW', e)));
+try { if (standalone && screen.orientation && screen.orientation.lock && matchMedia('(pointer:coarse)').matches) screen.orientation.lock('portrait').catch(() => {}); } catch (e) {}
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261109a').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
