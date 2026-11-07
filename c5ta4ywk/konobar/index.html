@@ -10,10 +10,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Konobar">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=20261109c">
+<link rel="manifest" href="manifest.webmanifest?v=20261109d">
 <link rel="icon" type="image/png" sizes="192x192" href="ikona-192.png?v=3">
 <link rel="apple-touch-icon" href="ikona-180.png?v=3">
-<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261109c">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261109d">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -100,7 +100,9 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .table.square .body{border-radius:14%}
 .table.busy .body{border-color:var(--busy);background:var(--busy-bg)}
 .table .rt{position:absolute;left:50%;top:50%;width:var(--ow);height:var(--oh);transform:translate(-50%,-50%) rotate(var(--rot,0deg))}
-.table .no,.table .meta,.table .sum{transform:rotate(calc(var(--rot,0deg) * -1))}
+.world{position:absolute;inset:0}
+.table .no,.table .meta,.table .sum{transform:rotate(calc((var(--rot,0deg) + var(--wrot,0deg)) * -1))}
+.table .x,.table .pen,.table .rotb,.table .wtr{transform:rotate(calc(var(--wrot,0deg) * -1))}
 .table .no{font-weight:800;font-size:1.5em}
 .table .meta{font-size:.72em;color:var(--muted)}
 .table .sum{font-size:.95em;font-weight:800;color:var(--busy)}
@@ -361,6 +363,7 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
   </label>
   <button class="btn" id="addTableBtn" type="button">+ Dodaj sto</button>
   <label style="flex-direction:row;align-items:center;gap:6px;font-size:.8rem"><input type="checkbox" id="snapChk" checked style="width:18px;height:18px"> Magnet</label>
+  <span style="display:flex;align-items:center;gap:4px;font-size:.8rem"><span class="muted">Mapa</span><button class="btn ghost sm" id="mapL" type="button" title="Okreni cijelu mapu ulijevo">⟲</button><button class="btn ghost sm" id="mapR" type="button" title="Okreni cijelu mapu udesno">⟳</button></span>
   <button class="btn ghost" id="alignBtn" type="button" title="Stolove koji su skoro u istoj liniji poravna tačno u red/kolonu">⇔ Poravnaj u linije</button>
 </div>
 <div class="hint" id="hint"></div>
@@ -530,14 +533,14 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261109c
+   KONOBAR – verzija 20261109d
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261109c';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261109d';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic3.js?v=20261109c';
+import { db, auth } from '../firebase-config-kafic3.js?v=20261109d';
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField, enableNetwork, disableNetwork }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
@@ -547,7 +550,7 @@ import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12
 /* ---------- STANJE ---------- */
 const ZONES = [{ id: 'enterijer', name: 'Enterijer' }, { id: 'basta', name: 'Bašta' }];
 const DEFAULT_SIZE = 64;
-const S = { zone: 'enterijer', editMode: false, profile: null, tables: [], orders: {}, sales: {}, today: [], theme: 'dark', dragging: false };
+const S = { zone: 'enterijer', editMode: false, profile: null, tables: [], zoneRot: {}, orders: {}, sales: {}, today: [], theme: 'dark', dragging: false };
 const tName = t => (t.oblik === 'sank' ? 'Šank ' : 'Sto ') + t.broj;   // na platnu stoji samo broj; u tekstu (narudžba, stiker, račun) i naziv
 const menu = { items: [], subcats: [], currency: '', cafe: '' };
 const raw = { meni: [], podkategorije: [], kategorije: [] };
@@ -636,7 +639,11 @@ function startApp() {
     $('loginCafe').textContent = menu.cafe || 'Prijavite se za stolove i narudžbe';
     renderAll(); if (ui.openTable) renderModal(true);
   });
-  listen(col('stolovi'), 'stolovi', s => { S.tables = docsOf(s); safeRender(); });
+  listen(col('stolovi'), 'stolovi', s => {
+    const all = docsOf(s); S.zoneRot = {};
+    all.filter(d => String(d.id).startsWith('__zona_')).forEach(d => { S.zoneRot[d.id.slice(7)] = +d.rotacija || 0; });   // posebni dokumenti: rotacija mape po zoni
+    S.tables = all.filter(d => !String(d.id).startsWith('__')); safeRender();
+  });
   listen(col('narudzbe'), 'narudzbe', s => {
     S.orders = {}; s.docs.forEach(d => { S.orders[d.id] = d.data(); });
     safeRender(); if (ui.openTable) renderLines(); renderSank();
@@ -773,7 +780,10 @@ function renderCanvas() {
   c.classList.toggle('editing', S.editMode);
   const zone = ZONES.find(z => z.id === S.zone);
   const tables = S.tables.filter(t => t.zona === S.zone);
-  tables.forEach(t => c.append(tableEl(t)));
+  const R = ((S.zoneRot[S.zone] || 0) % 360 + 360) % 360;
+  const world = h('div', { class: 'world', style: `--wrot:${R}deg;transform:rotate(${R}deg)` });
+  tables.forEach(t => world.append(tableEl(t)));
+  c.append(world);
   c.append(h('div', { class: 'zlabel', text: zone.name }));
   if (!tables.length) c.append(h('div', { class: 'empty', text: isAdmin() ? 'Nema stolova u ovoj zoni. Uključite "Uredi raspored" i dodajte prvi sto.' : 'Nema stolova u ovoj zoni. Administrator ih dodaje u režimu "Uredi raspored".' }));
   const busy = tables.filter(t => hasOrder(t.id)).length;
@@ -784,7 +794,7 @@ function renderAll() { if (!S.profile) return; renderTabs(); renderMode(); rende
 /* drag & drop (Pointer Events; pozicije u % platna; čuva se u bazi na kraju prevlačenja) */
 async function alignTables() {
   const canvas = $('canvas'), cw = canvas.clientWidth, ch = canvas.clientHeight;
-  const items = [...canvas.querySelectorAll('.table')].map(el => ({ el, id: el.dataset.id, w: el.offsetWidth, h: el.offsetHeight, cx: el.offsetLeft + el.offsetWidth / 2, cy: el.offsetTop + el.offsetHeight / 2 })).filter(x => x.id);
+  const items = [...canvas.querySelectorAll('.world .table')].map(el => ({ el, id: el.dataset.id, w: el.offsetWidth, h: el.offsetHeight, cx: el.offsetLeft + el.offsetWidth / 2, cy: el.offsetTop + el.offsetHeight / 2 })).filter(x => x.id);
   const cluster = (key, tol) => { const a = [...items].sort((p, q) => p[key] - q[key]); let g = []; const groups = []; a.forEach(it => { if (g.length && it[key] - g[g.length - 1][key] > tol) { groups.push(g); g = []; } g.push(it); }); if (g.length) groups.push(g); groups.forEach(gr => { if (gr.length > 1) { const m = gr.reduce((s, i) => s + i[key], 0) / gr.length; gr.forEach(i => i[key] = m); } }); };
   cluster('cy', ch * 0.04); cluster('cx', cw * 0.04);
   const b = writeBatch(db); let n = 0;
@@ -796,34 +806,44 @@ async function alignTables() {
   try { if (n) await b.commit(); toast(n ? `Poravnato: ${n} stolova` : 'Već su poravnati'); renderAll(); } catch (err) { fail('poravnanje', err); }
 }
 $('alignBtn').addEventListener('click', alignTables);
+async function rotateMap(d) {
+  const R = (((S.zoneRot[S.zone] || 0) + d) % 360 + 360) % 360; S.zoneRot[S.zone] = R; renderAll(); toast('Mapa okrenuta: ' + R + '°', 1200);
+  try { await setDoc(doc(db, 'stolovi', '__zona_' + S.zone), { zona: S.zone, rotacija: R }); } catch (err) { fail('rotiranje mape', err); }
+}
+$('mapL').addEventListener('click', () => rotateMap(-90)); $('mapR').addEventListener('click', () => rotateMap(90));
 function onTablePointerDown(e, t, el) {
   if (!S.editMode) return;
-  const canvas = $('canvas'); const br = canvas.getBoundingClientRect(); const er = el.getBoundingClientRect();
-  const cr = { left: br.left + canvas.clientLeft, top: br.top + canvas.clientTop, width: canvas.clientWidth, height: canvas.clientHeight };
-  const offX = e.clientX - er.left, offY = e.clientY - er.top, sx = e.clientX, sy = e.clientY;
+  const canvas = $('canvas'), world = canvas.querySelector('.world');
+  const R = (S.zoneRot[S.zone] || 0) * Math.PI / 180, cs = Math.cos(R), sn = Math.sin(R);
+  const cw = canvas.clientWidth, ch = canvas.clientHeight;
+  // ekranske koordinate -> koordinate "svijeta" (mapa može biti okrenuta)
+  const toWorld = ev => { const r = canvas.getBoundingClientRect(), dx = ev.clientX - (r.left + r.width / 2), dy = ev.clientY - (r.top + r.height / 2); return { x: dx * cs + dy * sn + cw / 2, y: -dx * sn + dy * cs + ch / 2 }; };
+  const w0 = toWorld(e), offX = w0.x - el.offsetLeft, offY = w0.y - el.offsetTop, sx = e.clientX, sy = e.clientY;
+  const ew = el.offsetWidth, eh = el.offsetHeight;
   el.setPointerCapture(e.pointerId); el._dragged = false;
   let nx = t.x, ny = t.y, guides = [];
-  const others = [...canvas.querySelectorAll('.table')].filter(x => x !== el).map(x => { const r = x.getBoundingClientRect(); return { l: r.left - cr.left, t: r.top - cr.top, w: r.width, h: r.height }; });
+  const others = [...world.querySelectorAll('.table')].filter(x => x !== el).map(x => ({ l: x.offsetLeft, t: x.offsetTop, w: x.offsetWidth, h: x.offsetHeight }));
   const move = ev => {
     if (!el._dragged && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 4) return;
     if (!el._dragged) { el._dragged = true; el.classList.add('drag'); S.dragging = true; }
-    let px = ev.clientX - cr.left - offX, py = ev.clientY - cr.top - offY;
+    const wp = toWorld(ev);
+    let px = wp.x - offX, py = wp.y - offY;
     guides.forEach(g => g.remove()); guides = [];
     if ($('snapChk').checked) {
-      const w = er.width, hh = er.height, TH = 9, grid = cr.width / 40;
+      const TH = 9, grid = cw / 40;
       const fit = (pos, size, axis) => {
         let best = TH + 1, adj = null, line = null;
-        [0, size / 2, size].forEach(o => others.forEach(t => (axis === 'x' ? [t.l, t.l + t.w / 2, t.l + t.w] : [t.t, t.t + t.h / 2, t.t + t.h]).forEach(l => { const d = Math.abs(pos + o - l); if (d < best) { best = d; adj = l - o; line = l; } })));
+        [0, size / 2, size].forEach(o => others.forEach(q => (axis === 'x' ? [q.l, q.l + q.w / 2, q.l + q.w] : [q.t, q.t + q.h / 2, q.t + q.h]).forEach(l => { const d = Math.abs(pos + o - l); if (d < best) { best = d; adj = l - o; line = l; } })));
         if (adj === null) { adj = Math.round((pos + size / 2) / grid) * grid - size / 2; line = null; }
         return [adj, line];
       };
-      const [ax, lx] = fit(px, w, 'x'), [ay, ly] = fit(py, hh, 'y'); px = ax; py = ay;
+      const [ax, lx] = fit(px, ew, 'x'), [ay, ly] = fit(py, eh, 'y'); px = ax; py = ay;
       if (lx !== null) guides.push(h('div', { class: 'guide v', style: `left:${lx}px` }));
       if (ly !== null) guides.push(h('div', { class: 'guide hz', style: `top:${ly}px` }));
-      guides.forEach(g => canvas.append(g));
+      guides.forEach(g => world.append(g));
     }
-    px = Math.min(Math.max(px, 0), cr.width - er.width); py = Math.min(Math.max(py, 0), cr.height - er.height);
-    nx = +(px / cr.width * 100).toFixed(2); ny = +(py / cr.height * 100).toFixed(2);
+    px = Math.min(Math.max(px, 0), cw - ew); py = Math.min(Math.max(py, 0), ch - eh);
+    nx = +(px / cw * 100).toFixed(2); ny = +(py / ch * 100).toFixed(2);
     el.style.left = px + 'px'; el.style.top = py + 'px';
   };
   const up = async () => {
@@ -1349,7 +1369,7 @@ $('installBtn').addEventListener('click', async () => {
   else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
 });
 try { if (standalone && screen.orientation && screen.orientation.lock && matchMedia('(pointer:coarse)').matches) screen.orientation.lock('portrait').catch(() => {}); } catch (e) {}
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261109c').catch(e => console.warn('SW', e)));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261109d').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
