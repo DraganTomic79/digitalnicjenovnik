@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="sr-Latn-BA" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Konobar – Stolovi i narudžbe</title>
+<meta name="theme-color" content="#14151a">
+<meta name="color-scheme" content="dark light">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Konobar">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest?v=20261109d">
+<link rel="icon" type="image/png" sizes="192x192" href="ikona-192.png?v=3">
+<link rel="apple-touch-icon" href="ikona-180.png?v=3">
+<style>
+
+/* ===== TEMA (varijable) ===== */
+:root{
+  --bg:#f4f1ea; --panel:#fff; --panel2:#faf8f3; --text:#1f1d1a; --muted:#7a746a; --line:#e3ddd0;
+  --accent:#b48a3c; --accent-d:#8f6a24; --free:#2e9e5b; --free-bg:#e6f5ec; --busy:#d64545; --busy-bg:#fbe9e9;
+  --grid:rgba(60,50,30,.07); --shadow:0 6px 24px rgba(40,30,10,.12); --r:14px;
+}
+:root[data-theme="dark"]{
+  --bg:#14151a; --panel:#1d1f26; --panel2:#23262f; --text:#eceae4; --muted:#9a968c; --line:#33363f;
+  --accent:#d1a64e; --accent-d:#b48a3c; --free:#3fbf7a; --free-bg:#17352a; --busy:#ef5b5b; --busy-bg:#3a1d1f;
+  --grid:rgba(255,255,255,.06); --shadow:0 6px 24px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;min-height:100dvh}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,select{font:inherit;color:inherit}
+
+/* ===== ZAGLAVLJE ===== */
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.brand{font-weight:700;letter-spacing:.2px}
+.brand small{display:block;font-weight:400;color:var(--muted);font-size:.72rem}
+.hdr-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.install{background:linear-gradient(135deg,#ff3d81,#ff8a00)!important;color:#fff!important;border:0!important;font-weight:800;letter-spacing:.2px;box-shadow:0 0 0 0 rgba(255,100,80,.6);animation:instPulse 1.8s infinite}
+@keyframes instPulse{0%{box-shadow:0 0 0 0 rgba(255,100,80,.6)}70%{box-shadow:0 0 0 12px rgba(255,100,80,0)}100%{box-shadow:0 0 0 0 rgba(255,100,80,0)}}
+@media (prefers-reduced-motion:reduce){.install{animation:none}}
+.chip{padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);font-size:.85rem}
+select.chip{padding:7px 10px}
+.btn{padding:9px 14px;border-radius:10px;background:var(--accent);color:#fff;font-weight:600}
+.btn:hover{background:var(--accent-d)}
+.btn.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+.btn.danger{background:var(--busy)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+
+/* prekidač režima */
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel2)}
+.toggle button{padding:8px 14px;font-size:.85rem;font-weight:600;color:var(--muted)}
+.toggle button.on{background:var(--accent);color:#fff}
+.toggle[aria-disabled="true"]{opacity:.5;pointer-events:none}
+
+/* ===== TABOVI ZONA ===== */
+.tabs{display:flex;gap:6px;padding:10px 14px 0}
+.tab{padding:10px 20px;border-radius:12px 12px 0 0;font-weight:600;color:var(--muted);background:transparent;border:1px solid transparent;border-bottom:0}
+.tab.on{background:var(--panel);color:var(--text);border-color:var(--line)}
+.tab .cnt{margin-left:8px;font-size:.75rem;padding:2px 7px;border-radius:999px;background:var(--busy-bg);color:var(--busy)}
+
+/* ===== TOOLBAR EDITORA ===== */
+.editbar{display:none;gap:10px;flex-wrap:wrap;align-items:flex-end;padding:12px 14px;margin:0 14px;background:var(--panel);border:1px solid var(--line);border-top:0}
+.editbar.show{display:flex}
+.editbar label{display:flex;flex-direction:column;font-size:.72rem;color:var(--muted);gap:3px}
+.editbar input,.editbar select{padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);width:110px}
+.hint{font-size:.8rem;color:var(--muted);padding:0 14px 8px}
+
+/* ===== PLATNO ===== */
+main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
+.canvas-wrap{background:var(--panel);border:1px solid var(--line);border-radius:0 var(--r) var(--r) var(--r);padding:10px;flex:1;display:flex;flex-direction:column}
+.stage{display:block}
+@media (min-width:721px){
+  body{height:100dvh}
+  main{flex:1;min-height:0}
+  .canvas-wrap{min-height:0;height:100%}
+  .stage{flex:1;min-height:280px;container-type:size;display:flex;align-items:center;justify-content:center}
+  .stage .canvas{width:min(100cqw,100cqh);margin:0}
+}
+.canvas{container-type:inline-size;position:relative;flex:none;width:100%;aspect-ratio:1/1;margin:0 auto;border-radius:10px;border:2px dashed var(--line);overflow:hidden;touch-action:pan-y;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:32px 32px;background-color:var(--panel2)}
+.canvas.editing{border-color:var(--accent);border-style:solid;touch-action:none}
+.canvas.editing .table{touch-action:none}
+.canvas.editing .table::after{content:'';position:absolute;inset:-6px;z-index:0}
+.canvas.editing .table .x,.canvas.editing .table .pen,.canvas.editing .table .rotb{z-index:7}   /* veća površina za hvatanje malih stolova */
+.guide{position:absolute;background:var(--accent);opacity:.8;pointer-events:none;z-index:6}
+.guide.v{width:1px;top:0;bottom:0}.guide.hz{height:1px;left:0;right:0}
+#rotHint{display:none;position:fixed;inset:0;z-index:999;background:var(--bg);color:var(--text);align-items:center;justify-content:center;flex-direction:column;gap:14px;font-size:1.2rem;font-weight:700;text-align:center;padding:30px}
+#rotHint b{font-size:3rem;display:block;transform:rotate(90deg)}
+@media (orientation:landscape) and (max-height:480px) and (pointer:coarse){#rotHint{display:flex}}
+.canvas .zlabel{position:absolute;right:10px;bottom:6px;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:1.5px;pointer-events:none}
+.empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);text-align:center;padding:20px;pointer-events:none}
+
+/* ===== STO ===== */
+.table{--sz:max(24px, calc(var(--base,64) * var(--scale,1) * 0.1667cqw));--ow:calc(var(--sz) * 1.44);position:absolute;--oh:var(--ow);--c:1;--s:0;--rw:calc(var(--ow) * var(--c) + var(--oh) * var(--s));--rh:calc(var(--ow) * var(--s) + var(--oh) * var(--c));width:var(--rw);height:var(--rh);font-size:max(9px,calc(var(--sz) / 6));user-select:none;text-align:center;touch-action:none}
+.table .body{position:absolute;inset:calc(var(--sz) * .22);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;border:1.5px solid var(--free);background:var(--free-bg);color:var(--text);box-shadow:none;transition:background .15s,border-color .15s}
+.table.round .body{border-radius:50%}
+.table.square .body{border-radius:14%}
+.table.busy .body{border-color:var(--busy);background:var(--busy-bg)}
+.table .rt{position:absolute;left:50%;top:50%;width:var(--ow);height:var(--oh);transform:translate(-50%,-50%) rotate(var(--rot,0deg))}
+.world{position:absolute;inset:0}
+.table .no,.table .meta,.table .sum{transform:rotate(calc((var(--rot,0deg) + var(--wrot,0deg)) * -1))}
+.table .x,.table .pen,.table .rotb,.table .wtr{transform:rotate(calc(var(--wrot,0deg) * -1))}
+.table .no{font-weight:800;font-size:1.5em}
+.table .meta{font-size:.72em;color:var(--muted)}
+.table .sum{font-size:.95em;font-weight:800;color:var(--busy)}
+.chair{position:absolute;width:max(4px,calc(var(--sz) * .085));height:max(4px,calc(var(--sz) * .085));transform:translate(-50%,-50%);background:var(--free);border:0;box-sizing:border-box}
+.table.round .chair{border-radius:50%}
+.table.square .chair{border-radius:25%}
+.table.busy .chair{background:var(--busy)}
+/* ŠANK: duga pregrada sa barskim stolicama ispred */
+.table.sank{--ow:calc(var(--sz) * 3.64);--oh:calc(var(--sz) * 1.05)}
+.table.sank .body{inset:calc(var(--sz) * .1) calc(var(--sz) * .22) calc(var(--sz) * .33) calc(var(--sz) * .22);border-radius:12px;flex-direction:row;gap:.6em;flex-wrap:nowrap}
+.table.sank .chair{border-radius:50%}
+.table.sank .no{font-size:1.25em;white-space:nowrap}
+.table.sank .meta{display:none}
+.table .wtr{position:absolute;top:2px;left:2px;width:21px;height:21px;border-radius:50%;background:var(--accent);color:#fff;font-size:.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:2}
+.canvas.editing .table{cursor:grab}
+.canvas.editing .table .body{border-style:dashed}
+.canvas.editing .table.drag{cursor:grabbing;opacity:.85;z-index:5}
+.canvas:not(.editing) .table{cursor:pointer}
+.canvas:not(.editing) .table:hover .body{transform:scale(1.04)}
+.table .x,.table .pen,.table .rotb{display:none;position:absolute;width:20px;height:20px;border-radius:50%;color:#fff;font-weight:700;line-height:20px;font-size:.7rem;padding:0;z-index:3}
+.table .x{top:0;right:0;background:var(--busy)}
+.table .rotb{bottom:0;left:0;background:#6b7280;font-size:.85rem}
+.table .pen{bottom:0;right:0;background:var(--accent);font-size:.72rem}
+.canvas.editing .table .x,.canvas.editing .table .pen,.canvas.editing .table .rotb{display:block}
+
+/* ===== LEGENDA ===== */
+.legend{display:flex;gap:14px;align-items:center;padding:8px 2px 0;font-size:.8rem;color:var(--muted);flex-wrap:wrap}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+
+/* ===== MODAL ===== */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:12px}
+.overlay.show{display:flex}
+.modal{background:var(--panel);border-radius:18px;width:min(940px,100%);max-height:94dvh;display:flex;flex-direction:column;box-shadow:var(--shadow);overflow:hidden}
+.m-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.m-head h2{margin:0;font-size:1.2rem}
+.status{padding:4px 12px;border-radius:999px;font-size:.78rem;font-weight:700}
+.status.free{background:var(--free-bg);color:var(--free)}
+.status.busy{background:var(--busy-bg);color:var(--busy)}
+.m-body{display:grid;grid-template-columns:1.15fr 1fr;gap:0;min-height:0;flex:1;overflow:hidden}
+.col{display:flex;flex-direction:column;min-height:0}
+.col.menu{border-right:1px solid var(--line)}
+.col h3{margin:0;padding:12px 16px 6px;font-size:.8rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+.search{margin:0 16px 8px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);width:calc(100% - 32px)}
+.whowrap{position:relative;margin-left:auto}
+.whopop{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:8;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;min-width:220px;max-height:50vh;overflow:auto;box-shadow:var(--shadow)}
+.whopop.show{display:block}
+.whopop label{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;font-weight:600}
+.whopop label:hover{background:var(--panel2)}
+.whopop input{width:18px;height:18px;accent-color:var(--accent)}
+.whopop hr{border:0;border-top:1px solid var(--line);margin:4px 0}
+.cats{scrollbar-width:thin;scrollbar-color:var(--line) transparent;display:flex;gap:6px;overflow-x:auto;padding:0 16px 8px;flex-shrink:0}
+.cats button{white-space:nowrap;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);font-size:.8rem}
+.cats button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.items{overflow-y:auto;padding:0 16px 12px;flex:1;min-height:120px}
+.item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.item:active{background:var(--panel2)}
+.thumb{width:52px;height:52px;border-radius:10px;object-fit:cover;background:var(--panel2);border:1px solid var(--line);flex-shrink:0}
+.thumb.ph{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.3rem}
+.badge{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:var(--accent);color:#fff;font-size:.72rem;font-weight:700;vertical-align:1px}
+.item .nm{flex:1;min-width:0}
+.item .nm b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis}
+.item .nm small{color:var(--muted)}
+.item .pr{font-weight:500;font-size:.8rem;color:var(--muted);white-space:nowrap;text-align:right}
+.ctl{display:flex;align-items:center;justify-content:flex-end;gap:6px;min-width:128px;flex-shrink:0}
+.qv{min-width:26px;text-align:center;font-size:1.35rem;font-weight:800}
+.item .pr small{display:block;font-weight:400;color:var(--muted);font-size:.62rem;opacity:.8}
+.plus{width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;font-size:1.3rem;font-weight:700;flex-shrink:0}
+.plus:active{transform:scale(.92)}
+.minus{width:40px;height:40px;border-radius:50%;background:transparent;color:var(--busy);border:2px solid var(--busy);font-size:1.4rem;font-weight:700;line-height:1;flex-shrink:0;display:none}
+.minus:active{transform:scale(.92)}
+.qty button.dec{background:var(--busy-bg);border-color:var(--busy);color:var(--busy)}
+.qty button{width:34px;height:34px}
+.line .del{width:30px;height:30px;border-radius:8px;background:transparent;border:0;color:var(--muted);font-size:1rem;flex-shrink:0}
+.lines{overflow-y:auto;padding:0 16px;flex:1;min-height:120px}
+.line{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}
+.line .nm{flex:1;min-width:0;font-weight:600}
+.od{display:block;color:var(--muted);font-weight:500;font-size:.78rem}
+.item .nm small.od{color:var(--accent);font-weight:600}
+.qty{display:flex;align-items:center;gap:6px}
+.qty button{width:30px;height:30px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);font-weight:700}
+.line .cu{color:var(--muted);font-size:.78rem;white-space:nowrap}
+.line .lt{width:70px;text-align:right;font-weight:700}
+.none{color:var(--muted);padding:26px 0;text-align:center}
+.total{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-top:1px solid var(--line);font-size:1.15rem;font-weight:800;background:var(--panel2)}
+.m-foot{display:flex;gap:10px;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--line)}
+.m-foot .btn{flex:0 1 auto}
+
+/* ŠANK: stikeri */
+.sankmodal{width:100%;height:100dvh;max-height:100dvh;border-radius:0}
+.sankmodal .m-head{padding:10px 12px}.sankmodal .m-head h2{font-size:1rem}.sankmodal .m-head .btn{white-space:nowrap;padding:8px 10px;font-size:.78rem}.sankmodal .m-head small{display:block}
+.sankgrid{flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;align-content:start;background:var(--bg)}
+.sticky{position:relative;background:#fff3a8;color:#3b3200;border-radius:4px 4px 14px 4px;padding:8px 10px 6px;box-shadow:0 6px 14px rgba(0,0,0,.25);transform:rotate(var(--rot,0deg));border-top:8px solid #e8c800}
+:root[data-theme="dark"] .sticky{background:#f7e98a}
+.sticky.new{animation:pop .6s ease-out}
+@keyframes pop{0%{transform:scale(.85) rotate(var(--rot,0deg));opacity:0}100%{transform:scale(1) rotate(var(--rot,0deg));opacity:1}}
+:root[data-theme="dark"] .sticky.done,.sticky.done{background:#c8efc9;border-top-color:#4caf50;opacity:.75}
+.sticky .sh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px dashed rgba(0,0,0,.3);padding-bottom:6px;margin-bottom:6px}
+.sticky .sh b{font-size:1rem}
+.sticky .sh span{font-size:.68rem;font-weight:700}
+.sticky .sm2{font-size:.66rem;opacity:.75;margin-bottom:6px}
+.sticky .it{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:6px 3px;border-bottom:1px dotted rgba(0,0,0,.25);font-size:.74rem;font-weight:600;white-space:nowrap;color:inherit;border-radius:6px}
+.sticky .it:active{background:rgba(0,0,0,.08)}
+.sticky .it .nmx{flex:1;min-width:0;display:flex;flex-direction:column;white-space:normal;overflow:visible}
+.sticky .it .n1{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sticky .it .n2{font-size:.68rem;font-weight:600;opacity:.8;line-height:1.2;white-space:normal}
+.sticky .it i{font-style:normal;flex:0 0 18px;height:18px;border:2px solid #3b3200;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:.9rem}
+.sticky .it.ok{text-decoration:line-through;opacity:.55}
+.sticky .it.ok i{background:#2e7d32;border-color:#2e7d32;color:#fff}
+.sticky .it em{font-style:normal;font-size:.62rem;background:#d32f2f;color:#fff;border-radius:999px;padding:1px 7px;margin-left:auto}
+.sticky .ag{font-size:.64rem;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(0,0,0,.1)}
+.sticky .ag.late{background:#d32f2f;color:#fff}
+.sticky .ag.mid{background:#f59e0b;color:#000}
+/* tabovi modala (samo na telefonu) */
+.ordermodal{width:min(640px,100%);height:min(92dvh,800px)}
+.ordermodal .m-tabs{display:flex}
+.ordermodal .m-body{display:block;flex:1;min-height:0;overflow:hidden}
+.ordermodal .col{display:none;height:100%}
+.ordermodal .col.on{display:flex}
+.ordermodal .col.menu{border-right:0}
+.ordermodal .col h3{display:none}
+.ordermodal .items,.ordermodal .lines{min-height:0}
+.m-tabs{display:none;border-bottom:1px solid var(--line)}
+.m-tabs button{flex:1;padding:11px 8px;font-weight:700;color:var(--muted);border-bottom:3px solid transparent}
+.m-tabs button.on{color:var(--text);border-bottom-color:var(--accent)}
+/* uređivanje stola */
+.form{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:.78rem;color:var(--muted)}
+.form input,.form select{padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2)}
+.form .full{grid-column:1/-1}
+.form input[type=range]{padding:0}
+.preview{display:flex;align-items:center;justify-content:center;overflow:auto;height:110px;background:var(--panel2);border-radius:10px;border:1px dashed var(--line)}
+/* račun */
+.receipt{font-family:ui-monospace,Menlo,Consolas,monospace;background:#fff;color:#111;padding:18px;border-radius:10px;margin:16px;font-size:.85rem}
+.receipt h3{margin:0 0 4px;text-align:center;font-size:1rem}
+.receipt .c{text-align:center;color:#555}
+.receipt hr{border:0;border-top:1px dashed #999;margin:10px 0}
+.receipt .r{display:flex;justify-content:space-between;gap:8px}
+.receipt .warn{margin-top:10px;text-align:center;font-weight:700;color:#b00}
+
+.toast{position:fixed;left:50%;top:14px;transform:translateX(-50%);max-width:92vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--text);color:var(--bg);padding:9px 16px;border-radius:999px;z-index:99;font-size:.88rem;opacity:0;pointer-events:none;transition:opacity .2s;box-shadow:var(--shadow)}
+.toast.show{opacity:1}
+.banner{margin:8px 14px 0;padding:8px 12px;border-radius:10px;font-size:.8rem;background:#fff4d6;color:#6b5200;display:none}
+:root[data-theme="dark"] .banner{background:#3a3114;color:#f2d98a}
+
+/* mobilno: modal kao donji panel, kolone jedna ispod druge */
+@media (max-width:720px){
+  header{padding:8px 10px;gap:6px}
+  .brand small{display:none}
+  .hdr-right{gap:6px;width:100%;justify-content:space-between}
+  .chip{padding:6px 9px;font-size:.78rem}
+  .toggle button{padding:7px 10px;font-size:.78rem}
+  .tabs{padding:8px 10px 0}.tab{padding:9px 14px}
+  main{padding:0 8px 8px}.hint{padding:0 10px 6px}
+  .editbar{margin:0 10px;padding:10px;gap:8px}.editbar input,.editbar select{width:92px}
+  .overlay{align-items:flex-end;padding:0}
+  .modal{border-radius:18px 18px 0 0;height:94dvh;max-height:94dvh}
+  .m-tabs{display:flex}
+  .m-body{display:block;flex:1;min-height:0;overflow:hidden}
+  .col{display:none;height:100%}
+  .col.on{display:flex}
+  .col.menu{border-right:0}
+  .col h3{display:none}
+  .items,.lines{min-height:0}
+  .form{grid-template-columns:1fr}
+}
+@media print{header,.tabs,.editbar,main,.m-foot{display:none!important}}
+
+/* prijava */
+.login{position:fixed;inset:0;z-index:200;background:var(--bg);display:none;align-items:center;justify-content:center;padding:16px}
+.login.show{display:flex}
+.login .box{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:26px;width:min(380px,100%)}
+.login h1{margin:0 0 4px;font-size:1.4rem}
+.login p{margin:0 0 16px;color:var(--muted);font-size:.9rem}
+.login label{display:block;font-size:.78rem;color:var(--muted);margin:10px 0 4px}
+.login input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2)}
+.login .btn{width:100%;margin-top:16px;padding:12px}
+.login .err{color:var(--busy);font-size:.85rem;margin-top:10px;min-height:1.2em}
+/* promet / kalendar */
+.cal-head{display:flex;align-items:center;gap:8px;padding:12px 16px;flex-wrap:wrap}
+.cal-head h3{margin:0;flex:1;text-align:center;font-size:1.05rem;text-transform:capitalize}
+.cal-body{overflow-y:auto;padding:0 16px 12px;flex:1;min-height:0}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal .dh{font-size:.7rem;color:var(--muted);text-align:center;padding:4px 0}
+.cal .d{min-height:54px;border:1px solid var(--line);border-radius:8px;padding:4px;background:var(--panel2);text-align:left;font-size:.72rem;display:flex;flex-direction:column;justify-content:space-between}
+.cal .d b{font-size:.78rem}
+.cal .d.has{background:var(--free-bg);border-color:var(--free)}
+.cal .d.today{outline:2px solid var(--accent)}
+.cal .d.sel{outline:3px solid var(--text)}
+.cal .d.off{opacity:.35;pointer-events:none}
+.cal .d span{color:var(--muted)}
+.day{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+.day h4{margin:0 0 8px}
+.rrow{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:.88rem;cursor:pointer}
+.rrow .g{flex:1;min-width:0}
+.rrow small{color:var(--muted)}
+.rdet{padding:6px 0 8px 10px;font-size:.82rem;color:var(--muted);border-bottom:1px solid var(--line)}
+.sumline{display:flex;justify-content:space-between;font-size:.85rem;padding:3px 0}
+.staff-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.staff-row .g{flex:1;min-width:0}
+.staff-row small{color:var(--muted);display:block}
+.pill{padding:2px 9px;border-radius:999px;font-size:.7rem;font-weight:700;background:var(--panel2);border:1px solid var(--line)}
+.pill.admin{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.sm{padding:6px 10px;font-size:.8rem}
+#pdfHost{position:fixed;left:-10000px;top:0;width:794px;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif;padding:36px;font-size:13px}
+#pdfHost h1{margin:0 0 4px;font-size:22px}
+#pdfHost table{width:100%;border-collapse:collapse;margin:10px 0 16px}
+#pdfHost th,#pdfHost td{border-bottom:1px solid #ccc;padding:5px 6px;text-align:left}
+#pdfHost th{background:#f1ece0}
+#pdfHost td.r,#pdfHost th.r{text-align:right}
+@media (max-width:720px){.cal .d{min-height:46px;padding:3px}.cal .d span{display:none}}
+
+</style>
+</head>
+<body>
+
+<!-- PRIJAVA -->
+<div class="login show" id="loginOv">
+  <form class="box" id="loginForm" autocomplete="on">
+    <h1>Konobar</h1>
+    <p id="loginCafe">Prijavite se za stolove i narudžbe</p>
+    <label for="lEmail">E-mail</label>
+    <input id="lEmail" type="email" autocomplete="username" inputmode="email" required>
+    <label for="lPass">Lozinka</label>
+    <input id="lPass" type="password" autocomplete="current-password" required>
+    <button class="btn" id="lBtn" type="submit">Prijavi se</button>
+    <div class="err" id="lErr"></div>
+  </form>
+</div>
+
+<header>
+  <div class="brand">Konobar <small id="cafeName">Stolovi i narudžbe</small></div>
+  <div class="hdr-right">
+    <button class="chip install" id="installBtn" type="button" style="display:none" title="Instaliraj kao aplikaciju">📲 Instaliraj aplikaciju</button>
+    <button class="chip" id="sankBtn" type="button" style="display:none" title="Narudžbe za šank">🍸 Šank</button>
+    <button class="chip" id="turnBtn" type="button" title="Pregled prometa po danima">Promet danas: <b id="turnover">–</b></button>
+    <span class="chip" id="whoChip"></span>
+    <div class="toggle" id="modeToggle" role="group" aria-label="Režim rada" style="display:none">
+      <button id="modeWork" class="on" type="button">Pregled / Rad</button>
+      <button id="modeEdit" type="button">Uredi raspored</button>
+    </div>
+    <button class="chip" id="staffBtn" type="button" style="display:none">Osoblje</button>
+    <button class="chip" id="themeBtn" type="button" title="Svijetla / tamna tema">☾</button>
+    <button class="chip" id="outBtn" type="button">Odjava</button>
+  </div>
+</header>
+
+<div class="banner" id="banner"></div>
+<div class="tabs" id="tabs"></div>
+
+<div class="editbar" id="editbar">
+  <label>Oblik
+    <select id="newShape"><option value="round">Okrugli</option><option value="square">Kvadratni</option><option value="sank">Šank</option></select>
+  </label>
+  <label>Broj stola<input id="newNo" type="number" min="1" inputmode="numeric" placeholder="npr. 12"></label>
+  <label>Stolica / mjesta<input id="newCap" type="number" min="1" max="30" inputmode="numeric" value="4"></label>
+  <label>Veličina
+    <select id="newSize"><option value="48">Mala</option><option value="64" selected>Srednja</option><option value="84">Velika</option></select>
+  </label>
+  <button class="btn" id="addTableBtn" type="button">+ Dodaj sto</button>
+  <label style="flex-direction:row;align-items:center;gap:6px;font-size:.8rem"><input type="checkbox" id="snapChk" checked style="width:18px;height:18px"> Magnet</label>
+  <span style="display:flex;align-items:center;gap:4px;font-size:.8rem"><span class="muted">Mapa</span><button class="btn ghost sm" id="mapL" type="button" title="Okreni cijelu mapu ulijevo">⟲</button><button class="btn ghost sm" id="mapR" type="button" title="Okreni cijelu mapu udesno">⟳</button></span>
+  <button class="btn ghost" id="alignBtn" type="button" title="Stolove koji su skoro u istoj liniji poravna tačno u red/kolonu">⇔ Poravnaj u linije</button>
+</div>
+<div class="hint" id="hint"></div>
+
+<main>
+  <div class="canvas-wrap">
+    <div class="stage"><div class="canvas" id="canvas"></div></div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--free)"></i>Slobodan</span>
+      <span><i class="dot" style="background:var(--busy)"></i>Zauzet / ima narudžbu</span>
+      <span id="stats" style="margin-left:auto"></span>
+    </div>
+  </div>
+</main>
+
+<!-- Modal narudžbe -->
+<div class="overlay" id="orderOv">
+  <div class="modal ordermodal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <div class="m-head">
+      <h2 id="mTitle"></h2>
+      <span class="status" id="mStatus"></span>
+    </div>
+    <div class="m-tabs">
+      <button type="button" id="tabMenu" class="on">Meni</button>
+      <button type="button" id="tabOrder">Račun <span class="badge" id="tabCnt">0</span></button>
+    </div>
+    <div class="m-body">
+      <div class="col menu on" id="colMenu">
+        <h3>Mini-meni</h3>
+        <input class="search" id="q" type="search" placeholder="Pretraži artikle…" autocomplete="off">
+        <div class="cats" id="cats"></div>
+        <div class="items" id="items"></div>
+      </div>
+      <div class="col" id="colOrder">
+        <h3>Narudžba stola</h3>
+        <div class="lines" id="lines"></div>
+        <div class="total"><span>Ukupno</span><span id="total">0.00</span></div>
+      </div>
+    </div>
+    <div class="m-foot">
+      <button class="btn ghost" id="closeBtn" type="button">Zatvori</button>
+      <button class="btn danger" id="payBtn" type="button">Naplati i oslobodi sto</button>
+    </div>
+  </div>
+</div>
+
+<!-- Šank: narudžbe kao stikeri -->
+<div class="overlay" id="sankOv" style="padding:0;z-index:60">
+  <div class="modal sankmodal">
+    <div class="m-head"><h2>🍸 Šank <small id="sankCnt" style="font-weight:400;color:var(--muted)"></small></h2>
+      <div style="display:flex;gap:8px"><button class="btn ghost sm" id="sankSnd" type="button" title="Zvuk za nove narudžbe">🔕 Zvuk: ne</button><button class="btn ghost sm" id="sankClose" type="button">Zatvori</button><button class="btn danger sm" id="sankOut" type="button">Odjava</button></div></div>
+    <div class="sankgrid" id="sankGrid"></div>
+  </div>
+</div>
+
+<!-- Potvrda naplate -->
+<div class="overlay" id="cfOv" style="z-index:70">
+  <div class="modal" style="width:min(380px,100%);height:auto">
+    <div class="m-head"><h2>Naplatiti i osloboditi sto?</h2><button class="btn ghost sm" id="cfX" type="button" aria-label="Odustani">✕</button></div>
+    <div style="padding:18px;text-align:center"><div id="cfTxt" style="color:var(--muted);margin-bottom:6px"></div><div id="cfSum" style="font-size:1.8rem;font-weight:800"></div></div>
+    <div class="m-foot"><button class="btn ghost" id="cfNo" type="button">Odustani</button><button class="btn danger" id="cfYes" type="button">Da, naplati</button></div>
+  </div>
+</div>
+
+<!-- Modal računa -->
+<div class="overlay" id="rcOv">
+  <div class="modal" style="width:min(420px,100%);height:auto">
+    <div class="m-head"><h2>Račun</h2></div>
+    <div class="receipt" id="receipt"></div>
+    <div class="m-foot">
+      <button class="btn ghost" id="printBtn" type="button">Štampaj</button>
+      <button class="btn" id="rcOk" type="button">Gotovo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: uređivanje stola (admin) -->
+<div class="overlay" id="tblOv">
+  <div class="modal" style="width:min(460px,100%);height:auto;max-height:94dvh">
+    <div class="m-head"><h2 id="tTitle">Uredi sto</h2></div>
+    <div class="form">
+      <label>Broj stola<input id="eNo" type="number" min="1" inputmode="numeric"></label>
+      <label>Stolica / mjesta<input id="eCap" type="number" min="1" max="30" inputmode="numeric"></label>
+      <label class="full">Oblik
+        <select id="eShape"><option value="round">Okrugli</option><option value="square">Kvadratni</option><option value="sank">Šank</option></select>
+      </label>
+      <label class="full">Veličina: <b id="eSizeVal"></b>
+        <input id="eSize" type="range" min="40" max="110" step="2">
+      </label>
+      <label class="full">Rotacija: <b id="eRotVal"></b>
+        <input id="eRot" type="range" min="0" max="345" step="15">
+      </label>
+      <div class="full preview" style="height:auto;min-height:150px"><div class="table" id="ePrev" style="position:relative;--sz:calc(var(--base,64) * 1px)"></div></div>
+    </div>
+    <div class="m-foot">
+      <button class="btn danger" id="eDel" type="button" style="margin-right:auto">Obriši sto</button>
+      <button class="btn ghost" id="eCancel" type="button">Otkaži</button>
+      <button class="btn" id="eSave" type="button">Sačuvaj</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: promet / kalendar -->
+<div class="overlay" id="pmOv">
+  <div class="modal" style="width:min(760px,100%)">
+    <div class="m-head"><h2 id="pmTitle">Promet</h2><button class="btn ghost sm" id="pmClose" type="button">Zatvori</button></div>
+    <div class="cal-head">
+      <button class="btn ghost sm" id="pmPrev" type="button">‹</button>
+      <h3 id="pmMonth"></h3>
+      <button class="btn ghost sm" id="pmNext" type="button">›</button>
+      <div class="whowrap" id="pmWho" style="display:none"><button class="chip" id="pmWhoBtn" type="button">Svi konobari ▾</button><div class="whopop" id="pmWhoPop"></div></div>
+    </div>
+    <div class="cal-body">
+      <div class="cal" id="pmCal"></div>
+      <div class="day" id="pmDay"></div>
+    </div>
+    <div class="m-foot" id="pmFoot" style="display:none">
+      <button class="btn ghost" id="pdfDay" type="button">PDF – izabrani dan</button>
+      <button class="btn" id="pdfMonth" type="button">PDF – cijeli mjesec</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: osoblje (admin) -->
+<div class="overlay" id="stOv">
+  <div class="modal" style="width:min(560px,100%)">
+    <div class="m-head"><h2>Osoblje</h2><button class="btn ghost sm" id="stClose" type="button">Zatvori</button></div>
+    <div class="cal-body" style="padding-top:10px">
+      <div id="stList"></div>
+      <div class="form" style="padding:14px 0 0">
+        <label>Ime<input id="sName" type="text" placeholder="npr. Marko"></label>
+        <label>Uloga
+          <select id="sRole"><option value="konobar">Konobar</option><option value="sanker">Šanker</option><option value="admin">Administrator</option></select>
+        </label>
+        <label>E-mail<input id="sMail" type="email" placeholder="marko@primjer.com"></label>
+        <label>Lozinka (min. 6 znakova)<input id="sPass" type="text" autocomplete="off"></label>
+        <button class="btn full" id="sAdd" type="button">+ Dodaj osobu</button>
+        <button class="btn ghost full" id="clOpen" type="button">🗑 Brisanje podataka (računi, najprodavanije)</button>
+        <div class="full" style="font-size:.78rem;color:var(--muted)">Ako e-mail već ima nalog, samo mu se dodjeljuje uloga (lozinka se ne mijenja). Uklanjanje osobe oduzima pristup.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: brisanje podataka (admin) -->
+<div class="overlay" id="clOv" style="z-index:65">
+  <div class="modal" style="width:min(560px,100%);height:auto;max-height:92dvh">
+    <div class="m-head"><h2>Brisanje podataka</h2><button class="btn ghost sm" id="clClose" type="button">Zatvori</button></div>
+    <div class="cal-body" style="padding-top:10px;overflow:auto">
+      <div style="font-size:.82rem;color:var(--muted);margin-bottom:8px">Izaberite čiji se <b>izdati računi</b> brišu (uključujući osoblje koje je već uklonjeno) i za koji period. Brisanje je trajno – prije toga napravite PDF izvještaj iz „Promet“.</div>
+      <div id="clList" class="none">Učitavanje…</div>
+      <label style="display:block;margin-top:12px">Period
+        <select id="clPeriod" style="width:100%;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--text)">
+          <option value="0">Svi računi izabranih</option><option value="12">Samo stariji od 12 mjeseci</option><option value="6">Samo stariji od 6 mjeseci</option><option value="3">Samo stariji od 3 mjeseca</option><option value="1">Samo stariji od 1 mjesec</option>
+        </select>
+      </label>
+      <label style="display:flex;gap:10px;align-items:center;margin-top:12px"><input type="checkbox" id="clSales" style="width:18px;height:18px"> <span>Resetuj i listu „Najprodavanije“ (brojači prodaje)</span></label>
+      <div id="clSum" style="margin-top:12px;font-weight:700"></div>
+    </div>
+    <div class="m-foot"><button class="btn danger" id="clGo" type="button" disabled>Obriši izabrano</button></div>
+  </div>
+</div>
+
+<div id="rotHint"><b>📱</b>Okrenite telefon uspravno</div>
+<div id="pdfHost"></div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+/* =====================================================================
+   KONOBAR – verzija 20261109d
+   - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
+   - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
+   - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
+   ===================================================================== */
+const APP_VERSION = '20261109d';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+
+import { db, auth } from '../firebase-config-kafic1.js?v=20261109d';
+import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField, enableNetwork, disableNetwork }
+  from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
+  from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js';
+import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js';
+
+/* ---------- STANJE ---------- */
+const ZONES = [{ id: 'enterijer', name: 'Enterijer' }, { id: 'basta', name: 'Bašta' }];
+const DEFAULT_SIZE = 64;
+const S = { zone: 'enterijer', editMode: false, profile: null, tables: [], zoneRot: {}, orders: {}, sales: {}, today: [], theme: 'dark', dragging: false };
+const tName = t => (t.oblik === 'sank' ? 'Šank ' : 'Sto ') + t.broj;   // na platnu stoji samo broj; u tekstu (narudžba, stiker, račun) i naziv
+const menu = { items: [], subcats: [], currency: '', cafe: '' };
+const raw = { meni: [], podkategorije: [], kategorije: [] };
+const ui = { openTable: null, cat: '★', q: '', pane: 'menu', editTable: null, pm: { ym: '', day: '', sel: new Set(), who: new Map(), docs: [] } };
+let unsubs = [];
+
+/* ---------- POMOĆNO ---------- */
+const $ = id => document.getElementById(id);
+function h(tag, attrs = {}, ...kids) {           // sigurno pravljenje elemenata (bez innerHTML)
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'class') e.className = v; else if (k === 'text') e.textContent = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v);
+  }
+  kids.flat().forEach(c => c != null && e.append(c.nodeType ? c : document.createTextNode(c)));
+  return e;
+}
+const money = n => (Math.round(n * 100) / 100).toFixed(2);
+const fmt = n => money(n) + (menu.currency ? ' ' + menu.currency : '');
+const parsePrice = v => { const n = parseFloat(String(v ?? '0').replace(',', '.')); return isFinite(n) ? n : 0; };
+const pad = n => String(n).padStart(2, '0');
+const dayStr = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const monthStr = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
+const dayLabel = s => { const [y, m, d] = s.split('-'); return `${+d}. ${+m}. ${y}.`; };
+const MONTHS = ['januar', 'februar', 'mart', 'april', 'maj', 'jun', 'jul', 'august', 'septembar', 'oktobar', 'novembar', 'decembar'];
+const isAdmin = () => S.profile && S.profile.role === 'admin';
+const me = () => S.profile ? S.profile.email : '';
+function toast(msg, ms = 1900) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), ms); }
+function fail(what, err) {
+  console.error(what, err);
+  const code = err && err.code ? err.code : '';
+  toast(code === 'permission-denied' ? 'Nemate dozvolu za ovu radnju' : 'Greška: ' + (what || '') + (code ? ' (' + code + ')' : ''));
+}
+function lsGet(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+/* ---------- PRIJAVA I ULOGE ---------- */
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault(); $('lErr').textContent = ''; $('lBtn').disabled = true;
+  try { await signInWithEmailAndPassword(auth, $('lEmail').value.trim(), $('lPass').value); }
+  catch (err) {
+    const c = err && err.code || '';
+    $('lErr').textContent = /invalid|wrong|not-found|credential/.test(c) ? 'Pogrešan e-mail ili lozinka.' : c === 'auth/too-many-requests' ? 'Previše pokušaja. Pokušajte kasnije.' : 'Prijava nije uspjela (' + (c || 'mreža') + ').';
+  } finally { $('lBtn').disabled = false; }
+});
+$('outBtn').addEventListener('click', () => signOut(auth));
+
+onAuthStateChanged(auth, async user => {
+  stopListening(); S.profile = null;
+  if (!user) { $('loginOv').classList.add('show'); return; }
+  try {
+    const email = (user.email || '').toLowerCase();
+    const snap = await getDoc(doc(db, 'osoblje', email));
+    const p = snap.exists() ? snap.data() : null;
+    if (!p || p.aktivan === false || !['admin', 'konobar', 'sanker'].includes(p.role)) {
+      $('lErr').textContent = 'Ovaj nalog nema dozvolu za pristup. Obratite se administratoru.';
+      await signOut(auth); return;
+    }
+    S.profile = { email, ime: p.ime || email, role: p.role };
+    $('loginOv').classList.remove('show'); $('lPass').value = '';
+    startApp();
+  } catch (err) {
+    $('lErr').textContent = 'Provjera uloge nije uspjela (' + (err.code || 'mreža') + '). Provjerite pravila baze.';
+    await signOut(auth);
+  }
+});
+
+/* ---------- PRAĆENJE BAZE U REALNOM VREMENU ---------- */
+function stopListening() { unsubs.forEach(u => { try { u(); } catch (e) {} }); unsubs = []; }
+const col = n => collection(db, n);
+const docsOf = snap => snap.docs.map(d => ({ id: d.id, ...d.data() }));
+function listen(q, what, cb) { unsubs.push(onSnapshot(q, snap => cb(snap), err => fail('čitanje: ' + what, err))); }
+
+function startApp() {
+  S.editMode = false;
+  applyRoleUI();
+  listen(col('meni'), 'meni', s => { raw.meni = docsOf(s); rebuildMenu(); });
+  listen(col('podkategorije'), 'podkategorije', s => { raw.podkategorije = docsOf(s); rebuildMenu(); });
+  listen(col('kategorije'), 'kategorije', s => { raw.kategorije = docsOf(s); rebuildMenu(); });
+  // Valuta i naziv kafića: isti dokument koji koristi Admin panel (prvi dokument kolekcije web-postavke)
+  listen(col('web-postavke'), 'web-postavke', s => {
+    const w = s.docs.length ? s.docs[0].data() : {};
+    menu.currency = String(w.currencyCode || '').trim();
+    menu.cafe = String(w.pageTitle || '').trim();
+    $('cafeName').textContent = (menu.cafe ? menu.cafe + ' · ' : '') + 'stolovi i narudžbe';
+    $('loginCafe').textContent = menu.cafe || 'Prijavite se za stolove i narudžbe';
+    renderAll(); if (ui.openTable) renderModal(true);
+  });
+  listen(col('stolovi'), 'stolovi', s => {
+    const all = docsOf(s); S.zoneRot = {};
+    all.filter(d => String(d.id).startsWith('__zona_')).forEach(d => { S.zoneRot[d.id.slice(7)] = +d.rotacija || 0; });   // posebni dokumenti: rotacija mape po zoni
+    S.tables = all.filter(d => !String(d.id).startsWith('__')); safeRender();
+  });
+  listen(col('narudzbe'), 'narudzbe', s => {
+    S.orders = {}; s.docs.forEach(d => { S.orders[d.id] = d.data(); });
+    safeRender(); if (ui.openTable) renderLines(); renderSank();
+  });
+  listen(col('prodaja'), 'prodaja', s => { S.sales = {}; s.docs.forEach(d => { S.sales[d.id] = d.data().kol || 0; }); });
+  if (S.profile.role !== 'sanker') listenToday();
+  clearInterval(startApp._t); startApp._t = setInterval(() => { if (S.profile.role !== 'sanker' && S.todayKey !== dayStr(new Date())) listenToday(); }, 60000);
+  renderAll();
+  if (S.profile.role === 'sanker') openSank();
+}
+function listenToday() {
+  if (S.todayUnsub) { try { S.todayUnsub(); } catch (e) {} unsubs = unsubs.filter(u => u !== S.todayUnsub); }
+  S.todayKey = dayStr(new Date());
+  const q = isAdmin() ? query(col('racuni'), where('dan', '==', S.todayKey))
+                      : query(col('racuni'), where('dan', '==', S.todayKey), where('konobarEmail', '==', me()));
+  S.todayUnsub = onSnapshot(q, snap => { S.today = docsOf(snap); renderTurnover(); }, err => fail('čitanje: računi', err));
+  unsubs.push(S.todayUnsub);
+}
+function safeRender() { if (S.dragging) { S.pendingRender = true; return; } renderAll(); }
+
+/* ---------- MENI (artikli iz baze kafića) ---------- */
+function rebuildMenu() {
+  const sistemske = new Set(raw.kategorije.filter(c => c.sistemska).map(c => c.id));
+  const pods = raw.podkategorije.filter(p => !p.sistemska && !sistemske.has(p.kategorijaId)).sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
+  menu.items = raw.meni.filter(i => i.aktivna !== false && i.naziv)
+    .sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999))
+    .map(i => ({ id: i.id, naziv: i.naziv, cijena: parsePrice(i.cijena), podkategorija: i.podkategorija || 'Ostalo', slika: i.slikaURL || '', opis: String(i.opis || '').trim() }));
+  const names = new Set(menu.items.map(i => i.podkategorija));
+  menu.subcats = pods.map(p => p.naziv).filter(n => names.has(n));
+  names.forEach(n => { if (!menu.subcats.includes(n)) menu.subcats.push(n); });
+  if (ui.openTable) renderModal(true);
+}
+
+/* ---------- ULOGE U SUČELJU ---------- */
+function applyRoleUI() {
+  const a = isAdmin();
+  const isSk = S.profile.role === 'sanker';
+  $('whoChip').textContent = `${S.profile.ime} · ${a ? 'Admin' : isSk ? 'Šanker' : 'Konobar'}`;
+  $('sankBtn').style.display = a ? '' : 'none';
+  $('turnBtn').style.display = isSk ? 'none' : '';
+  $('modeToggle').style.display = a ? '' : 'none';
+  $('staffBtn').style.display = a ? '' : 'none';
+  $('turnBtn').firstChild.textContent = a ? 'Promet danas: ' : 'Moj promet danas: ';
+  $('pmFoot').style.display = a ? '' : 'none';
+}
+function renderTurnover() {
+  const total = S.today.reduce((s, r) => s + (r.ukupno || 0), 0);
+  $('turnover').textContent = `${fmt(total)} · ${S.today.length}`;
+}
+
+/* ---------- ZAGLAVLJE, TABOVI ---------- */
+const hasOrder = id => linesOf(S.orders[id]).length > 0;
+const opisOf = l => String(l.opis || (menu.items.find(x => x.id === l.id) || {}).opis || '').trim();   // "Opis 1" iz menija (npr. 0,33 l)
+const nz = l => l.naziv + (opisOf(l) ? ' ' + opisOf(l) : '');
+function linesOf(o) { return o && o.stavke ? Object.entries(o.stavke).map(([id, v]) => ({ id, ...v })).filter(l => l.kol > 0).sort((a, b) => (a.t || 0) - (b.t || 0)) : []; }
+const orderTotal = id => linesOf(S.orders[id]).reduce((s, l) => s + l.cijena * l.kol, 0);
+
+function renderTabs() {
+  const t = $('tabs'); t.textContent = '';
+  ZONES.forEach(z => {
+    const busy = S.tables.filter(x => x.zona === z.id && hasOrder(x.id)).length;
+    t.append(h('button', { class: 'tab' + (S.zone === z.id ? ' on' : ''), type: 'button', onclick: () => { S.zone = z.id; lsSet('konobar_zone', z.id); renderAll(); } },
+      z.name, busy ? h('span', { class: 'cnt', text: busy }) : null));
+  });
+}
+function setMode(edit) {
+  if (edit && !isAdmin()) { toast('Raspored može uređivati samo administrator'); return; }
+  S.editMode = edit; renderAll();
+}
+function renderMode() {
+  $('modeWork').classList.toggle('on', !S.editMode);
+  $('modeEdit').classList.toggle('on', S.editMode);
+  $('editbar').classList.toggle('show', S.editMode);
+  $('hint').textContent = S.editMode
+    ? 'Uređivanje rasporeda: prevlačite stolove, ✎ uređuje, ⟳ rotira, × briše. Izlaz: "Pregled / Rad".'
+    : 'Dodirnite sto za narudžbu. Zeleno = slobodan, crveno = zauzet.';
+}
+
+/* ---------- STO: tijelo + stolice oko njega ---------- */
+function chairPositions(n, shape) {
+  const R = 41.7, pts = [];
+  for (let i = 0; i < n; i++) {
+    if (shape === 'sank') pts.push([(0.22 + (i + 0.5) * 3.2 / n) / 3.64 * 100, 78]);   // red stolica ispod šanka
+    else if (shape === 'round') { const a = -Math.PI / 2 + (2 * Math.PI * i) / n; pts.push([50 + R * Math.cos(a), 50 + R * Math.sin(a)]); }
+    else { /* kvadrat: stolice na sredinama strana (gore, dolje, lijevo, desno), višak ravnomjerno po stranama */
+      if (i > 0) continue;
+      const cnt = [0, 0, 0, 0]; for (let k = 0; k < n; k++) cnt[[0, 1, 2, 3][k % 4]]++;
+      const sides = [(u) => [u, -R], (u) => [u, R], (u) => [-R, u], (u) => [R, u]];
+      cnt.forEach((c, si) => { for (let j = 0; j < c; j++) { const u = c === 1 ? 0 : ((j + 0.5) / c - 0.5) * 2 * R * 0.8; const [x, y] = sides[si](u); pts.push([50 + x, 50 + y]); } });
+    }
+  }
+  return pts;
+}
+function fillTable(el, t, busy) {
+  const size = t.velicina || DEFAULT_SIZE;
+  el.textContent = '';
+  el.style.setProperty('--base', size);
+  const shape = t.oblik === 'square' ? 'square' : t.oblik === 'sank' ? 'sank' : 'round';
+  el.classList.remove('round', 'square', 'sank'); el.classList.add(shape);
+  el.classList.toggle('busy', !!busy);
+  const rot = ((+t.rot || 0) % 360 + 360) % 360, rad = rot * Math.PI / 180;
+  el.style.setProperty('--rot', rot + 'deg');
+  const grow = shape === 'sank';   // okrugli/kvadratni stolovi se vrte u istom okviru (dugme ⟳ ostaje na mjestu); šank mijenja okvir
+  el.style.setProperty('--c', grow ? Math.abs(Math.cos(rad)).toFixed(4) : '1'); el.style.setProperty('--s', grow ? Math.abs(Math.sin(rad)).toFixed(4) : '0');
+  const rt = h('div', { class: 'rt' });
+  const n = Math.max(1, Math.min(t.kapacitet || 1, shape === 'sank' ? 24 : 16));
+  chairPositions(n, shape).forEach(([x, y]) => rt.append(h('i', { class: 'chair', style: `left:${x.toFixed(2)}%;top:${y.toFixed(2)}%` })));
+  rt.append(h('div', { class: 'body' },
+    h('div', { class: 'no', text: t.broj }),
+    null));   // iznos se vidi u računu stola; na platnu samo broj (čisto), boja kaže slobodan/zauzet
+  el.append(rt);
+}
+function tableEl(t) {
+  const busy = hasOrder(t.id), o = S.orders[t.id];
+  const el = h('div', { class: 'table', 'data-id': t.id, style: `left:min(${t.x || 0}%, calc(100% - var(--rw)));top:min(${t.y || 0}%, calc(100% - var(--rh)))` });
+  fillTable(el, t, busy);
+  if (busy && o && o.konobarIme) el.append(h('div', { class: 'wtr', title: o.konobarIme, text: String(o.konobarIme).trim().slice(0, 2).toUpperCase() }));
+  const x = h('button', { class: 'x', type: 'button', title: 'Obriši sto', text: '×' });
+  x.addEventListener('pointerdown', e => e.stopPropagation());
+  x.addEventListener('click', e => { e.stopPropagation(); deleteTable(t.id); });
+  const pen = h('button', { class: 'pen', type: 'button', title: 'Uredi sto', text: '✎' });
+  pen.addEventListener('pointerdown', e => e.stopPropagation());
+  pen.addEventListener('click', e => { e.stopPropagation(); openTableEditor(t.id); });
+  const rb = h('button', { class: 'rotb', type: 'button', title: 'Zarotiraj', text: '⟳' });
+  rb.addEventListener('pointerdown', e => e.stopPropagation());
+  rb.addEventListener('click', async e => { e.stopPropagation(); const step = t.oblik === 'sank' ? 90 : t.oblik === 'square' ? 45 : 30, r = (((+t.rot || 0) + step) % 360); t.rot = r; toast('Rotacija: ' + r + '°', 1200); try { await updateDoc(doc(db, 'stolovi', t.id), { rot: r }); } catch (err) { fail('rotiranje', err); } });
+  el.append(x, pen, rb);
+  el.addEventListener('pointerdown', e => onTablePointerDown(e, t, el));
+  el.addEventListener('click', () => { if (el._dragged) return; if (S.editMode) openTableEditor(t.id); else openOrder(t.id); });
+  return el;
+}
+function renderCanvas() {
+  const c = $('canvas'); c.textContent = '';
+  c.classList.toggle('editing', S.editMode);
+  const zone = ZONES.find(z => z.id === S.zone);
+  const tables = S.tables.filter(t => t.zona === S.zone);
+  const R = ((S.zoneRot[S.zone] || 0) % 360 + 360) % 360;
+  const world = h('div', { class: 'world', style: `--wrot:${R}deg;transform:rotate(${R}deg)` });
+  tables.forEach(t => world.append(tableEl(t)));
+  c.append(world);
+  c.append(h('div', { class: 'zlabel', text: zone.name }));
+  if (!tables.length) c.append(h('div', { class: 'empty', text: isAdmin() ? 'Nema stolova u ovoj zoni. Uključite "Uredi raspored" i dodajte prvi sto.' : 'Nema stolova u ovoj zoni. Administrator ih dodaje u režimu "Uredi raspored".' }));
+  const busy = tables.filter(t => hasOrder(t.id)).length;
+  $('stats').textContent = `${tables.length} stolova · ${busy} zauzeto · ${tables.length - busy} slobodno`;
+}
+function renderAll() { if (!S.profile) return; renderTabs(); renderMode(); renderCanvas(); renderTurnover(); }
+
+/* drag & drop (Pointer Events; pozicije u % platna; čuva se u bazi na kraju prevlačenja) */
+async function alignTables() {
+  const canvas = $('canvas'), cw = canvas.clientWidth, ch = canvas.clientHeight;
+  const items = [...canvas.querySelectorAll('.world .table')].map(el => ({ el, id: el.dataset.id, w: el.offsetWidth, h: el.offsetHeight, cx: el.offsetLeft + el.offsetWidth / 2, cy: el.offsetTop + el.offsetHeight / 2 })).filter(x => x.id);
+  const cluster = (key, tol) => { const a = [...items].sort((p, q) => p[key] - q[key]); let g = []; const groups = []; a.forEach(it => { if (g.length && it[key] - g[g.length - 1][key] > tol) { groups.push(g); g = []; } g.push(it); }); if (g.length) groups.push(g); groups.forEach(gr => { if (gr.length > 1) { const m = gr.reduce((s, i) => s + i[key], 0) / gr.length; gr.forEach(i => i[key] = m); } }); };
+  cluster('cy', ch * 0.04); cluster('cx', cw * 0.04);
+  const b = writeBatch(db); let n = 0;
+  items.forEach(i => {
+    const x = Math.min(Math.max(i.cx - i.w / 2, 0), cw - i.w), y = Math.min(Math.max(i.cy - i.h / 2, 0), ch - i.h);
+    const nx = +(x / cw * 100).toFixed(2), ny = +(y / ch * 100).toFixed(2), t = S.tables.find(q => q.id === i.id);
+    if (t && (Math.abs((t.x || 0) - nx) > 0.05 || Math.abs((t.y || 0) - ny) > 0.05)) { b.update(doc(db, 'stolovi', i.id), { x: nx, y: ny }); t.x = nx; t.y = ny; n++; }
+  });
+  try { if (n) await b.commit(); toast(n ? `Poravnato: ${n} stolova` : 'Već su poravnati'); renderAll(); } catch (err) { fail('poravnanje', err); }
+}
+$('alignBtn').addEventListener('click', alignTables);
+async function rotateMap(d) {
+  const R = (((S.zoneRot[S.zone] || 0) + d) % 360 + 360) % 360; S.zoneRot[S.zone] = R; renderAll(); toast('Mapa okrenuta: ' + R + '°', 1200);
+  try { await setDoc(doc(db, 'stolovi', '__zona_' + S.zone), { zona: S.zone, rotacija: R }); } catch (err) { fail('rotiranje mape', err); }
+}
+$('mapL').addEventListener('click', () => rotateMap(-90)); $('mapR').addEventListener('click', () => rotateMap(90));
+function onTablePointerDown(e, t, el) {
+  if (!S.editMode) return;
+  const canvas = $('canvas'), world = canvas.querySelector('.world');
+  const R = (S.zoneRot[S.zone] || 0) * Math.PI / 180, cs = Math.cos(R), sn = Math.sin(R);
+  const cw = canvas.clientWidth, ch = canvas.clientHeight;
+  // ekranske koordinate -> koordinate "svijeta" (mapa može biti okrenuta)
+  const toWorld = ev => { const r = canvas.getBoundingClientRect(), dx = ev.clientX - (r.left + r.width / 2), dy = ev.clientY - (r.top + r.height / 2); return { x: dx * cs + dy * sn + cw / 2, y: -dx * sn + dy * cs + ch / 2 }; };
+  const w0 = toWorld(e), offX = w0.x - el.offsetLeft, offY = w0.y - el.offsetTop, sx = e.clientX, sy = e.clientY;
+  const ew = el.offsetWidth, eh = el.offsetHeight;
+  el.setPointerCapture(e.pointerId); el._dragged = false;
+  let nx = t.x, ny = t.y, guides = [];
+  const others = [...world.querySelectorAll('.table')].filter(x => x !== el).map(x => ({ l: x.offsetLeft, t: x.offsetTop, w: x.offsetWidth, h: x.offsetHeight }));
+  const move = ev => {
+    if (!el._dragged && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 4) return;
+    if (!el._dragged) { el._dragged = true; el.classList.add('drag'); S.dragging = true; }
+    const wp = toWorld(ev);
+    let px = wp.x - offX, py = wp.y - offY;
+    guides.forEach(g => g.remove()); guides = [];
+    if ($('snapChk').checked) {
+      const TH = 9, grid = cw / 40;
+      const fit = (pos, size, axis) => {
+        let best = TH + 1, adj = null, line = null;
+        [0, size / 2, size].forEach(o => others.forEach(q => (axis === 'x' ? [q.l, q.l + q.w / 2, q.l + q.w] : [q.t, q.t + q.h / 2, q.t + q.h]).forEach(l => { const d = Math.abs(pos + o - l); if (d < best) { best = d; adj = l - o; line = l; } })));
+        if (adj === null) { adj = Math.round((pos + size / 2) / grid) * grid - size / 2; line = null; }
+        return [adj, line];
+      };
+      const [ax, lx] = fit(px, ew, 'x'), [ay, ly] = fit(py, eh, 'y'); px = ax; py = ay;
+      if (lx !== null) guides.push(h('div', { class: 'guide v', style: `left:${lx}px` }));
+      if (ly !== null) guides.push(h('div', { class: 'guide hz', style: `top:${ly}px` }));
+      guides.forEach(g => world.append(g));
+    }
+    px = Math.min(Math.max(px, 0), cw - ew); py = Math.min(Math.max(py, 0), ch - eh);
+    nx = +(px / cw * 100).toFixed(2); ny = +(py / ch * 100).toFixed(2);
+    el.style.left = px + 'px'; el.style.top = py + 'px';
+  };
+  const up = async () => {
+    el.classList.remove('drag'); guides.forEach(g => g.remove());
+    el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up);
+    const moved = el._dragged;
+    setTimeout(() => { el._dragged = false; }, 0);
+    S.dragging = false;
+    if (moved) { t.x = nx; t.y = ny; try { await updateDoc(doc(db, 'stolovi', t.id), { x: nx, y: ny }); } catch (err) { fail('pomjeranje stola', err); } }
+    if (S.pendingRender) { S.pendingRender = false; renderAll(); }
+  };
+  el.addEventListener('pointermove', move); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+}
+
+/* ---------- STOLOVI: dodavanje, uređivanje, brisanje (admin) ---------- */
+async function addTable() {
+  if (!isAdmin()) return;
+  const broj = parseInt($('newNo').value, 10), kap = parseInt($('newCap').value, 10);
+  if (!broj || broj < 1) { toast('Unesite broj stola'); return; }
+  if (!kap || kap < 1) { toast('Unesite kapacitet (broj stolica)'); return; }
+  if (S.tables.some(t => t.zona === S.zone && t.broj === broj)) { toast(`Broj ${broj} već postoji u ovoj zoni`); return; }
+  const n = S.tables.filter(t => t.zona === S.zone).length;
+  try {
+    await addDoc(col('stolovi'), { zona: S.zone, broj, kapacitet: kap, oblik: $('newShape').value, velicina: +$('newSize').value, x: 4 + (n % 6) * 5, y: 6 + (n % 6) * 5 });
+    $('newNo').value = ''; toast(`Dodato (${broj}) – prevucite na željeno mjesto`);
+  } catch (err) { fail('dodavanje stola', err); }
+}
+async function deleteTable(id) {
+  const t = S.tables.find(x => x.id === id); if (!t || !isAdmin()) return;
+  const msg = hasOrder(id) ? `${tName(t)} ima otvorenu narudžbu (${fmt(orderTotal(id))}). Ipak obrisati?` : `Obrisati: ${tName(t)}?`;
+  if (!confirm(msg)) return;
+  try { const b = writeBatch(db); b.delete(doc(db, 'stolovi', id)); b.delete(doc(db, 'narudzbe', id)); await b.commit(); }
+  catch (err) { fail('brisanje stola', err); }
+}
+function openTableEditor(id) {
+  if (!isAdmin()) return;
+  const t = S.tables.find(x => x.id === id); if (!t) return;
+  ui.editTable = id;
+  $('tTitle').textContent = `Uredi: ${tName(t)}`;
+  $('eNo').value = t.broj; $('eCap').value = t.kapacitet; $('eShape').value = t.oblik || 'round'; $('eSize').value = t.velicina || DEFAULT_SIZE; $('eRot').value = t.rot || 0;
+  updatePreview(); $('tblOv').classList.add('show');
+}
+function updatePreview() {
+  const size = +$('eSize').value; $('eSizeVal').textContent = size + ' px'; $('eRotVal').textContent = $('eRot').value + '°';
+  fillTable($('ePrev'), { id: 'prev', broj: $('eNo').value || '?', kapacitet: +$('eCap').value || 1, oblik: $('eShape').value, velicina: size, rot: +$('eRot').value }, false);
+}
+async function saveTableEditor() {
+  const t = S.tables.find(x => x.id === ui.editTable); if (!t) return;
+  const broj = parseInt($('eNo').value, 10), kap = parseInt($('eCap').value, 10);
+  if (!broj || broj < 1) { toast('Unesite broj stola'); return; }
+  if (!kap || kap < 1) { toast('Unesite kapacitet'); return; }
+  if (S.tables.some(x => x.id !== t.id && x.zona === t.zona && x.broj === broj)) { toast(`Broj ${broj} već postoji u ovoj zoni`); return; }
+  const upd = { broj, kapacitet: kap, oblik: $('eShape').value, velicina: +$('eSize').value, rot: +$('eRot').value };
+  closeTableEditor();
+  try { await updateDoc(doc(db, 'stolovi', t.id), upd); toast('Sačuvano'); } catch (err) { fail('čuvanje stola', err); }
+}
+function closeTableEditor() { ui.editTable = null; $('tblOv').classList.remove('show'); }
+
+/* ---------- MODAL NARUDŽBE ---------- */
+function openOrder(id) {
+  ui.openTable = id; ui.q = ''; ui.pane = hasOrder(id) ? 'order' : 'menu'; $('q').value = '';
+  ui.cat = topItems().length ? '★' : 'Sve';
+  $('orderOv').classList.add('show'); renderModal();
+}
+/* ---------- ŠANK ---------- */
+const sk = { open: false, sound: false, pending: null, ctx: null };
+function pendingOf(l) { return Math.max(0, l.kol - Math.min(l.kol, l.gotovo || 0)); }
+function openSank() { sk.open = true; $('sankOv').classList.add('show'); const isSk = S.profile && S.profile.role === 'sanker'; $('sankClose').style.display = isSk ? 'none' : ''; $('sankOut').style.display = isSk ? '' : 'none'; renderSank(); }
+function closeSank() { sk.open = false; $('sankOv').classList.remove('show'); }
+function ago(ms) { const m = Math.max(0, Math.floor((Date.now() - ms) / 60000)); return m < 1 ? 'upravo' : m < 60 ? 'prije ' + m + ' min' : 'prije ' + Math.floor(m / 60) + ' h ' + (m % 60) + ' min'; }
+function renderSank() {
+  if (!sk.open) return;
+  const box = $('sankGrid'); box.textContent = '';
+  const list = Object.entries(S.orders).map(([id, o]) => ({ id, o, lines: linesOf(o) })).filter(x => x.lines.length);
+  list.forEach(x => { x.pend = x.lines.reduce((a, l) => a + pendingOf(l), 0); x.oldest = Math.min(...x.lines.filter(l => pendingOf(l) > 0).map(l => l.t || x.o.otvoreno || Date.now()), Infinity); });
+  list.sort((a, b) => (a.pend === 0) - (b.pend === 0) || a.oldest - b.oldest);
+  const totalPend = list.reduce((a, x) => a + x.pend, 0);
+  $('sankCnt').textContent = list.length ? `· ${list.filter(x => x.pend > 0).length} za pripremu, ${totalPend} stavki` : '';
+  if (!list.length) box.append(h('div', { class: 'none', style: 'grid-column:1/-1', text: 'Nema otvorenih narudžbi.' }));
+  list.forEach((x, idx) => {
+    const t = S.tables.find(tt => tt.id === x.id), mins = x.oldest === Infinity ? 0 : Math.floor((Date.now() - x.oldest) / 60000);
+    const card = h('div', { class: 'sticky' + (x.pend === 0 ? ' done' : ''), style: `--rot:${((idx * 37) % 5 - 2) * 0.6}deg` },
+      h('div', { class: 'sh' }, h('b', { text: t ? tName(t) : 'Sto' }), x.pend > 0 ? h('span', { class: 'ag' + (mins >= 10 ? ' late' : mins >= 5 ? ' mid' : ''), text: ago(x.oldest) }) : h('span', { text: '✓ sve spremno' })),
+      h('div', { class: 'sm2', text: `${t ? (ZONES.find(z => z.id === t.zona) || {}).name || '' : ''} · konobar: ${x.o.konobarIme || '–'}` }),
+      ...x.lines.map(l => {
+        const pn = pendingOf(l), partial = (l.gotovo || 0) > 0 && pn > 0;
+        return h('button', { class: 'it' + (pn === 0 ? ' ok' : ''), type: 'button', onclick: () => sankToggle(x.id, l) },
+          h('i', { text: pn === 0 ? '✓' : '' }), h('span', { class: 'nmx' }, h('span', { class: 'n1', text: `${l.kol} × ${l.naziv}` }), opisOf(l) ? h('span', { class: 'n2', text: opisOf(l) }) : null), partial ? h('em', { text: `+${pn} novo` }) : null);
+      }));
+    box.append(card);
+  });
+  // zvuk za nove stavke
+  if (sk.pending !== null && totalPend > sk.pending && sk.sound) beep();
+  sk.pending = totalPend;
+}
+async function sankToggle(id, l) {
+  try { await updateDoc(doc(db, 'narudzbe', id), { ['stavke.' + l.id + '.gotovo']: pendingOf(l) > 0 ? l.kol : 0 }); }
+  catch (err) { fail('šank – označavanje', err); }
+}
+function beep() {
+  try {
+    const c = sk.ctx || (sk.ctx = new (window.AudioContext || window.webkitAudioContext)());
+    const o = c.createOscillator(), g = c.createGain(); o.connect(g); g.connect(c.destination);
+    o.type = 'sine'; o.frequency.value = 880; g.gain.setValueAtTime(.18, c.currentTime); g.gain.exponentialRampToValueAtTime(.001, c.currentTime + .5);
+    o.start(); o.stop(c.currentTime + .5);
+  } catch (e) {}
+}
+$('sankBtn').addEventListener('click', openSank);
+$('sankClose').addEventListener('click', closeSank);
+$('sankOut').addEventListener('click', () => { closeSank(); signOut(auth); });
+$('sankSnd').addEventListener('click', () => { sk.sound = !sk.sound; $('sankSnd').textContent = sk.sound ? '🔔 Zvuk: da' : '🔕 Zvuk: ne'; if (sk.sound) beep(); });
+setInterval(() => { if (sk.open) renderSank(); }, 30000);
+function closeOrder() { ui.openTable = null; $('orderOv').classList.remove('show'); }
+const sold = id => S.sales[id] || 0;
+function topItems() { return menu.items.filter(i => sold(i.id) > 0).sort((a, b) => sold(b.id) - sold(a.id)).slice(0, 15); }
+
+function renderModal(keepScroll) {
+  const t = S.tables.find(x => x.id === ui.openTable); if (!t) { closeOrder(); return; }
+  $('mTitle').textContent = `${tName(t)} · ${ZONES.find(z => z.id === t.zona).name} · ${t.kapacitet} ${t.oblik === 'sank' ? 'mjesta' : 'stolica'}`;
+  const hasTop = topItems().length > 0;
+  if (ui.cat === '★' && !hasTop) ui.cat = 'Sve';
+  const cats = $('cats'); cats.textContent = '';
+  [...(hasTop ? ['★'] : []), 'Sve', ...menu.subcats].forEach(n => cats.append(h('button', { type: 'button', class: ui.cat === n ? 'on' : '', text: n === '★' ? '★ Najprodavanije' : n, onclick: () => { ui.cat = n; renderModal(); } })));
+  const q = ui.q.trim().toLowerCase();
+  let list;
+  if (q) {
+    const norm = x => String(x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
+    const toks = norm(q).split(/\s+/).filter(Boolean).map(t => t.length > 3 ? t.slice(0, -1) : t);   // "pivo" nalazi i "Piva", "Pivo Nik..."
+    list = menu.items.filter(i => { const hay = norm(i.naziv + ' ' + i.podkategorija); return toks.every(t => hay.includes(t)); });
+  }
+  else if (ui.cat === '★') list = topItems();
+  else list = menu.items.filter(i => ui.cat === 'Sve' || i.podkategorija === ui.cat);
+  if (ui.cat !== '★' || q) list = list.slice().sort((a, b) => sold(b.id) - sold(a.id));   // najprodavaniji prvi (stabilno sortiranje čuva redoslijed iz menija)
+  const items = $('items'); const prev = items.scrollTop; items.textContent = '';
+  if (!list.length) items.append(h('div', { class: 'none', text: menu.items.length ? 'Nema artikala' : 'Meni se učitava…' }));
+  list.forEach(i => items.append(h('div', { class: 'item', 'data-id': i.id, onclick: () => addLine(i) },
+    thumb(i),
+    h('div', { class: 'nm' }, h('b', { text: i.naziv }), i.opis ? h('small', { class: 'od', text: i.opis }) : null, h('small', { text: i.podkategorija })),
+    h('div', { class: 'pr' }, money(i.cijena), menu.currency ? h('small', { text: menu.currency }) : null),
+    h('div', { class: 'ctl' },
+      h('button', { class: 'minus', type: 'button', 'aria-label': 'Umanji ' + i.naziv, title: 'Umanji količinu', text: '−', onclick: e => { e.stopPropagation(); const l = linesOf(S.orders[ui.openTable]).find(x => x.id === i.id); if (l) changeQty(l, -1); } }),
+      h('b', { class: 'qv', style: 'display:none', onclick: e => e.stopPropagation() }),
+      h('button', { class: 'plus', type: 'button', 'aria-label': 'Dodaj ' + i.naziv, text: '+' })))));
+  if (keepScroll) items.scrollTop = prev;
+  renderLines(); applyPane();
+}
+function thumb(i) {
+  if (!i.slika) return h('div', { class: 'thumb ph', text: '☕' });
+  const img = h('img', { class: 'thumb', src: i.slika, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer' });
+  img.addEventListener('error', () => img.replaceWith(h('div', { class: 'thumb ph', text: '☕' })));
+  return img;
+}
+function applyPane() {
+  $('colMenu').classList.toggle('on', ui.pane === 'menu'); $('colOrder').classList.toggle('on', ui.pane === 'order');
+  $('tabMenu').classList.toggle('on', ui.pane === 'menu'); $('tabOrder').classList.toggle('on', ui.pane === 'order');
+}
+function renderLines() {
+  const id = ui.openTable; if (!id) return;
+  const stavke = linesOf(S.orders[id]); const L = $('lines'); L.textContent = '';
+  if (!stavke.length) L.append(h('div', { class: 'none', text: 'Nema artikala na računu. Dodajte ih tipkom + iz mini-menija.' }));
+  stavke.forEach(l => L.append(h('div', { class: 'line' },
+    h('div', { class: 'nm' }, (l.gotovo >= l.kol ? '✓ ' : '') + l.naziv, opisOf(l) ? h('small', { class: 'od', text: opisOf(l) }) : null),
+    h('div', { class: 'qty' }, h('button', { class: 'dec', type: 'button', 'aria-label': 'Umanji', text: '−', onclick: () => changeQty(l, -1) }), h('b', { text: l.kol }), h('button', { type: 'button', text: '+', onclick: () => changeQty(l, 1) })),
+    h('div', { class: 'cu', text: `(${l.kol}x${money(l.cijena)})` }),
+    h('div', { class: 'lt', text: money(l.cijena * l.kol) }),
+    h('button', { class: 'del', type: 'button', title: 'Ukloni stavku', 'aria-label': 'Ukloni stavku', text: '✕', onclick: () => removeLine(l) }))));
+  $('total').textContent = fmt(orderTotal(id));
+  $('payBtn').disabled = !stavke.length;
+  $('tabCnt').textContent = stavke.reduce((s, l) => s + l.kol, 0);
+  const busy = stavke.length > 0, st = $('mStatus'); st.textContent = busy ? 'Zauzet' : 'Slobodan'; st.className = 'status ' + (busy ? 'busy' : 'free');
+  const byId = {}; stavke.forEach(l => { byId[l.id] = l.kol; });
+  document.querySelectorAll('#items .item').forEach(r => { const b = r.querySelector('.badge'), q = byId[r.getAttribute('data-id')]; const mn = r.querySelector('.minus'), qv = r.querySelector('.qv'); mn.style.display = q ? 'block' : 'none'; qv.style.display = q ? '' : 'none'; qv.textContent = q || ''; });
+}
+
+/* Izmjene narudžbe: atomski preko increment() — više konobara može dodavati na isti sto istovremeno */
+async function addLine(item) {
+  const id = ui.openTable, ref = doc(db, 'narudzbe', id), cur = S.orders[id];
+  const exists = cur && cur.stavke && cur.stavke[item.id] && cur.stavke[item.id].kol > 0;
+  const line = { naziv: item.naziv, cijena: item.cijena, kol: increment(1) };
+  if (item.opis) line.opis = item.opis;
+  if (!exists) line.t = Date.now();
+  const data = { stolId: id, stavke: { [item.id]: line }, azurirano: Date.now() };
+  if (!hasOrder(id)) Object.assign(data, { konobarEmail: me(), konobarIme: S.profile.ime, otvoreno: Date.now() });
+  toast('Dodato: ' + item.naziv + (item.opis ? ' ' + item.opis : ''));
+  try { await setDoc(ref, data, { merge: true }); } catch (err) { fail('dodavanje artikla', err); }
+}
+async function changeQty(l, d) {
+  const id = ui.openTable, ref = doc(db, 'narudzbe', id);
+  try {
+    if (d < 0 && l.kol <= 1) {
+      const rest = linesOf(S.orders[id]).filter(x => x.id !== l.id);
+      if (!rest.length) await deleteDoc(ref); else await updateDoc(ref, { ['stavke.' + l.id]: deleteField() });
+    } else await updateDoc(ref, { ['stavke.' + l.id + '.kol']: increment(d) });
+  } catch (err) { fail('izmjena količine', err); }
+}
+async function removeLine(l) {
+  if (l.kol > 1 && !confirm(`Ukloniti „${nz(l)}" (${l.kol} kom) sa računa?`)) return;
+  const id = ui.openTable, ref = doc(db, 'narudzbe', id);
+  try {
+    const rest = linesOf(S.orders[id]).filter(x => x.id !== l.id);
+    if (!rest.length) await deleteDoc(ref); else await updateDoc(ref, { ['stavke.' + l.id]: deleteField() });
+  } catch (err) { fail('uklanjanje stavke', err); }
+}
+async function pay() {
+  const id = ui.openTable, lines = linesOf(S.orders[id]); if (!lines.length) return;
+  const t = S.tables.find(x => x.id === id), o = S.orders[id], total = orderTotal(id), now = new Date();
+  const rid = doc(col('racuni')).id, zone = ZONES.find(z => z.id === t.zona).name;
+  const bro = `SIM-${dayStr(now).replace(/-/g, '')}-${rid.slice(0, 4).toUpperCase()}`;
+  const racun = {
+    broj: bro, stolBroj: t.broj, stolNaziv: tName(t), zona: zone, stavke: lines.map(l => ({ id: l.id, naziv: l.naziv, opis: opisOf(l), cijena: l.cijena, kol: l.kol })), ukupno: Math.round(total * 100) / 100,
+    valuta: menu.currency, konobarEmail: me(), konobarIme: S.profile.ime, otvorioIme: o.konobarIme || '', ts: now.getTime(), dan: dayStr(now), mjesec: monthStr(now)
+  };
+  $('payBtn').disabled = true;
+  try {
+    const b = writeBatch(db);
+    b.set(doc(db, 'racuni', rid), racun);
+    b.delete(doc(db, 'narudzbe', id));
+    lines.forEach(l => b.set(doc(db, 'prodaja', l.id), { naziv: l.naziv, kol: increment(l.kol), zadnje: now.getTime() }, { merge: true }));
+    await b.commit();
+  } catch (err) { fail('naplata', err); $('payBtn').disabled = false; return; }
+  showReceipt(racun, now);
+  closeOrder();
+}
+function showReceipt(r, when) {
+  const R = $('receipt'); R.textContent = '';
+  R.append(
+    h('h3', { text: menu.cafe || 'Račun' }),
+    h('div', { class: 'c', text: `${r.stolNaziv || 'Sto ' + r.stolBroj} · ${r.zona}` }),
+    h('div', { class: 'c', text: new Date(when).toLocaleString('sr-Latn-BA') }),
+    h('div', { class: 'c', text: 'Račun br. ' + r.broj }),
+    h('div', { class: 'c', text: 'Konobar: ' + r.konobarIme }),
+    h('hr'),
+    ...r.stavke.map(l => h('div', { class: 'r' }, h('span', { text: `${l.kol} × ${l.naziv}${l.opis ? ' ' + l.opis : ''}` }), h('span', { text: money(l.cijena * l.kol) }))),
+    h('hr'),
+    h('div', { class: 'r' }, h('b', { text: 'UKUPNO' }), h('b', { text: money(r.ukupno) + (r.valuta ? ' ' + r.valuta : '') })),
+    h('div', { class: 'warn', text: 'SIMULIRANI RAČUN – NIJE FISKALNI RAČUN' }));
+  $('rcOv').classList.add('show');
+}
+
+/* ---------- PROMET: kalendar po danima ---------- */
+function openPromet() {
+  const now = new Date();
+  ui.pm = { ym: monthStr(now), day: dayStr(now), sel: new Set(), who: new Map(), docs: [] };
+  $('pmTitle').textContent = isAdmin() ? 'Promet' : 'Moj promet';
+  $('pmWho').style.display = isAdmin() ? '' : 'none';
+  $('pmOv').classList.add('show'); loadMonth();
+}
+async function loadMonth() {
+  const { ym } = ui.pm;
+  $('pmMonth').textContent = `${MONTHS[+ym.slice(5) - 1]} ${ym.slice(0, 4)}`;
+  $('pmCal').textContent = ''; $('pmDay').textContent = 'Učitavanje…';
+  try {
+    const q = isAdmin() ? query(col('racuni'), where('mjesec', '==', ym)) : query(col('racuni'), where('mjesec', '==', ym), where('konobarEmail', '==', me()));
+    ui.pm.docs = docsOf(await getDocs(q)).sort((a, b) => (a.ts || 0) - (b.ts || 0));
+  } catch (err) { fail('čitanje prometa', err); ui.pm.docs = []; }
+  if (isAdmin()) {
+    const who = new Map(); ui.pm.docs.forEach(r => who.set(r.konobarEmail, r.konobarIme));
+    ui.pm.who = who; ui.pm.sel = new Set([...ui.pm.sel].filter(e => who.has(e)));
+    renderWho();
+  }
+  renderCal();
+}
+const pmDocs = () => ui.pm.docs.filter(r => !ui.pm.sel.size || ui.pm.sel.has(r.konobarEmail));
+function renderWho() {
+  const pop = $('pmWhoPop'); pop.textContent = '';
+  const all = h('input', { type: 'checkbox' }); all.checked = ui.pm.sel.size === 0; all.addEventListener('change', () => { ui.pm.sel.clear(); renderWho(); renderCal(); });
+  pop.append(h('label', {}, all, h('span', { text: 'Svi konobari' })), h('hr'));
+  ui.pm.who.forEach((n, e) => {
+    const cb = h('input', { type: 'checkbox' }); cb.checked = ui.pm.sel.has(e);
+    cb.addEventListener('change', () => { cb.checked ? ui.pm.sel.add(e) : ui.pm.sel.delete(e); if (ui.pm.sel.size === ui.pm.who.size) ui.pm.sel.clear(); renderWho(); renderCal(); });
+    pop.append(h('label', {}, cb, h('span', { text: n })));
+  });
+  const n = ui.pm.sel.size;
+  $('pmWhoBtn').textContent = (n === 0 ? 'Svi konobari' : n === 1 ? ui.pm.who.get([...ui.pm.sel][0]) : n + ' konobara') + ' ▾';
+}
+function renderCal() {
+  const { ym } = ui.pm, [y, m] = ym.split('-').map(Number), first = new Date(y, m - 1, 1), days = new Date(y, m, 0).getDate();
+  const lead = (first.getDay() + 6) % 7, byDay = {};
+  pmDocs().forEach(r => { (byDay[r.dan] = byDay[r.dan] || { sum: 0, n: 0 }); byDay[r.dan].sum += r.ukupno || 0; byDay[r.dan].n++; });
+  const cal = $('pmCal'); cal.textContent = '';
+  ['Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub', 'Ned'].forEach(d => cal.append(h('div', { class: 'dh', text: d })));
+  for (let i = 0; i < lead; i++) cal.append(h('div'));
+  const todayK = dayStr(new Date());
+  for (let d = 1; d <= days; d++) {
+    const k = `${ym}-${pad(d)}`, v = byDay[k];
+    cal.append(h('button', { type: 'button', class: 'd' + (v ? ' has' : '') + (k === todayK ? ' today' : '') + (k === ui.pm.day ? ' sel' : ''), onclick: () => { ui.pm.day = k; renderCal(); } },
+      h('b', { text: d }), v ? h('b', { text: money(v.sum) }) : h('span', { text: '' }), v ? h('span', { text: v.n + ' rač.' }) : null));
+  }
+  renderDay();
+}
+function renderDay() {
+  const k = ui.pm.day, rs = pmDocs().filter(r => r.dan === k).sort((a, b) => a.ts - b.ts), box = $('pmDay'); box.textContent = '';
+  const tot = rs.reduce((s, r) => s + r.ukupno, 0);
+  box.append(h('h4', { text: `${dayLabel(k)} — ${fmt(tot)} · ${rs.length} računa` }));
+  const mt = pmDocs().reduce((s, r) => s + r.ukupno, 0);
+  box.append(h('div', { class: 'sumline' }, h('span', { text: 'Ukupno za mjesec' }), h('b', { text: fmt(mt) })));
+  if (isAdmin() && ui.pm.sel.size !== 1 && rs.length) {
+    const by = {}; rs.forEach(r => { by[r.konobarIme] = (by[r.konobarIme] || 0) + r.ukupno; });
+    Object.entries(by).forEach(([n, v]) => box.append(h('div', { class: 'sumline' }, h('span', { text: 'Konobar: ' + n }), h('b', { text: fmt(v) }))));
+  }
+  if (!rs.length) { box.append(h('div', { class: 'none', text: 'Nema računa za ovaj dan.' })); return; }
+  rs.forEach(r => {
+    const det = h('div', { class: 'rdet', style: 'display:none' }, r.stavke.map(l => h('div', { text: `${l.kol} × ${l.naziv}${l.opis ? ' ' + l.opis : ''} — ${money(l.cijena * l.kol)}` })));
+    box.append(h('div', { class: 'rrow', onclick: () => { det.style.display = det.style.display === 'none' ? '' : 'none'; } },
+      h('div', { class: 'g' }, h('b', { text: new Date(r.ts).toLocaleTimeString('sr-Latn-BA', { hour: '2-digit', minute: '2-digit' }) + ' · ' + (r.stolNaziv || 'Sto ' + r.stolBroj) }), h('br'), h('small', { text: r.konobarIme + ' · ' + r.broj })),
+      h('b', { text: money(r.ukupno) })), det);
+  });
+}
+
+/* ---------- PDF IZVJEŠTAJ (admin) ---------- */
+function loadScript(src) { return new Promise((ok, no) => { if ([...document.scripts].some(s => s.src === src)) return ok(); const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => no(new Error('Biblioteka nije učitana: ' + src)); document.head.appendChild(s); }); }
+function reportNode(kind) {
+  const rs = kind === 'day' ? pmDocs().filter(r => r.dan === ui.pm.day) : pmDocs();
+  const who = ui.pm.sel.size ? [...ui.pm.sel].map(e => ui.pm.who.get(e)).join(', ') : 'Svi konobari';
+  const period = kind === 'day' ? dayLabel(ui.pm.day) : `${MONTHS[+ui.pm.ym.slice(5) - 1]} ${ui.pm.ym.slice(0, 4)}`;
+  const tot = rs.reduce((s, r) => s + r.ukupno, 0), cur = menu.currency ? ' ' + menu.currency : '';
+  const root = h('div', {}, h('h1', { text: (menu.cafe || 'Kafić') + ' – izvještaj o prometu' }),
+    h('div', { text: `Period: ${period} · Konobar: ${who || '-'} · Izdato: ${new Date().toLocaleString('sr-Latn-BA')}` }),
+    h('div', { style: 'margin:10px 0;font-size:16px' }, h('b', { text: `Ukupno: ${money(tot)}${cur}` }), ` · računa: ${rs.length}` + (rs.length ? ` · prosjek: ${money(tot / rs.length)}${cur}` : '')));
+  const tbl = (head, rows) => h('table', {}, h('tr', {}, head.map((x, i) => h('th', { class: i === head.length - 1 || x.r ? 'r' : '', text: x.t || x }))), rows.map(r => h('tr', {}, r.map((c, i) => h('td', { class: i === r.length - 1 ? 'r' : '', text: c })))));
+  // Rang konobara po prometu (na početku izvještaja)
+  const wb = {}; rs.forEach(r => { const k = r.konobarIme || r.konobarEmail || '?'; (wb[k] = wb[k] || { n: 0, s: 0 }); wb[k].n++; wb[k].s += r.ukupno; });
+  const rank = Object.entries(wb).sort((a, b) => b[1].s - a[1].s);
+  if (rank.length > 1) {
+    const t = tbl(['#', 'Konobar', 'Računa', 'Prosjek računa', 'Udio', 'Promet'],
+      rank.map(([n, v], i) => [String(i + 1) + '.', n, String(v.n), money(v.s / v.n), (tot ? Math.round(v.s / tot * 100) : 0) + ' %', money(v.s)]));
+    t.querySelectorAll('tr')[1].style.cssText = 'background:#fff3cf;font-weight:bold';
+    root.append(h('h3', { text: 'Rang konobara po prometu' }), t);
+  }
+  if (kind === 'month') {
+    const by = {}; rs.forEach(r => { (by[r.dan] = by[r.dan] || { n: 0, s: 0 }); by[r.dan].n++; by[r.dan].s += r.ukupno; });
+    root.append(h('h3', { text: 'Promet po danima' }), tbl(['Datum', 'Računa', 'Iznos'], Object.keys(by).sort().map(k => [dayLabel(k), String(by[k].n), money(by[k].s)])));
+  } else {
+    root.append(h('h3', { text: 'Računi' }), tbl(['Vrijeme', 'Sto', 'Konobar', 'Stavke', 'Iznos'], rs.sort((a, b) => a.ts - b.ts).map(r => [new Date(r.ts).toLocaleTimeString('sr-Latn-BA', { hour: '2-digit', minute: '2-digit' }), r.stolNaziv || ('Sto ' + r.stolBroj), r.konobarIme, r.stavke.map(l => `${l.kol}× ${l.naziv}${l.opis ? " " + l.opis : ""}`).join(', '), money(r.ukupno)])));
+  }
+  const it = {}; rs.forEach(r => r.stavke.forEach(l => { const kk = l.naziv + (l.opis ? ' ' + l.opis : ''); it[kk] = (it[kk] || { k: 0, s: 0 }); it[kk].k += l.kol; it[kk].s += l.kol * l.cijena; }));
+  const top = Object.entries(it).sort((a, b) => b[1].k - a[1].k).slice(0, 15);
+  if (top.length) root.append(h('h3', { text: 'Najprodavaniji artikli' }), tbl(['Artikal', 'Količina', 'Iznos'], top.map(([n, v]) => [n, String(v.k), money(v.s)])));
+  root.append(h('div', { style: 'margin-top:14px;color:#b00;font-weight:bold', text: 'Interni izvještaj iz simulirane naplate – nije fiskalni dokument.' }));
+  return { root, name: `Promet-${kind === 'day' ? ui.pm.day : ui.pm.ym}.pdf`, count: rs.length };
+}
+async function makePdf(kind) {
+  const { root, name, count } = reportNode(kind);
+  if (!count) { toast('Nema računa za izabrani period'); return; }
+  toast('Pravim PDF…');
+  try {
+    await Promise.all([loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'), loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')]);
+    const host = $('pdfHost'); host.textContent = ''; host.append(root);
+    const canvas = await window.html2canvas(host, { scale: 2, backgroundColor: '#ffffff' });
+    const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    const pw = 210, ph = 297, imgH = canvas.height * pw / canvas.width, pageCanvasH = Math.floor(canvas.width * ph / pw);
+    for (let y = 0, p = 0; y < canvas.height; y += pageCanvasH, p++) {
+      const part = document.createElement('canvas'); part.width = canvas.width; part.height = Math.min(pageCanvasH, canvas.height - y);
+      part.getContext('2d').drawImage(canvas, 0, y, canvas.width, part.height, 0, 0, canvas.width, part.height);
+      if (p) pdf.addPage();
+      pdf.addImage(part.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pw, part.height * pw / canvas.width);
+    }
+    host.textContent = '';
+    const blob = pdf.output('blob'), file = new File([blob], name, { type: 'application/pdf' });
+    if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|iPhone|iPad/i.test(navigator.userAgent)) {
+      try { await navigator.share({ files: [file], title: name }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    pdf.save(name);
+  } catch (err) { fail('PDF', err); }
+}
+
+/* ---------- OSOBLJE (admin) ---------- */
+function openStaff() {
+  $('stOv').classList.add('show');
+  unsubs.push(S.staffUnsub = onSnapshot(col('osoblje'), snap => renderStaff(docsOf(snap)), err => fail('čitanje osoblja', err)));
+}
+/* ---------- BRISANJE PODATAKA (admin) ---------- */
+const cl = { by: new Map(), sel: new Set() };
+async function openCleanup() {
+  if (!isAdmin()) return;
+  $('clOv').classList.add('show'); $('clList').className = 'none'; $('clList').textContent = 'Učitavanje…'; $('clGo').disabled = true; $('clSum').textContent = '';
+  try {
+    const all = docsOf(await getDocs(col('racuni'))); cl.by = new Map(); cl.sel = new Set();
+    all.forEach(r => { const k = r.konobarEmail || '?'; const g = cl.by.get(k) || { ime: r.konobarIme || k, docs: [] }; g.docs.push({ id: r.id, ts: r.ts || 0, sum: +r.ukupno || 0 }); cl.by.set(k, g); });
+    renderCleanup();
+  } catch (err) { fail('čitanje računa', err); $('clList').textContent = 'Greška pri čitanju.'; }
+}
+const clCutoff = () => { const m = +$('clPeriod').value; if (!m) return Infinity; const d = new Date(); d.setMonth(d.getMonth() - m); return d.getTime(); };
+function clPicked() { const cut = clCutoff(); let n = 0, sum = 0; cl.sel.forEach(k => cl.by.get(k).docs.forEach(d => { if (d.ts < cut) { n++; sum += d.sum; } })); return { n, sum, cut }; }
+function renderCleanup() {
+  const box = $('clList'); box.className = ''; box.textContent = '';
+  if (!cl.by.size) { box.className = 'none'; box.textContent = 'Nema izdatih računa u bazi.'; }
+  cl.by.forEach((g, k) => {
+    const ts = g.docs.map(d => d.ts), sum = g.docs.reduce((a, d) => a + d.sum, 0), f = t => new Date(t).toLocaleDateString('sr-Latn-BA');
+    const cb = h('input', { type: 'checkbox' }); cb.style.cssText = 'width:18px;height:18px'; cb.checked = cl.sel.has(k);
+    cb.addEventListener('change', () => { cb.checked ? cl.sel.add(k) : cl.sel.delete(k); clSummary(); });
+    box.append(h('label', { class: 'staff-row', style: 'cursor:pointer' }, cb,
+      h('div', { class: 'g' }, h('b', { text: g.ime }), h('small', { text: `${k} · ${g.docs.length} računa · ${fmt(sum)} · ${f(Math.min(...ts))} – ${f(Math.max(...ts))}` }))));
+  });
+  clSummary();
+}
+function clSummary() { const { n, sum } = clPicked(); $('clSum').textContent = n ? `Biće obrisano: ${n} računa (${fmt(sum)})` : ''; $('clGo').disabled = !(n || $('clSales').checked); }
+async function runCleanup() {
+  const { n, sum, cut } = clPicked(), sales = $('clSales').checked;
+  if (!n && !sales) return;
+  const msg = `Trajno obrisati ${n ? n + ' računa (' + fmt(sum) + ')' : ''}${n && sales ? ' i ' : ''}${sales ? 'listu najprodavanijih' : ''}?\n\nOvo se NE MOŽE poništiti. Jeste li napravili PDF izvještaj?`;
+  if (!confirm(msg)) return;
+  $('clGo').disabled = true;
+  try {
+    const ids = []; cl.sel.forEach(k => cl.by.get(k).docs.forEach(d => { if (d.ts < cut) ids.push(['racuni', d.id]); }));
+    if (sales) (await getDocs(col('prodaja'))).docs.forEach(d => ids.push(['prodaja', d.id]));
+    for (let i = 0; i < ids.length; i += 400) { const b = writeBatch(db); ids.slice(i, i + 400).forEach(([c, id]) => b.delete(doc(db, c, id))); await b.commit(); }
+    toast('Obrisano: ' + ids.length + ' zapisa', 3500);
+    $('clSales').checked = false; await openCleanup();
+  } catch (err) { fail('brisanje podataka', err); $('clGo').disabled = false; }
+}
+function closeStaff() { $('stOv').classList.remove('show'); if (S.staffUnsub) { S.staffUnsub(); unsubs = unsubs.filter(u => u !== S.staffUnsub); S.staffUnsub = null; } }
+function renderStaff(list) {
+  const box = $('stList'); box.textContent = '';
+  list.sort((a, b) => (a.ime || '').localeCompare(b.ime || '')).forEach(p => box.append(h('div', { class: 'staff-row' },
+    h('div', { class: 'g' }, h('b', { text: p.ime || p.id }), h('small', { text: p.id })),
+    h('span', { class: 'pill ' + (p.role === 'admin' ? 'admin' : ''), text: p.role === 'admin' ? 'Admin' : p.role === 'sanker' ? 'Šanker' : 'Konobar' }),
+    p.id === me() ? h('span', { class: 'pill', text: 'Vi' }) : h('button', { class: 'btn danger sm', type: 'button', text: 'Ukloni', onclick: async () => { if (confirm(`Ukloniti pristup za ${p.ime || p.id}?\n\nNjegovi izdati računi ostaju u bazi. Možete ih obrisati preko „Brisanje podataka“.`)) { try { await deleteDoc(doc(db, 'osoblje', p.id)); } catch (e) { fail('uklanjanje', e); } } } }))));
+  if (!list.length) box.append(h('div', { class: 'none', text: 'Nema osoblja.' }));
+}
+async function addStaff() {
+  const ime = $('sName').value.trim(), mail = $('sMail').value.trim().toLowerCase(), pass = $('sPass').value, role = $('sRole').value;
+  if (!ime || !/^\S+@\S+\.\S+$/.test(mail)) { toast('Unesite ime i ispravan e-mail'); return; }
+  $('sAdd').disabled = true;
+  try {
+    let created = false;
+    if (pass) {
+      if (pass.length < 6) { toast('Lozinka mora imati najmanje 6 znakova'); return; }
+      // Sekundarna aplikacija: pravi nalog, a administrator ostaje prijavljen
+      const app2 = getApps().find(a => a.name === 'osoblje') || initializeApp(auth.app.options, 'osoblje');
+      const a2 = getAuth(app2);
+      try { await createUserWithEmailAndPassword(a2, mail, pass); created = true; }
+      catch (e) { if (e.code !== 'auth/email-already-in-use') throw e; }
+      await signOut(a2);
+    }
+    await setDoc(doc(db, 'osoblje', mail), { ime, role, aktivan: true, dodano: Date.now() });
+    $('sName').value = $('sMail').value = $('sPass').value = '';
+    toast(created ? 'Nalog napravljen i uloga dodijeljena' : 'Uloga dodijeljena');
+  } catch (err) { fail('dodavanje osoblja', err); }
+  finally { $('sAdd').disabled = false; }
+}
+
+/* ---------- DOGAĐAJI ---------- */
+$('modeWork').addEventListener('click', () => setMode(false));
+$('modeEdit').addEventListener('click', () => setMode(true));
+$('addTableBtn').addEventListener('click', addTable);
+$('newNo').addEventListener('keydown', e => { if (e.key === 'Enter') addTable(); });
+function setTheme(t) { S.theme = t; document.documentElement.setAttribute('data-theme', t); lsSet('konobar_theme', t); const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = t === 'dark' ? '#14151a' : '#f4f1ea'; }
+$('themeBtn').addEventListener('click', () => setTheme(S.theme === 'dark' ? 'light' : 'dark'));
+$('q').addEventListener('input', e => { ui.q = e.target.value; renderModal(); });
+$('closeBtn').addEventListener('click', closeOrder);
+$('tabMenu').addEventListener('click', () => { ui.pane = 'menu'; applyPane(); });
+$('tabOrder').addEventListener('click', () => { ui.pane = 'order'; applyPane(); });
+$('payBtn').addEventListener('click', () => {
+  const id = ui.openTable; if (!id || !hasOrder(id)) return;
+  const t = S.tables.find(x => x.id === id);
+  $('cfTxt').textContent = t ? tName(t) : '';
+  $('cfSum').textContent = fmt(orderTotal(id));
+  $('cfOv').classList.add('show');
+});
+const cfClose = () => $('cfOv').classList.remove('show');
+$('cfNo').addEventListener('click', cfClose); $('cfX').addEventListener('click', cfClose);
+$('cfOv').addEventListener('click', e => { if (e.target === $('cfOv')) cfClose(); });
+$('cfYes').addEventListener('click', () => { cfClose(); pay(); });
+$('rcOk').addEventListener('click', () => $('rcOv').classList.remove('show'));
+$('printBtn').addEventListener('click', () => window.print());
+$('eSave').addEventListener('click', saveTableEditor);
+$('eCancel').addEventListener('click', closeTableEditor);
+$('eDel').addEventListener('click', () => { const id = ui.editTable; closeTableEditor(); deleteTable(id); });
+['eNo', 'eCap', 'eShape', 'eSize', 'eRot'].forEach(i => $(i).addEventListener('input', updatePreview));
+$('turnBtn').addEventListener('click', openPromet);
+$('pmClose').addEventListener('click', () => $('pmOv').classList.remove('show'));
+$('pmPrev').addEventListener('click', () => { const [y, m] = ui.pm.ym.split('-').map(Number); const d = new Date(y, m - 2, 1); ui.pm.ym = monthStr(d); ui.pm.day = dayStr(d); loadMonth(); });
+$('pmNext').addEventListener('click', () => { const [y, m] = ui.pm.ym.split('-').map(Number); const d = new Date(y, m, 1); ui.pm.ym = monthStr(d); ui.pm.day = dayStr(d); loadMonth(); });
+$('pmWhoBtn').addEventListener('click', e => { e.stopPropagation(); $('pmWhoPop').classList.toggle('show'); });
+document.addEventListener('click', e => { if (!e.target.closest('#pmWho')) $('pmWhoPop').classList.remove('show'); });
+$('pdfDay').addEventListener('click', () => makePdf('day'));
+$('pdfMonth').addEventListener('click', () => makePdf('month'));
+$('staffBtn').addEventListener('click', openStaff);
+$('stClose').addEventListener('click', closeStaff);
+$('clOpen').addEventListener('click', openCleanup); $('clClose').addEventListener('click', () => $('clOv').classList.remove('show')); $('clGo').addEventListener('click', runCleanup);
+$('clPeriod').addEventListener('change', clSummary); $('clSales').addEventListener('change', clSummary);
+$('sAdd').addEventListener('click', addStaff);
+for (const id of ['orderOv', 'tblOv', 'pmOv', 'stOv']) $(id).addEventListener('click', e => { if (e.target.id === id) { if (id === 'orderOv') closeOrder(); else if (id === 'tblOv') closeTableEditor(); else if (id === 'pmOv') $('pmOv').classList.remove('show'); else closeStaff(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (ui.openTable) closeOrder(); closeTableEditor(); $('pmOv').classList.remove('show'); } });
+
+/* ---------- START ---------- */
+S.theme = lsGet('konobar_theme', 'dark'); S.zone = lsGet('konobar_zone', 'enterijer');
+setTheme(S.theme);
+
+/* ---------- OSVJEŽAVANJE NAKON SPAVANJA / GUBITKA VEZE ----------
+   Kad računar ode u sleep ili telefon ugasi ekran, veza s bazom se prekine a Firestore je ponekad dugo ne obnovi.
+   Zato pri povratku (ekran upaljen, internet nazad, ili "preskočen" sat) ponovo uspostavimo vezu: listeneri odmah dobiju sve što je propušteno. */
+let reconnecting = false, lastTick = Date.now(), lastHidden = 0;
+async function resync() {
+  if (reconnecting || !S.profile) return; reconnecting = true;
+  try { await disableNetwork(db); await enableNetwork(db); } catch (e) { console.warn('resync', e); }
+  finally { reconnecting = false; }
+}
+function netBanner() {
+  const b = $('banner');
+  if (navigator.onLine === false) { b.textContent = 'Nema veze s internetom – podaci se ne osvježavaju dok se veza ne vrati.'; b.style.display = 'block'; }
+  else if (b.dataset.net) { b.style.display = 'none'; }
+  b.dataset.net = navigator.onLine === false ? '1' : '';
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden) lastHidden = Date.now(); else if (Date.now() - lastHidden > 10000) resync(); });
+window.addEventListener('pageshow', e => { if (e.persisted) resync(); });
+window.addEventListener('focus', () => { if (Date.now() - lastHidden > 10000 && lastHidden) { lastHidden = 0; resync(); } });
+window.addEventListener('online', () => { netBanner(); resync(); });
+window.addEventListener('offline', netBanner);
+setInterval(() => { const now = Date.now(); if (now - lastTick > 20000) resync(); lastTick = now; }, 5000);   // sat je stao (sleep) → odmah obnovi
+netBanner();
+
+/* ---------- INSTALACIJA KAO APLIKACIJA (PWA) ---------- */
+let installEvt = null;
+const standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; if (!standalone) $('installBtn').style.display = ''; });
+window.addEventListener('appinstalled', () => { $('installBtn').style.display = 'none'; toast('Aplikacija instalirana'); });
+if (isIOS && !standalone) $('installBtn').style.display = '';
+$('installBtn').addEventListener('click', async () => {
+  if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('installBtn').style.display = 'none'; }
+  else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
+});
+try { if (standalone && screen.orientation && screen.orientation.lock && matchMedia('(pointer:coarse)').matches) screen.orientation.lock('portrait').catch(() => {}); } catch (e) {}
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261109d').catch(e => console.warn('SW', e)));
+</script>
+</body>
+</html>
