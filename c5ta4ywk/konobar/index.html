@@ -10,10 +10,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Konobar">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=20261109b">
+<link rel="manifest" href="manifest.webmanifest?v=20261109c">
 <link rel="icon" type="image/png" sizes="192x192" href="ikona-192.png?v=3">
 <link rel="apple-touch-icon" href="ikona-180.png?v=3">
-<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261109b">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261109c">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -79,7 +79,7 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
   .stage{flex:1;min-height:280px;container-type:size;display:flex;align-items:center;justify-content:center}
   .stage .canvas{width:min(100cqw,100cqh);margin:0}
 }
-.canvas{position:relative;flex:none;width:100%;aspect-ratio:1/1;margin:0 auto;border-radius:10px;border:2px dashed var(--line);overflow:hidden;touch-action:pan-y;
+.canvas{container-type:inline-size;position:relative;flex:none;width:100%;aspect-ratio:1/1;margin:0 auto;border-radius:10px;border:2px dashed var(--line);overflow:hidden;touch-action:pan-y;
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:32px 32px;background-color:var(--panel2)}
 .canvas.editing{border-color:var(--accent);border-style:solid;touch-action:none}
 .canvas.editing .table{touch-action:none}
@@ -94,7 +94,7 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);text-align:center;padding:20px;pointer-events:none}
 
 /* ===== STO ===== */
-.table{--sz:calc(var(--base,64) * var(--scale,1) * 1px);--ow:calc(var(--sz) * 1.44);position:absolute;--oh:var(--ow);--c:1;--s:0;--rw:calc(var(--ow) * var(--c) + var(--oh) * var(--s));--rh:calc(var(--ow) * var(--s) + var(--oh) * var(--c));width:var(--rw);height:var(--rh);font-size:max(9px,calc(var(--sz) / 6));user-select:none;text-align:center;touch-action:none}
+.table{--sz:max(24px, calc(var(--base,64) * var(--scale,1) * 0.1667cqw));--ow:calc(var(--sz) * 1.44);position:absolute;--oh:var(--ow);--c:1;--s:0;--rw:calc(var(--ow) * var(--c) + var(--oh) * var(--s));--rh:calc(var(--ow) * var(--s) + var(--oh) * var(--c));width:var(--rw);height:var(--rh);font-size:max(9px,calc(var(--sz) / 6));user-select:none;text-align:center;touch-action:none}
 .table .body{position:absolute;inset:calc(var(--sz) * .22);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;border:1.5px solid var(--free);background:var(--free-bg);color:var(--text);box-shadow:none;transition:background .15s,border-color .15s}
 .table.round .body{border-radius:50%}
 .table.square .body{border-radius:14%}
@@ -247,7 +247,6 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 /* mobilno: modal kao donji panel, kolone jedna ispod druge */
 @media (max-width:720px){
-  :root{--scale:.8}
   header{padding:8px 10px;gap:6px}
   .brand small{display:none}
   .hdr-right{gap:6px;width:100%;justify-content:space-between}
@@ -454,7 +453,7 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
       <label class="full">Rotacija: <b id="eRotVal"></b>
         <input id="eRot" type="range" min="0" max="345" step="15">
       </label>
-      <div class="full preview" style="height:auto;min-height:150px"><div class="table" id="ePrev" style="position:relative;--scale:1"></div></div>
+      <div class="full preview" style="height:auto;min-height:150px"><div class="table" id="ePrev" style="position:relative;--sz:calc(var(--base,64) * 1px)"></div></div>
     </div>
     <div class="m-foot">
       <button class="btn danger" id="eDel" type="button" style="margin-right:auto">Obriši sto</button>
@@ -531,14 +530,14 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261109b
+   KONOBAR – verzija 20261109c
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261109b';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261109c';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic3.js?v=20261109b';
+import { db, auth } from '../firebase-config-kafic3.js?v=20261109c';
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField, enableNetwork, disableNetwork }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
@@ -1350,7 +1349,7 @@ $('installBtn').addEventListener('click', async () => {
   else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
 });
 try { if (standalone && screen.orientation && screen.orientation.lock && matchMedia('(pointer:coarse)').matches) screen.orientation.lock('portrait').catch(() => {}); } catch (e) {}
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261109b').catch(e => console.warn('SW', e)));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261109c').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
