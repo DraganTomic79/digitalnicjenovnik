@@ -10,9 +10,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Konobar">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=20261109h">
+<link rel="manifest" href="manifest.webmanifest?v=20261109j">
 <link rel="icon" type="image/png" sizes="192x192" href="ikona-192.png?v=3">
 <link rel="apple-touch-icon" href="ikona-180.png?v=3">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261109j">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -201,7 +202,7 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 .sticky .sh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px dashed rgba(0,0,0,.3);padding-bottom:6px;margin-bottom:6px}
 .sticky .sh b{font-size:1rem}
 .sticky .sh span{font-size:.68rem;font-weight:700}
-.sticky .sm2{font-size:.66rem;opacity:.75;margin-bottom:6px}
+.sticky .sm2{font-size:.66rem;opacity:.75;margin-bottom:6px;padding-bottom:5px;border-bottom:1px dashed currentColor}
 .sticky .it{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:6px 3px;border-bottom:1px dotted rgba(0,0,0,.25);font-size:.74rem;font-weight:600;white-space:nowrap;color:inherit;border-radius:6px}
 .sticky .it:active{background:rgba(0,0,0,.08)}
 .sticky .it .nmx{flex:1;min-width:0;display:flex;flex-direction:column;white-space:normal;overflow:visible}
@@ -532,14 +533,14 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261109h
+   KONOBAR – verzija 20261109j
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261109h';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261109j';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic1.js?v=20261109h';
+import { db, auth } from '../firebase-config-kafic1.js?v=20261109j';
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField, enableNetwork, disableNetwork }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
@@ -925,8 +926,8 @@ function renderSank() {
   list.forEach((x, idx) => {
     const t = S.tables.find(tt => tt.id === x.id), mins = x.oldest === Infinity ? 0 : Math.floor((Date.now() - x.oldest) / 60000);
     const card = h('div', { class: 'sticky' + (x.pend === 0 ? ' done' : ''), style: `--rot:${((idx * 37) % 5 - 2) * 0.6}deg` },
-      h('div', { class: 'sh' }, h('b', { text: t ? tName(t) : 'Sto' }), x.pend > 0 ? h('span', { class: 'ag' + (mins >= 10 ? ' late' : mins >= 5 ? ' mid' : ''), text: ago(x.oldest) }) : h('span', { text: '✓ sve spremno' })),
-      h('div', { class: 'sm2', text: `${t ? (ZONES.find(z => z.id === t.zona) || {}).name || '' : ''} · konobar: ${x.o.konobarIme || '–'}` }),
+      h('div', { class: 'sh' }, h('b', { text: (t ? tName(t) : 'Sto') + (t && (ZONES.find(z => z.id === t.zona) || {}).name ? ' · ' + ZONES.find(z => z.id === t.zona).name : '') }), x.pend > 0 ? h('span', { class: 'ag' + (mins >= 10 ? ' late' : mins >= 5 ? ' mid' : ''), text: ago(x.oldest) }) : h('span', { text: '✓ sve spremno' })),
+      h('div', { class: 'sm2', text: `konobar: ${x.o.konobarIme || '–'}` }),
       ...x.lines.map(l => {
         const pn = pendingOf(l), partial = (l.gotovo || 0) > 0 && pn > 0;
         return h('button', { class: 'it' + (pn === 0 ? ' ok' : ''), type: 'button', onclick: () => sankToggle(x.id, l) },
@@ -1368,7 +1369,7 @@ $('installBtn').addEventListener('click', async () => {
   else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
 });
 try { if (standalone && screen.orientation && screen.orientation.lock && matchMedia('(pointer:coarse)').matches) screen.orientation.lock('portrait').catch(() => {}); } catch (e) {}
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261109h').catch(e => console.warn('SW', e)));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261109j').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
