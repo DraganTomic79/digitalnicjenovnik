@@ -10,10 +10,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Konobar">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=20261109j">
+<link rel="manifest" href="manifest.webmanifest?v=20261109k">
 <link rel="icon" type="image/png" sizes="192x192" href="ikona-192.png?v=3">
 <link rel="apple-touch-icon" href="ikona-180.png?v=3">
-<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261109j">
+<link rel="icon" type="image/png" href="../images/favicon-32x32.png?v=20261109k">
 <style>
 
 /* ===== TEMA (varijable) ===== */
@@ -193,14 +193,16 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 /* ŠANK: stikeri */
 .sankmodal{width:100%;height:100dvh;max-height:100dvh;border-radius:0}
 .sankmodal .m-head{padding:10px 12px}.sankmodal .m-head h2{font-size:1rem}.sankmodal .m-head .btn{white-space:nowrap;padding:8px 10px;font-size:.78rem}.sankmodal .m-head small{display:block}
-.sankgrid{flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;align-content:start;background:var(--bg)}
+.sankgrid{flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;align-content:start;background:var(--bg)}
+@media(min-width:1300px){.sankgrid{grid-template-columns:repeat(6,minmax(0,1fr))}}
 .sticky{position:relative;background:#fff3a8;color:#3b3200;border-radius:4px 4px 14px 4px;padding:8px 10px 6px;box-shadow:0 6px 14px rgba(0,0,0,.25);transform:rotate(var(--rot,0deg));border-top:8px solid #e8c800}
 :root[data-theme="dark"] .sticky{background:#f7e98a}
 .sticky.new{animation:pop .6s ease-out}
 @keyframes pop{0%{transform:scale(.85) rotate(var(--rot,0deg));opacity:0}100%{transform:scale(1) rotate(var(--rot,0deg));opacity:1}}
 :root[data-theme="dark"] .sticky.done,.sticky.done{background:#c8efc9;border-top-color:#4caf50;opacity:.75}
 .sticky .sh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px dashed rgba(0,0,0,.3);padding-bottom:6px;margin-bottom:6px}
-.sticky .sh b{font-size:1rem}
+.sticky .sh b{font-size:.95rem;min-width:0}
+.sticky .sh span,.sticky .ag{white-space:nowrap;flex:none}
 .sticky .sh span{font-size:.68rem;font-weight:700}
 .sticky .sm2{font-size:.66rem;opacity:.75;margin-bottom:6px;padding-bottom:5px;border-bottom:1px dashed currentColor}
 .sticky .it{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:6px 3px;border-bottom:1px dotted rgba(0,0,0,.25);font-size:.74rem;font-weight:600;white-space:nowrap;color:inherit;border-radius:6px}
@@ -533,14 +535,14 @@ main{flex:1;padding:0 14px 14px;display:flex;flex-direction:column}
 
 <script type="module">
 /* =====================================================================
-   KONOBAR – verzija 20261109j
+   KONOBAR – verzija 20261109k
    - Prijava (Firebase Auth) + uloge Admin / Konobar (kolekcija "osoblje")
    - Stolovi, narudžbe, računi i prodaja u Firestore-u (u realnom vremenu, na svim uređajima)
    - Artikli i valuta se čitaju iz baze kafića (isto kao javni cjenovnik i Admin panel)
    ===================================================================== */
-const APP_VERSION = '20261109j';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
+const APP_VERSION = '20261109k';   // povećati pri svakoj izmjeni (isti broj kao ?v= u linkovima)
 
-import { db, auth } from '../firebase-config-kafic3.js?v=20261109j';
+import { db, auth } from '../firebase-config-kafic3.js?v=20261109k';
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, writeBatch, increment, deleteField, enableNetwork, disableNetwork }
   from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, getAuth }
@@ -1369,7 +1371,7 @@ $('installBtn').addEventListener('click', async () => {
   else toast('Dodirnite Dijeli (⬆) u pregledniku, pa „Dodaj na početni ekran“', 7000);
 });
 try { if (standalone && screen.orientation && screen.orientation.lock && matchMedia('(pointer:coarse)').matches) screen.orientation.lock('portrait').catch(() => {}); } catch (e) {}
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261109j').catch(e => console.warn('SW', e)));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=20261109k').catch(e => console.warn('SW', e)));
 </script>
 </body>
 </html>
