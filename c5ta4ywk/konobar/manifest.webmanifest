@@ -1,6 +1,6 @@
 {
   "name": "Konobar – stolovi i narudžbe",
-  "short_name": "Konobar",
+  "short_name": "Konobar TEST",
   "description": "Mapa stolova, narudžbe i promet za ugostiteljski objekat.",
   "start_url": "./",
   "scope": "./",
